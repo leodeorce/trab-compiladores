@@ -15,7 +15,7 @@ compflex:
 	flex $(FILE_RE)
 
 compc: compflex
-	gcc $(FILE_SCAN) -lfl -o $(EXECUTABLE)
+	gcc $(FILE_SCAN) -o $(EXECUTABLE)
 
 rmproper:
 	rm $(FILE_SCAN) $(EXECUTABLE)
