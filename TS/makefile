@@ -4,7 +4,7 @@ SHELL := /bin/bash
 EXECUTABLE = ezlang.out
 FILE_RE = ezlang.l
 FILE_SCAN = lex.yy.c
-ENTRADA = c10.ezl
+ENTRADA = entrada.ts
 
 all: compflex compc run
 
