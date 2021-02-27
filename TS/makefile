@@ -4,12 +4,13 @@ SHELL := /bin/bash
 EXECUTABLE = scanner.out
 FILE_RE = scanner.l
 FILE_SCAN = scanner.c
-ENTRADA = entrada.ts
+ENTRADA_TS = entrada.ts
+ENTRADA_JS = entrada.js
 
 all: compflex compc run
 
 run: compc
-	./$(EXECUTABLE) < $(ENTRADA)
+	./$(EXECUTABLE) < $(ENTRADA_TS)
 
 compflex:
 	flex $(FILE_RE)
@@ -20,3 +21,9 @@ compc: compflex
 rmproper:
 	rm $(FILE_SCAN) $(EXECUTABLE)
 
+run-js:
+	tsc $(ENTRADA_TS)
+	node $(ENTRADA_JS)
+
+run-ts:
+	ts-node $(ENTRADA_TS)
