@@ -28,6 +28,12 @@ void erro_lexico(int err_num)
 			fprintf(yyout, "LEXICAL ERROR (%d): Invalid ID %s\n", yylineno, yytext);
 			exit(EXIT_FAILURE);
 			break;
+
+		case 3:
+			// Formato de valor invalido
+			fprintf(yyout, "LEXICAL ERROR (%d): Invalid value %s\n", yylineno, yytext);
+			exit(EXIT_FAILURE);
+			break;
 	}
 }
 
@@ -35,11 +41,13 @@ void erro_lexico(int err_num)
 
 %x comment
 
-int_val     [0-9]+
-real_val    [0-9]+"."[0-9]+
-str_val     \"[^"]*\"
+int_val     		[0-9]+
+real_val    		[0-9]+"."[0-9]+
+str_quotes_val     	\"[^"]*\"
+str_apost_val     	\'[^']*\'
+str_crasis_val     	\`[^`]*\`
 
-id          [a-zA-Z]+[a-zA-Z0-9]*
+id          	[a-zA-Z$_]+[a-zA-Z0-9$_]*
 
 whitespace      [ \t\n]+
 comment			"//"+.*
@@ -134,6 +142,17 @@ comment			"//"+.*
 
 	/* Pontuadores */
 
+"="					{ processar_token("ASSIGN"); }
+"=>"				{ processar_token("ARROW"); }
+","					{ processar_token("COMMA"); }
+";"					{ processar_token("SEMI"); }
+":"					{ processar_token("COLON"); }
+"?"					{ processar_token("TERNARY"); }
+"?."				{ processar_token("CHAIN"); }
+"|>"				{ processar_token("PIPELINE"); }
+"."					{ processar_token("DOT"); }
+"..."				{ processar_token("SPREAD"); }
+
 "+"					{ processar_token("ADD"); }
 "++"				{ processar_token("INCREMENT"); }
 "+="				{ processar_token("ADD_ASSIGN"); }
@@ -165,15 +184,6 @@ comment			"//"+.*
 "||"				{ processar_token("LOGICAL_OR"); }
 "||="				{ processar_token("LOGICAL_OR_ASSIGN"); }
 
-"="					{ processar_token("ASSIGN"); }
-","					{ processar_token("COMMA"); }
-";"					{ processar_token("SEMI"); }
-":"					{ processar_token("COLON"); }
-"?."				{ processar_token("CHAIN"); }
-"|>"				{ processar_token("PIPELINE"); }
-"."					{ processar_token("DOT"); }
-"..."				{ processar_token("SPREAD"); }
-
 "=="				{ processar_token("EQ"); }
 "==="				{ processar_token("EQ_STRICT"); }
 "!="				{ processar_token("INEQ"); }
@@ -200,9 +210,11 @@ comment			"//"+.*
 
 	/* Valores */
 
-{int_val}			{ processar_token("INT_VAL"); }
-{real_val}			{ processar_token("REAL_VAL"); }
-{str_val}			{ processar_token("STR_VAL"); }
+{int_val}				{ processar_token("INT_VAL"); }
+{real_val}				{ processar_token("REAL_VAL"); }
+{str_quotes_val}		{ processar_token("STR_VAL"); }
+{str_apost_val}			{ processar_token("STR_VAL"); }
+{str_crasis_val}		{ processar_token("STR_VAL"); }
 
 
 	/* Identificadores */
@@ -212,7 +224,8 @@ comment			"//"+.*
 
 	/* Erros */
 
-[0-9]+[a-zA-Z]+		{ erro_lexico(2); }
-.           		{ erro_lexico(1); }
+{real_val}[a-zA-Z]+		{ erro_lexico(3); }
+[0-9]+[a-zA-Z]+			{ erro_lexico(2); }
+.           			{ erro_lexico(1); }
 
 %%
