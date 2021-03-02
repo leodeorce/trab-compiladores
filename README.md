@@ -1,7 +1,5 @@
-# trab-compiladores
-Trabalho da disciplina Compiladores 2020/2-EARTE
+# CP1
+Scanner + Parser
 
 Observações:
-  - Ignorar módulos/imports;
-  - Assumir que ponto e vírgula é sempre usado;
-  - Ignorar tratamento de exceções.
+  - Scanner não necessariamente sincronizado com branch "scanner".
