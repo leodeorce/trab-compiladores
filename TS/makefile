@@ -1,29 +1,28 @@
 # Makefile - Ubuntu 20.04.2 - flex
 SHELL := /bin/bash
 
-EXECUTABLE = scanner.out
-FILE_RE = scanner.l
-FILE_SCAN = scanner.c
-ENTRADA_TS = entrada.ts
-ENTRADA_JS = entrada.js
+SCANNER = scanner
+EXECUTABLE = $(SCANNER).out
+ENTRADA = entrada
+FLAGS = -lfl -o
 
-all: compflex compc run
+all: comp-flex comp-gcc run
 
-run: compc
-	./$(EXECUTABLE) < $(ENTRADA_TS)
+comp-flex:
+	flex $(SCANNER).l
 
-compflex:
-	flex $(FILE_RE)
+comp-gcc: comp-flex
+	gcc $(SCANNER).c $(FLAGS) $(EXECUTABLE)
 
-compc: compflex
-	gcc $(FILE_SCAN) -lfl -o $(EXECUTABLE)
+run: comp-gcc
+	./$(EXECUTABLE) < $(ENTRADA).ts
 
-rmproper:
-	rm $(FILE_SCAN) $(EXECUTABLE)
+rm:
+	rm $(SCANNER).c $(EXECUTABLE) $(ENTRADA).js
 
 run-js:
-	tsc $(ENTRADA_TS)
-	node $(ENTRADA_JS)
+	tsc $(ENTRADA).ts
+	node $(ENTRADA).js
 
 run-ts:
-	ts-node $(ENTRADA_TS)
+	ts-node $(ENTRADA).ts

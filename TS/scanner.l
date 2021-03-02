@@ -8,34 +8,8 @@
 
 #include <stdio.h>
 
-void processar_token(char* type)
-{
-	printf("%d: %s -> %s\n", yylineno, yytext, type);
-}
-
-void erro_lexico(int err_num)
-{
-	switch(err_num) {
-
-		case 1:
-			// Leitura de simbolo desconhecido
-			fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-
-		case 2:
-			// Formato de identificador invalido
-			fprintf(yyout, "LEXICAL ERROR (%d): Invalid ID %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-
-		case 3:
-			// Formato de valor invalido
-			fprintf(yyout, "LEXICAL ERROR (%d): Invalid value %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-	}
-}
+void processar_token(char*);
+void erro_lexico(int);
 
 %}
 
@@ -72,7 +46,7 @@ comment			"//"+.*
 "case"  			{ processar_token("CASE"); }
 "catch" 			{ processar_token("CATCH"); }
 "class" 			{ processar_token("CLASS"); }
-"const" 			{ processar_token("CONST"); }
+"const" 			{ processar_token("CONST_RW"); }
 "continue" 			{ processar_token("CONTINUE"); }
 "debugger" 			{ processar_token("DEBUGGER"); }
 "default" 			{ processar_token("DEFAULT"); }
@@ -82,7 +56,7 @@ comment			"//"+.*
 "enum"  			{ processar_token("ENUM"); }
 "export"  			{ processar_token("EXPORT"); }
 "extends"  			{ processar_token("EXTENDS"); }
-"false"  			{ processar_token("FALSE"); }
+"false"  			{ processar_token("FALSE_RW"); }
 "finally"  			{ processar_token("FINALLY"); }
 "for"  			    { processar_token("FOR"); }
 "function"  		{ processar_token("FUNCTION"); }
@@ -94,7 +68,7 @@ comment			"//"+.*
 "interface" 		{ processar_token("INTERFACE"); }
 "let"  				{ processar_token("LET"); }
 "new"  			    { processar_token("NEW"); }
-"null"  			{ processar_token("NULL"); }
+"null"  			{ processar_token("NULL_RW"); }
 "package" 			{ processar_token("PACKAGE"); }
 "private" 			{ processar_token("PRIVATE"); }
 "protected" 		{ processar_token("PROTECTED"); }
@@ -104,11 +78,11 @@ comment			"//"+.*
 "switch"  			{ processar_token("SWITCH"); }
 "this"  			{ processar_token("THIS"); }
 "throw"  			{ processar_token("THROW"); }
-"true"  			{ processar_token("TRUE"); }
+"true"  			{ processar_token("TRUE_RW"); }
 "try"  			    { processar_token("TRY"); }
 "typeof"  			{ processar_token("TYPEOF"); }
 "var"  			    { processar_token("VAR"); }
-"void"  			{ processar_token("VOID"); }
+"void"  			{ processar_token("VOID_RW"); }
 "while"  			{ processar_token("WHILE"); }
 "with"  			{ processar_token("WITH"); }
 
@@ -129,7 +103,7 @@ comment			"//"+.*
 "target"  			{ processar_token("TARGET"); }
 
 "any"  			    { processar_token("ANY"); }
-"boolean" 			{ processar_token("BOOLEAN"); }
+"boolean" 			{ processar_token("BOOLTYPE"); }
 "constructor" 		{ processar_token("CONSTRUCTOR"); }
 "declare" 			{ processar_token("DECLARE"); }
 "module" 			{ processar_token("MODULE"); }
@@ -153,9 +127,9 @@ comment			"//"+.*
 "."					{ processar_token("DOT"); }
 "..."				{ processar_token("SPREAD"); }
 
-"+"					{ processar_token("ADD"); }
+"+"					{ processar_token("PLUS"); }
 "++"				{ processar_token("INCREMENT"); }
-"+="				{ processar_token("ADD_ASSIGN"); }
+"+="				{ processar_token("PLUS_ASSIGN"); }
 "-"					{ processar_token("SUB"); }
 "--"				{ processar_token("DECREMENT"); }
 "-="				{ processar_token("SUB_ASSIGN"); }
@@ -229,3 +203,32 @@ comment			"//"+.*
 .           			{ erro_lexico(1); }
 
 %%
+
+void processar_token(char* type)
+{
+	printf("%d: %s -> %s\n", yylineno, yytext, type);
+}
+
+void erro_lexico(int err_num)
+{
+	switch(err_num) {
+
+		case 1:
+			// Leitura de simbolo desconhecido
+			fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
+			exit(EXIT_FAILURE);
+			break;
+
+		case 2:
+			// Formato de identificador invalido
+			fprintf(yyout, "LEXICAL ERROR (%d): Invalid ID %s\n", yylineno, yytext);
+			exit(EXIT_FAILURE);
+			break;
+
+		case 3:
+			// Formato de valor invalido
+			fprintf(yyout, "LEXICAL ERROR (%d): Invalid value %s\n", yylineno, yytext);
+			exit(EXIT_FAILURE);
+			break;
+	}
+}
