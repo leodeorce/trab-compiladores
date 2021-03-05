@@ -5,3 +5,6 @@ Observações:
   - Ignorar módulos/imports;
   - Assumir que ponto e vírgula é sempre usado;
   - Ignorar tratamento de exceções.
+
+Considerações:
+  - Não usar/reconhecer bigint;
