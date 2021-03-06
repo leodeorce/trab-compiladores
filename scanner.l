@@ -109,10 +109,13 @@ comment			"//"+.*
 "declare" 			{ processar_token("DECLARE"); return DECLARE; }
 "module" 			{ processar_token("MODULE"); return MODULE; }
 "require" 			{ processar_token("REQUIRE"); return REQUIRE; }
+"never" 			{ processar_token("NEVER"); return NEVER; }
 "number" 			{ processar_token("NUMBER"); return NUMBER; }
 "string"  			{ processar_token("STRING"); return STRING; }
 "symbol"  			{ processar_token("SYMBOL"); return SYMBOL; }
 "type"  			{ processar_token("TYPE"); return TYPE; }
+"undefined"			{ processar_token("UNDEFINED"); return UNDEFINED; }
+"unknown"  			{ processar_token("UNKNOWN"); return UNKNOWN; }
 
 
 	/* Pontuadores */

@@ -1,38 +1,33 @@
+// Comentar e descomentar de acordo com o que pretende testar
+
 /* 
- * Comentario 1
+ * Testando "let"
  */
 
-// Comentario 2
+let a = 1;
+let b: number = 3.14;
+let c: boolean = false;
+let d: string = "str";
 
-let $a = 2;
-let b2 = 3.57;
-// let 3c = "teste"; // Invalid ID
-let c3c = `teste %s`;
-let d_e = '';
-let _;
-let arr = [0, 1, 2];
+let e;
+let f: void;
 
-class Rectangle {
-	height: number;
-	width: number;
-	constructor(height, width) {
-		this.height = height;
-		this.width = width;
-	}
-	area() {
-		return this.height*this.width;
-	}
-};
+let j: number[] = [,];
+let k: string[] = ["str1", 'str2'];
+let l: unknown[] = [1, 2, 3];
+let m: boolean[] = [true, false];
+let n: any[] = [1, 2, "str"];
+let p: null[] = [null, null, null];
+let q: undefined[] = [undefined, undefined];
+let s: number[] = [, 3];
+let t: number[] = [7.98,];
 
-function soma(a: number, b: number): number {
-  return a + b;
-}
+let u = Array(1, 2);
+let v = new Array(1, 2);
+let w = Array<number>(1, 2);
+let x = new Array<number>(1, 2,);
 
-console.log(new Rectangle(5, 8).area());
-// expected output: 40
+/*
+ * Testando "var"
+ */
 
-console.log("teste %s", c3c);
-// expected output: teste teste %s
-
-console.log(0 in arr);
-// expected output: true
