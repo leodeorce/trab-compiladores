@@ -38,6 +38,11 @@ stmt-list:
 stmt:
 	let-stmt					{ debug("stmt", 1); }
 |	var-stmt					{ debug("stmt", 2); }
+| 	expression-stmt				{ debug("stmt", 3); }
+|	loop-stmt					{ debug("stm" , 4); }
+| 	atribuition					{ debug("stm" , 5); }
+|	function-stmt				{ debug("stm" , 6); }
+|	broken-finish 				{ debug("stm",  7); }
 ;
 
 let-stmt:
@@ -48,6 +53,8 @@ let-stmt:
 |	LET ID COLON var-type LBRACKET RBRACKET SEMI					{ debug("let-stmt", 5); }
 |	LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr SEMI		{ debug("let-stmt", 6); }
 ;
+
+
 
 var-type:
 	NUMBER						{ debug("var-type", 1); }
@@ -98,6 +105,130 @@ elmts-list:
 |	var-val								{ debug("elmts-list", 3); }
 |	%empty								{ debug("elmts-list", 4); }
 ;
+
+
+scope-box:
+	LBRACE stmt-list RBRACE						{ debug("scope-box", 1); }
+|	LBRACE stmt-list BREAK stmt-list RBRACE		{ debug("scope-box", 2); }
+;
+
+
+expression-stmt: 
+	expre-ari		{ debug("expression-stmt", 1); }
+| 	expre-logic		{ debug("expression-stmt", 2); }
+| 	expre-conditio	{ debug("expression-stmt", 3); }
+;
+
+expre-var:
+	var-val
+| 	ID
+;
+
+expre-ari:	
+	expre-var
+|	expre-ari operator-ari expre-ari				{ debug("expre-ari", 1); }
+|	LPAR expre-ari RPAR								{ debug("expre-ari", 2); }
+;
+
+expre-logic:	
+	expre-var
+|	expre-logic operator-logic expre-logic				{ debug("expre-ari", 1); }
+|	LPAR operator-logic RPAR							{ debug("expre-ari", 2); }
+;
+
+expre-conditio:
+	IF LPAR expre-logic RPAR scope-box
+|	expre-conditio ELSE IF expre-logic RPAR scope-box
+|   expre-conditio ELSE  scope-box
+;
+
+operator-ari: 
+	SUB	 							{ debug("operator-ari", 1); }
+|  	PLUS							{ debug("operator-ari", 2); }
+|  	MULT							{ debug("operator-ari", 3); }
+|  	DIV	 							{ debug("operator-ari", 4); }
+;
+
+operator-logic: 
+	EQ					{ debug("operator-ari", 1); }
+|  	LT					{ debug("operator-ari", 2); }
+|  	GT					{ debug("operator-ari", 3); }
+|  	INEQ				{ debug("operator-ari", 4); }
+| 	LT_EQ				{ debug("operator-ari", 5); }
+| 	GT_EQ				{ debug("operator-ari", 6); }
+;
+
+
+
+loop-stmt: 
+	for-declr  			{ debug("loop-stmt", 1); }
+|	while-declr 		{ debug("loop-stmt", 2); }
+;
+
+for-declr: 
+	FOR LPAR for-expres RPAR scope-box				{ debug("for-declr", 1); }
+;
+
+
+for-expres:
+	SEMI SEMI													{ debug("for-expres", 1); }
+|	SEMI SEMI expre-logic										{ debug("for-expres", 1); }
+|	SEMI expre-logic SEMI expre-logic							{ debug("for-expres", 1); }
+|	ID ASSIGN var-val SEMI expre-logic SEMI expre-ari			{ debug("for-expres", 1); }
+|	LET ID ASSIGN var-val SEMI expre-logic SEMI expre-ari		{ debug("for-expres", 1); }
+;
+
+while-declr: 
+	while-header scope-box				{ debug("while-declr", 1); }
+;
+
+while-header:
+	WHILE LPAR expre-logic RPAR		{ debug("while-header", 1); }
+;
+
+atribuition:
+	ID ASSIGN expression-stmt SEMI
+| 	ID ASSIGN expr SEMI
+| 	ID ASSIGN function-use
+;
+
+function-stmt:
+	function-declr
+|	function-use
+;	
+
+function-declr:
+	FUNCTION function-expres COLON var-type scope-box
+;
+
+function-use:
+	ID LPAR params-list RPAR
+;
+
+function-expres:
+	ID LPAR params-list RPAR
+
+;
+
+params-list:
+	expr									{ debug("params-list", 1); }
+| 	ID										{ debug("params-list", 2); }
+|   ID COLON var-type 						{ debug("params-list", 3); }
+|	expr COMMA params-list					{ debug("params-list", 4); }
+| 	ID COMMA params-list					{ debug("params-list", 5); }
+|   ID COLON var-type COMMA params-list		{ debug("params-list", 6); }
+;
+
+
+broken-finish:
+	BREAK
+| 	RETURN var-val
+| 	RETURN function-stmt
+| 	RETURN expression-stmt
+| 	RETURN
+;
+
+
 
 %%
 
