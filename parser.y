@@ -202,12 +202,13 @@ function-declr:
 ;
 
 function-use:
-	ID LPAR params-list RPAR
+	ID LPAR params-list RPAR SEMI
+|	DOT ID SEMI
+| 	DOT function-use
 ;
 
 function-expres:
 	ID LPAR params-list RPAR
-
 ;
 
 params-list:
@@ -217,6 +218,7 @@ params-list:
 |	expr COMMA params-list					{ debug("params-list", 4); }
 | 	ID COMMA params-list					{ debug("params-list", 5); }
 |   ID COLON var-type COMMA params-list		{ debug("params-list", 6); }
+| 	%empty
 ;
 
 

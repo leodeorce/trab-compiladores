@@ -4,7 +4,7 @@ SHELL := /bin/bash
 PARSER = parser
 SCANNER = scanner
 EXECUTABLE = cp1.out
-ENTRADA = entrada
+ENTRADA = teste-function
 FLAGS_BISON = -Wall -v -o
 FLAGS_GCC = -Wall -o
 
