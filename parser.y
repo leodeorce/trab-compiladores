@@ -171,11 +171,11 @@ for-declr:
 
 
 for-expres:
-	SEMI SEMI													{ debug("for-expres", 1); }
-|	SEMI SEMI expre-logic										{ debug("for-expres", 1); }
-|	SEMI expre-logic SEMI expre-logic							{ debug("for-expres", 1); }
-|	ID ASSIGN var-val SEMI expre-logic SEMI expre-ari			{ debug("for-expres", 1); }
-|	LET ID ASSIGN var-val SEMI expre-logic SEMI expre-ari		{ debug("for-expres", 1); }
+	SEMI SEMI																{ debug("for-expres", 1); }
+|	SEMI SEMI expre-logic													{ debug("for-expres", 2); }
+|	SEMI expre-logic SEMI expre-logic										{ debug("for-expres", 3); }
+|	ID ASSIGN var-val SEMI expre-logic ID ASSIGN expression-stmt			{ debug("for-expres", 4); }
+|	LET ID ASSIGN var-val SEMI expre-logic SEMI ID ASSIGN expression-stmt	{ debug("for-expres", 5); }
 ;
 
 while-declr: 
@@ -218,16 +218,18 @@ params-list:
 |	expr COMMA params-list					{ debug("params-list", 4); }
 | 	ID COMMA params-list					{ debug("params-list", 5); }
 |   ID COLON var-type COMMA params-list		{ debug("params-list", 6); }
+|	expre-ari COMMA params-list
+|	expre-logic COMMA params-list
 | 	%empty
 ;
 
 
 broken-finish:
-	BREAK
-| 	RETURN var-val
-| 	RETURN function-stmt
-| 	RETURN expression-stmt
-| 	RETURN
+	BREAK SEMI
+| 	RETURN var-val SEMI
+| 	RETURN function-stmt SEMI
+| 	RETURN expression-stmt SEMI
+| 	RETURN SEMI
 ;
 
 
