@@ -143,8 +143,8 @@ comment			"//"+.*
 "/="				{ processar_token("DIV_ASSIGN"); return DIV_ASSIGN; }
 "**"				{ processar_token("EXP"); return EXP; }
 "**="				{ processar_token("EXP_ASSIGN"); return EXP_ASSIGN; }
-"%%"				{ processar_token("REM"); return REM; }
-"%%="				{ processar_token("REM_ASSIGN"); return REM_ASSIGN; }
+"%"					{ processar_token("REM"); return REM; }
+"%="				{ processar_token("REM_ASSIGN"); return REM_ASSIGN; }
 
 "~"					{ processar_token("BITWISE_NOT"); return BITWISE_NOT; }
 "&"					{ processar_token("BITWISE_AND"); return BITWISE_AND; }
