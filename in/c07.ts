@@ -1,10 +1,7 @@
-//  Sample program in TS language -
-//  computes the GCD of two numbers
-
+// Calcula o máximo divisor comum entre dois números.
 
 function gcd(a:number, b:number):number{
-    // Everything divides 0 
-    console.log("teste");
+    
     if (a == 0){
         return b;
     }

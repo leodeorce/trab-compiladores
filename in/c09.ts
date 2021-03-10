@@ -1,6 +1,4 @@
-// Sample program in TS language -
-//  silly program to handle some corner cases.
-
+// Associatividade de operadores.
 
 let a:number = 9;
 let b:number = 2;

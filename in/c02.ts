@@ -1,6 +1,4 @@
-// Sample program in TS language -
-// adds one to the input
-
+// Soma duas variáveis e atribui o valor à outra.
 
 let x = 3;
 let y:number = 2;

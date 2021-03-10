@@ -1,9 +1,9 @@
-  // Sample program in TS language -
-  // Basic loop test 2.
+// Manipulação de vetor + teste básico de loop - while
 
-
+let vet:number[] = [0, 0, 0, 0, 0];
 let i:number = 0;
-while(i < 10){
+while(i < 5){
+  vet[i] = i + 1;
   i = i + 1;
-  console.log(i);
 }
+console.log(vet);

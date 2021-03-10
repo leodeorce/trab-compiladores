@@ -1,4 +1,3 @@
-// The mandatory test program --
-// Prints "Hello, world!" to the screen 
+// Imprime "Hello, world!" na tela.
 
-console.log('Hello world');
+console.log('Hello, world!');

@@ -1,5 +1,4 @@
-// Sample program in TS language -
-//  tests with other types than int
+// Operações entre tipos diferentes.
 
 let i:number;
 let r:number;
