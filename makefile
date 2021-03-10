@@ -4,7 +4,7 @@ SHELL := /bin/bash
 PARSER = parser
 SCANNER = scanner
 EXECUTABLE = cp1.out
-ENTRADA = entrada
+ENTRADA = ./in/c04
 FLAGS_BISON = -Wall -v -o
 FLAGS_GCC = -Wall -o
 
