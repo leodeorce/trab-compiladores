@@ -276,3 +276,12 @@ for (i = 1 ; i < 10 ; i++ ) {
 for (;;) {
 	break;
 }
+
+for (;2; i = i + 1 ) {
+	break;
+}
+
+let vet = [1, 2, 3];
+vet[0] = 6;
+console.log(vet[1 & 1]);
+console.log(1 & 1);

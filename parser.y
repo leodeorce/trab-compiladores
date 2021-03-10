@@ -60,23 +60,30 @@ stmt:
 ;
 
 assign-expr:
-	var-att assignment expr		{ debug("assign-expr", 1); }
-|	ID assignment expr			{ debug("assign-expr", 2); }
+	var-att assignment expr			{ debug("assign-expr", 1); }
+|	ID assignment expr				{ debug("assign-expr", 2); }
+|	vet-idx assignment expr			{ debug("assign-expr", 3); }
 ;
 
 for-stmt:
-	FOR LPAR assign-expr SEMI expr SEMI expr RPAR LBRACE line RBRACE		{ debug("for-stmt", 1); }
-|	FOR LPAR assign-expr SEMI expr SEMI RPAR LBRACE line RBRACE				{ debug("for-stmt", 2); }
-|	FOR LPAR assign-expr SEMI SEMI expr RPAR LBRACE line RBRACE				{ debug("for-stmt", 3); }
-|	FOR LPAR assign-expr SEMI SEMI RPAR LBRACE line RBRACE					{ debug("for-stmt", 4); }
-|	FOR LPAR var-declr SEMI expr SEMI expr RPAR LBRACE line RBRACE			{ debug("for-stmt", 5); }
-|	FOR LPAR var-declr SEMI expr SEMI RPAR LBRACE line RBRACE				{ debug("for-stmt", 6); }
-|	FOR LPAR var-declr SEMI SEMI expr RPAR LBRACE line RBRACE				{ debug("for-stmt", 7); }
-|	FOR LPAR var-declr SEMI SEMI RPAR LBRACE line RBRACE					{ debug("for-stmt", 8); }
-|	FOR LPAR SEMI expr SEMI expr RPAR LBRACE line RBRACE					{ debug("for-stmt", 9); }
-|	FOR LPAR SEMI expr SEMI RPAR LBRACE line RBRACE							{ debug("for-stmt", 10); }
-|	FOR LPAR SEMI SEMI expr RPAR LBRACE line RBRACE							{ debug("for-stmt", 11); }
-|	FOR LPAR SEMI SEMI RPAR LBRACE line RBRACE								{ debug("for-stmt", 12); }
+	FOR LPAR assign-expr SEMI expr SEMI expr RPAR LBRACE line RBRACE				{ debug("for-stmt", 1); }
+|	FOR LPAR assign-expr SEMI expr SEMI assign-expr RPAR LBRACE line RBRACE			{ debug("for-stmt", 2); }
+|	FOR LPAR assign-expr SEMI expr SEMI RPAR LBRACE line RBRACE						{ debug("for-stmt", 3); }
+|	FOR LPAR assign-expr SEMI SEMI expr RPAR LBRACE line RBRACE						{ debug("for-stmt", 4); }
+|	FOR LPAR assign-expr SEMI SEMI assign-expr RPAR LBRACE line RBRACE				{ debug("for-stmt", 5); }
+|	FOR LPAR assign-expr SEMI SEMI RPAR LBRACE line RBRACE							{ debug("for-stmt", 6); }
+|	FOR LPAR var-declr SEMI expr SEMI expr RPAR LBRACE line RBRACE					{ debug("for-stmt", 7); }
+|	FOR LPAR var-declr SEMI expr SEMI assign-expr RPAR LBRACE line RBRACE			{ debug("for-stmt", 8); }
+|	FOR LPAR var-declr SEMI expr SEMI RPAR LBRACE line RBRACE						{ debug("for-stmt", 9); }
+|	FOR LPAR var-declr SEMI SEMI expr RPAR LBRACE line RBRACE						{ debug("for-stmt", 10); }
+|	FOR LPAR var-declr SEMI SEMI assign-expr RPAR LBRACE line RBRACE				{ debug("for-stmt", 11); }
+|	FOR LPAR var-declr SEMI SEMI RPAR LBRACE line RBRACE							{ debug("for-stmt", 12); }
+|	FOR LPAR SEMI expr SEMI expr RPAR LBRACE line RBRACE							{ debug("for-stmt", 13); }
+|	FOR LPAR SEMI expr SEMI assign-expr RPAR LBRACE line RBRACE						{ debug("for-stmt", 14); }
+|	FOR LPAR SEMI expr SEMI RPAR LBRACE line RBRACE									{ debug("for-stmt", 15); }
+|	FOR LPAR SEMI SEMI expr RPAR LBRACE line RBRACE									{ debug("for-stmt", 16); }
+|	FOR LPAR SEMI SEMI assign-expr RPAR LBRACE line RBRACE							{ debug("for-stmt", 17); }
+|	FOR LPAR SEMI SEMI RPAR LBRACE line RBRACE										{ debug("for-stmt", 18); }
 ;
 
 assignment:
@@ -219,17 +226,30 @@ var-type:
 ;
 
 expr:
-	array-expr			{ debug("expr", 1); }
-|	var-val				{ debug("expr", 2); }
-|	var-obj				{ debug("expr", 3); }
-|	var-att				{ debug("expr", 4); }
-|	arit-expr			{ debug("expr", 5); }
-|	bitw-expr			{ debug("expr", 6); }
-|	shift-expr			{ debug("expr", 7); }
-|	unary-expr			{ debug("expr", 8); }
-|	logic-expr			{ debug("expr", 9); }
-|	LPAR expr RPAR		{ debug("expr", 10); }
-|	ID %prec E_ID		{ debug("expr", 11); }
+	idx-safe-expr		{ debug("expr", 1); }
+|	idx-unsafe-expr		{ debug("expr", 2); }
+|	LPAR expr RPAR		{ debug("expr", 3); }
+;
+
+idx-unsafe-expr:
+	array-expr			{ debug("idx-unsafe-expr", 1); }
+|	logic-expr			{ debug("idx-unsafe-expr", 2); }
+|	var-obj				{ debug("idx-unsafe-expr", 3); }
+;
+
+idx-safe-expr:
+	var-val				{ debug("idx-safe-expr", 1); }
+|	var-att				{ debug("idx-safe-expr", 2); }
+|	arit-expr			{ debug("idx-safe-expr", 3); }
+|	bitw-expr			{ debug("idx-safe-expr", 4); }
+|	shift-expr			{ debug("idx-safe-expr", 5); }
+|	unary-expr			{ debug("idx-safe-expr", 6); }
+|	vet-idx				{ debug("idx-safe-expr", 7); }
+|	ID %prec E_ID		{ debug("idx-safe-expr", 8); }
+;
+
+vet-idx:
+	ID LBRACKET idx-safe-expr RBRACKET		{ debug("vet-idx", 1); }
 ;
 
 unary-expr:
