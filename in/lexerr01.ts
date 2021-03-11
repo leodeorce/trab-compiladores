@@ -1,5 +1,4 @@
-//Sample program in TypeScript language
-//Program with Lexical Error
+// Nenhuma regra reconhece @ fora de uma string ou comentário
 
 let @x:number;
 @x = 50;
