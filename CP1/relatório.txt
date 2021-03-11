@@ -36,11 +36,11 @@ A construção do analisador sintático foi dada em etapas de
 pequenas adições e resoluções de conflitos usando a ferra-
 menta GNU Bison. Uma nova adição era testada em conjunto
 com antigos casos de teste para minimizar o surgimento de
-falhas gramaticais não identificadas por conflitos shift/
-reduce ou reduce/reduce. A gama de funcionalidades do
-TypeScript é extensa, portanto muitas simplificações foram
-necessárias, muitas das quais se encontram na próxima se-
-ção deste relatório.
+falhas gramaticais identificadas ou não por conflitos
+shift/reduce ou reduce/reduce. A gama de funcionalidades
+do TypeScript é extensa, portanto diversas simplificações
+foram necessárias, muitas das quais se encontram na próxi-
+ma seção deste relatório.
 
 ==========================================================
 
