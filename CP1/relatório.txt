@@ -1,0 +1,75 @@
+
+Disciplina    INF09281 Compiladores
+Período       2020/2 EARTE
+
+Grupo         Leonardo Deorce Lima de Oliveira
+	          Julio Bissoli
+	          Rodrigo Mattiolli
+
+==========================================================
+
+Linguagem de entrada                  TypeScript
+Arquitetura de saída                  MIPS
+Ferramenta para análise léxica        flex 2.6.4
+Ferramenta para análise sintática     GNU Bison 3.5.1
+
+==========================================================
+
+Analisador léxico (scanner):
+
+O TypeScript é um superset da linguagem JavaScript, por-
+tanto aceita os mesmos tokens que JavaScript aceita. O
+JavaScript é uma linguagem em conformidade com o ECMA-262
+(disponível em: https://262.ecma-international.org/11.0/),
+que é a especificação da linguagem ECMAScript. A partir do
+ECMA-262 é possível obter os tokens reconhecidos pelo
+JavaScript, restando apenas os tokens adicionados pelo
+TypeScript. Com isso foi possível a criação de um scanner
+capaz de analisar corretamente os casos de teste utili-
+zando a ferramenta flex.
+
+==========================================================
+
+Analisador sintático (parser):
+
+A construção do analisador sintático foi dada em etapas de
+pequenas adições e resoluções de conflitos usando a ferra-
+menta GNU Bison. Uma nova adição era testada em conjunto
+com antigos casos de teste para minimizar o surgimento de
+falhas gramaticais não identificadas por conflitos shift/
+reduce ou reduce/reduce. A gama de funcionalidades do
+TypeScript é extensa, portanto muitas simplificações foram
+necessárias, muitas das quais se encontram na próxima se-
+ção deste relatório.
+
+==========================================================
+
+Considerações de projeto:
+
+- Declarações são terminadas em ponto e vírgula;
+
+- Definições de objetos terminam em ponto e vírgula;
+
+- Definições de classes e funções não terminam em ponto e
+vírgula;
+
+- "null" e "undefined" omitidos como tipo, porém mantidos
+como possíveis valores atribuídos;
+
+- Desconsiderados módulos:
+	https://www.typescriptlang.org/docs/handbook/modules.html
+
+- Desconsiderada desestruturação:
+	https://www.typescriptlang.org/docs/handbook/variable-declarations.html
+
+- Desconsiderado tratamento de exceções do javascript:
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch
+
+- Desconsiderado bigint:
+	https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-2.html
+
+- Desconsideradas arrow functions:
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+
+- Desconsideradas heranças e interfaces:
+	https://www.typescriptlang.org/docs/handbook/interfaces.html
