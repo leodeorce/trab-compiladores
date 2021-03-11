@@ -1,0 +1,7 @@
+3: let -> LET
+3: x -> ID
+3: : -> COLON
+3: number -> NUMBER
+Linha 3 Non-T "var-type" item 1
+3: == -> EQ
+SYNTAX ERROR (3): syntax error, unexpected EQ, expecting ASSIGN or SEMI or LBRACKET

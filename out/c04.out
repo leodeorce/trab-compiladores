@@ -1,0 +1,62 @@
+4: for -> FOR
+4: ( -> LPAR
+4: let -> LET
+4: i -> ID
+4: = -> ASSIGN
+Linha 4 Non-T "id-list" item 2
+4: 0 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: ; -> SEMI
+Linha 4 Non-T "var-declr" item 2
+4: i -> ID
+4: < -> LT
+4: 10 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: ; -> SEMI
+Linha 4 Non-T "logic-expr" item 6
+Linha 4 Non-T "idx-unsafe-expr" item 2
+Linha 4 Non-T "expr" item 2
+4: i -> ID
+4: = -> ASSIGN
+Linha 4 Non-T "assignment" item 1
+4: i -> ID
+4: + -> PLUS
+Linha 4 Non-T "idx-safe-expr" item 8
+Linha 4 Non-T "expr" item 1
+4: 1 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: ) -> RPAR
+Linha 4 Non-T "arit-expr" item 1
+Linha 4 Non-T "idx-safe-expr" item 3
+Linha 4 Non-T "expr" item 1
+Linha 4 Non-T "assign-expr" item 2
+4: { -> LBRACE
+5: console -> ID
+5: . -> DOT
+5: log -> ID
+5: ( -> LPAR
+5: i -> ID
+5: ) -> RPAR
+Linha 5 Non-T "idx-safe-expr" item 8
+Linha 5 Non-T "expr" item 1
+Linha 5 Non-T "args-list" item 4
+Linha 5 Non-T "var-met" item 1
+5: ; -> SEMI
+Linha 5 Non-T "var-att" item 3
+Linha 5 Non-T "idx-safe-expr" item 2
+Linha 5 Non-T "expr" item 1
+Linha 5 Non-T "stmt" item 4
+Linha 5 Non-T "stmt-list" item 2
+6: } -> RBRACE
+Linha 6 Non-T "line" item 1
+Linha 6 Non-T "for-stmt" item 8
+Linha 6 Non-T "stmt" item 9
+Linha 6 Non-T "stmt-list" item 2
+Linha 6 Non-T "line" item 1
+Parse successful

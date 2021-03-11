@@ -1,0 +1,126 @@
+3: let -> LET
+3: a -> ID
+3: : -> COLON
+3: number -> NUMBER
+Linha 3 Non-T "var-type" item 1
+3: = -> ASSIGN
+3: 9 -> INT_VAL
+Linha 3 Non-T "var-val" item 1
+Linha 3 Non-T "idx-safe-expr" item 1
+Linha 3 Non-T "expr" item 1
+3: ; -> SEMI
+Linha 3 Non-T "var-declr" item 5
+Linha 3 Non-T "stmt" item 1
+Linha 3 Non-T "stmt-list" item 2
+4: let -> LET
+4: b -> ID
+4: : -> COLON
+4: number -> NUMBER
+Linha 4 Non-T "var-type" item 1
+4: = -> ASSIGN
+4: 2 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: ; -> SEMI
+Linha 4 Non-T "var-declr" item 5
+Linha 4 Non-T "stmt" item 1
+Linha 4 Non-T "stmt-list" item 1
+5: let -> LET
+5: c -> ID
+5: : -> COLON
+5: number -> NUMBER
+Linha 5 Non-T "var-type" item 1
+5: = -> ASSIGN
+5: null -> NULL_RW
+Linha 5 Non-T "var-val" item 11
+Linha 5 Non-T "idx-safe-expr" item 1
+Linha 5 Non-T "expr" item 1
+5: ; -> SEMI
+Linha 5 Non-T "var-declr" item 5
+Linha 5 Non-T "stmt" item 1
+Linha 5 Non-T "stmt-list" item 1
+7: console -> ID
+7: . -> DOT
+7: log -> ID
+7: ( -> LPAR
+7: a -> ID
+7: + -> PLUS
+Linha 7 Non-T "idx-safe-expr" item 8
+Linha 7 Non-T "expr" item 1
+7: b -> ID
+7: * -> MULT
+Linha 7 Non-T "idx-safe-expr" item 8
+Linha 7 Non-T "expr" item 1
+7: 7 -> INT_VAL
+Linha 7 Non-T "var-val" item 1
+Linha 7 Non-T "idx-safe-expr" item 1
+Linha 7 Non-T "expr" item 1
+7: ) -> RPAR
+Linha 7 Non-T "arit-expr" item 3
+Linha 7 Non-T "idx-safe-expr" item 3
+Linha 7 Non-T "expr" item 1
+Linha 7 Non-T "arit-expr" item 1
+Linha 7 Non-T "idx-safe-expr" item 3
+Linha 7 Non-T "expr" item 1
+Linha 7 Non-T "args-list" item 4
+Linha 7 Non-T "var-met" item 1
+7: ; -> SEMI
+Linha 7 Non-T "var-att" item 3
+Linha 7 Non-T "idx-safe-expr" item 2
+Linha 7 Non-T "expr" item 1
+Linha 7 Non-T "stmt" item 4
+Linha 7 Non-T "stmt-list" item 1
+8: a -> ID
+8: = -> ASSIGN
+Linha 8 Non-T "assignment" item 1
+8: 4 -> INT_VAL
+Linha 8 Non-T "var-val" item 1
+Linha 8 Non-T "idx-safe-expr" item 1
+Linha 8 Non-T "expr" item 1
+8: ; -> SEMI
+Linha 8 Non-T "assign-expr" item 2
+Linha 8 Non-T "stmt" item 5
+Linha 8 Non-T "stmt-list" item 1
+9: c -> ID
+9: = -> ASSIGN
+Linha 9 Non-T "assignment" item 1
+9: a -> ID
+9: ; -> SEMI
+Linha 9 Non-T "idx-safe-expr" item 8
+Linha 9 Non-T "expr" item 1
+Linha 9 Non-T "assign-expr" item 2
+Linha 9 Non-T "stmt" item 5
+Linha 9 Non-T "stmt-list" item 1
+10: console -> ID
+10: . -> DOT
+10: log -> ID
+10: ( -> LPAR
+10: b -> ID
+10: * -> MULT
+Linha 10 Non-T "idx-safe-expr" item 8
+Linha 10 Non-T "expr" item 1
+10: a -> ID
+10: / -> DIV
+Linha 10 Non-T "idx-safe-expr" item 8
+Linha 10 Non-T "expr" item 1
+Linha 10 Non-T "arit-expr" item 3
+Linha 10 Non-T "idx-safe-expr" item 3
+Linha 10 Non-T "expr" item 1
+10: c -> ID
+10: ) -> RPAR
+Linha 10 Non-T "idx-safe-expr" item 8
+Linha 10 Non-T "expr" item 1
+Linha 10 Non-T "arit-expr" item 4
+Linha 10 Non-T "idx-safe-expr" item 3
+Linha 10 Non-T "expr" item 1
+Linha 10 Non-T "args-list" item 4
+Linha 10 Non-T "var-met" item 1
+10: ; -> SEMI
+Linha 10 Non-T "var-att" item 3
+Linha 10 Non-T "idx-safe-expr" item 2
+Linha 10 Non-T "expr" item 1
+Linha 10 Non-T "stmt" item 4
+Linha 10 Non-T "stmt-list" item 1
+Linha 11 Non-T "line" item 1
+Parse successful

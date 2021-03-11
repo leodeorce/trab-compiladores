@@ -1,0 +1,19 @@
+3: console -> ID
+3: . -> DOT
+3: log -> ID
+3: ( -> LPAR
+3: 'Hello, world!' -> STR_VAL
+Linha 3 Non-T "var-val" item 3
+Linha 3 Non-T "idx-safe-expr" item 1
+Linha 3 Non-T "expr" item 1
+3: ) -> RPAR
+Linha 3 Non-T "args-list" item 4
+Linha 3 Non-T "var-met" item 1
+3: ; -> SEMI
+Linha 3 Non-T "var-att" item 3
+Linha 3 Non-T "idx-safe-expr" item 2
+Linha 3 Non-T "expr" item 1
+Linha 3 Non-T "stmt" item 4
+Linha 3 Non-T "stmt-list" item 2
+Linha 3 Non-T "line" item 1
+Parse successful

@@ -1,0 +1,94 @@
+3: console -> ID
+3: . -> DOT
+3: log -> ID
+3: ( -> LPAR
+3: 'Test' -> STR_VAL
+Linha 3 Non-T "var-val" item 3
+Linha 3 Non-T "idx-safe-expr" item 1
+Linha 3 Non-T "expr" item 1
+3: ) -> RPAR
+Linha 3 Non-T "args-list" item 4
+Linha 3 Non-T "var-met" item 1
+3: ; -> SEMI
+Linha 3 Non-T "var-att" item 3
+Linha 3 Non-T "idx-safe-expr" item 2
+Linha 3 Non-T "expr" item 1
+Linha 3 Non-T "stmt" item 4
+Linha 3 Non-T "stmt-list" item 2
+4: console -> ID
+4: . -> DOT
+4: log -> ID
+4: ( -> LPAR
+4: 3 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: + -> PLUS
+4: 2 -> INT_VAL
+Linha 4 Non-T "var-val" item 1
+Linha 4 Non-T "idx-safe-expr" item 1
+Linha 4 Non-T "expr" item 1
+4: ) -> RPAR
+Linha 4 Non-T "arit-expr" item 1
+Linha 4 Non-T "idx-safe-expr" item 3
+Linha 4 Non-T "expr" item 1
+Linha 4 Non-T "args-list" item 4
+Linha 4 Non-T "var-met" item 1
+4: ; -> SEMI
+Linha 4 Non-T "var-att" item 3
+Linha 4 Non-T "idx-safe-expr" item 2
+Linha 4 Non-T "expr" item 1
+Linha 4 Non-T "stmt" item 4
+Linha 4 Non-T "stmt-list" item 1
+5: console -> ID
+5: . -> DOT
+5: log -> ID
+5: ( -> LPAR
+5: 2 -> INT_VAL
+Linha 5 Non-T "var-val" item 1
+Linha 5 Non-T "idx-safe-expr" item 1
+Linha 5 Non-T "expr" item 1
+5: + -> PLUS
+5: "2" -> STR_VAL
+Linha 5 Non-T "var-val" item 3
+Linha 5 Non-T "idx-safe-expr" item 1
+Linha 5 Non-T "expr" item 1
+5: ) -> RPAR
+Linha 5 Non-T "arit-expr" item 1
+Linha 5 Non-T "idx-safe-expr" item 3
+Linha 5 Non-T "expr" item 1
+Linha 5 Non-T "args-list" item 4
+Linha 5 Non-T "var-met" item 1
+5: ; -> SEMI
+Linha 5 Non-T "var-att" item 3
+Linha 5 Non-T "idx-safe-expr" item 2
+Linha 5 Non-T "expr" item 1
+Linha 5 Non-T "stmt" item 4
+Linha 5 Non-T "stmt-list" item 1
+6: console -> ID
+6: . -> DOT
+6: log -> ID
+6: ( -> LPAR
+6: 2 -> INT_VAL
+Linha 6 Non-T "var-val" item 1
+Linha 6 Non-T "idx-safe-expr" item 1
+Linha 6 Non-T "expr" item 1
+6: / -> DIV
+6: 23 -> INT_VAL
+Linha 6 Non-T "var-val" item 1
+Linha 6 Non-T "idx-safe-expr" item 1
+Linha 6 Non-T "expr" item 1
+6: ) -> RPAR
+Linha 6 Non-T "arit-expr" item 4
+Linha 6 Non-T "idx-safe-expr" item 3
+Linha 6 Non-T "expr" item 1
+Linha 6 Non-T "args-list" item 4
+Linha 6 Non-T "var-met" item 1
+6: ; -> SEMI
+Linha 6 Non-T "var-att" item 3
+Linha 6 Non-T "idx-safe-expr" item 2
+Linha 6 Non-T "expr" item 1
+Linha 6 Non-T "stmt" item 4
+Linha 6 Non-T "stmt-list" item 1
+Linha 6 Non-T "line" item 1
+Parse successful

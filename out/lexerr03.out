@@ -1,0 +1,17 @@
+5: let -> LET
+5: x -> ID
+5: : -> COLON
+5: number -> NUMBER
+Linha 5 Non-T "var-type" item 1
+5: ; -> SEMI
+Linha 5 Non-T "var-declr" item 4
+Linha 5 Non-T "stmt" item 1
+Linha 5 Non-T "stmt-list" item 2
+6: x -> ID
+6: = -> ASSIGN
+Linha 6 Non-T "assignment" item 1
+6: 6 -> INT_VAL
+Linha 6 Non-T "var-val" item 1
+Linha 6 Non-T "idx-safe-expr" item 1
+Linha 6 Non-T "expr" item 1
+LEXICAL ERROR (6): Unknown symbol #

@@ -1,0 +1,12 @@
+3: for -> FOR
+3: ( -> LPAR
+3: let -> LET
+3: i -> ID
+3: = -> ASSIGN
+Linha 3 Non-T "id-list" item 2
+3: 0 -> INT_VAL
+Linha 3 Non-T "var-val" item 1
+Linha 3 Non-T "idx-safe-expr" item 1
+Linha 3 Non-T "expr" item 1
+3: , -> COMMA
+SYNTAX ERROR (3): syntax error, unexpected COMMA

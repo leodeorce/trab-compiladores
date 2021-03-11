@@ -1,0 +1,7 @@
+7: let -> LET
+7: a -> ID
+7: : -> COLON
+7: string -> STRING
+Linha 7 Non-T "var-type" item 2
+7: = -> ASSIGN
+LEXICAL ERROR (7): Unknown symbol '
