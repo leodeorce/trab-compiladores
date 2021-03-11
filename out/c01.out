@@ -1,0 +1,7 @@
+3: console -> ID
+3: . -> DOT
+3: log -> ID
+3: ( -> LPAR
+3: 'Hello, world!' -> STR_VAL
+3: ) -> RPAR
+3: ; -> SEMI
