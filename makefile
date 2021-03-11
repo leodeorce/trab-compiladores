@@ -1,26 +1,25 @@
 # Makefile - Ubuntu 20.04.2 - bison
 SHELL := /bin/bash
 
-PARSER = parser
-SCANNER = scanner
-EXECUTABLE = cp1.out
-ENTRADA = ./in/c04
-FLAGS_BISON = -Wall -v -o
-FLAGS_GCC = -Wall -o
+ENTRADA = entrada
 
-all: comp-bison comp-flex comp-gcc run
+all: comp-bison comp-flex comp-gcc
+	@echo "Done."
 
 comp-bison:
-	bison $(FLAGS_BISON) $(PARSER).c $(PARSER).y
+	bison -Wall -v -o parser.c parser.y
 
 comp-flex: comp-bison
-	flex $(SCANNER).l
+	flex scanner.l
 
 comp-gcc: comp-bison comp-flex
-	gcc $(FLAGS_GCC) $(EXECUTABLE) $(SCANNER).c $(PARSER).c -ly
+	gcc -Wall scanner.c parser.c -ly -o parser
 
-run: comp-gcc
-	./$(EXECUTABLE) < $(ENTRADA).ts
+run-ts:
+	ts-node $(ENTRADA).ts
 
-rm:
-	rm $(PARSER).c $(PARSER).h $(SCANNER).c $(EXECUTABLE) $(PARSER).output
+run:
+	./parser < $(ENTRADA).ts
+
+clean:
+	rm -f scanner.c parser.c parser.h parser.output parser

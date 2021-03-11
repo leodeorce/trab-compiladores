@@ -285,3 +285,12 @@ let vet = [1, 2, 3];
 vet[0] = 6;
 console.log(vet[1 & 1]);
 console.log(1 & 1);
+
+let assign = 0;
+if(assign = 1) {
+	console.log(true);
+}
+
+while(assign = 0) {
+	console.log(assign);
+}

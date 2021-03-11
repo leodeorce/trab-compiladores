@@ -106,17 +106,22 @@ assignment:
 ;
 
 do-while-stmt:
-	DO LBRACE line RBRACE WHILE LPAR expr RPAR		{ debug("do-while-stmt", 1); }
+	DO LBRACE line RBRACE WHILE LPAR expr RPAR				{ debug("do-while-stmt", 1); }
+|	DO LBRACE line RBRACE WHILE LPAR assign-expr RPAR		{ debug("do-while-stmt", 2); }
 ;
 
 while-stmt:
-	WHILE LPAR expr RPAR LBRACE line RBRACE		{ debug("while-stmt", 1); }
+	WHILE LPAR expr RPAR LBRACE line RBRACE				{ debug("while-stmt", 1); }
+|	WHILE LPAR assign-expr RPAR LBRACE line RBRACE		{ debug("while-stmt", 2); }
 ;
 
 if-stmt:
-	IF LPAR expr RPAR LBRACE line RBRACE								{ debug("if-stmt", 1); }
-|	IF LPAR expr RPAR LBRACE line RBRACE ELSE LBRACE line RBRACE		{ debug("if-stmt", 2); }
-|	IF LPAR expr RPAR LBRACE line RBRACE ELSE stmt						{ debug("if-stmt", 3); }
+	IF LPAR expr RPAR LBRACE line RBRACE									{ debug("if-stmt", 1); }
+|	IF LPAR expr RPAR LBRACE line RBRACE ELSE LBRACE line RBRACE			{ debug("if-stmt", 2); }
+|	IF LPAR expr RPAR LBRACE line RBRACE ELSE stmt							{ debug("if-stmt", 3); }
+|	IF LPAR assign-expr RPAR LBRACE line RBRACE								{ debug("if-stmt", 4); }
+|	IF LPAR assign-expr RPAR LBRACE line RBRACE ELSE LBRACE line RBRACE		{ debug("if-stmt", 5); }
+|	IF LPAR assign-expr RPAR LBRACE line RBRACE ELSE stmt					{ debug("if-stmt", 6); }
 ;
 
 logic-expr:

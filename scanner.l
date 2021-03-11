@@ -10,7 +10,7 @@
 #include "parser.h"
 
 void processar_token(char*);
-void erro_lexico(int);
+void erro_lexico();
 
 %}
 
@@ -41,7 +41,7 @@ comment			"//"+.*
 {comment}				{ /* Fazer nada */ }
 
 
-	/* Nao podem ser identificadores */
+	/* Palavras reservadas */
 
 "break" 			{ processar_token("BREAK"); return BREAK; }
 "case"  			{ processar_token("CASE"); return CASE; }
@@ -86,15 +86,9 @@ comment			"//"+.*
 "void"  			{ processar_token("VOID_RW"); return VOID_RW; }
 "while"  			{ processar_token("WHILE"); return WHILE; }
 "with"  			{ processar_token("WITH"); return WITH; }
-
-
-	/* Podem ser identificadores */
-
 "await"  			{ processar_token("AWAIT"); return AWAIT; }
 "yield"  			{ processar_token("YIELD"); return YIELD; }
-
 "static" 			{ processar_token("STATIC"); return STATIC; }
-
 "as"  				{ processar_token("AS"); return AS; }
 "async"  			{ processar_token("ASYNC"); return ASYNC; }
 "from"  			{ processar_token("FROM"); return FROM; }
@@ -102,7 +96,6 @@ comment			"//"+.*
 "of"  				{ processar_token("OF"); return OF; }
 "set"  				{ processar_token("SET"); return SET; }
 "target"  			{ processar_token("TARGET"); return TARGET; }
-
 "any"  			    { processar_token("ANY"); return ANY; }
 "boolean" 			{ processar_token("BOOLTYPE"); return BOOLTYPE; }
 "constructor" 		{ processar_token("CONSTRUCTOR"); return CONSTRUCTOR; }
@@ -202,9 +195,7 @@ comment			"//"+.*
 
 	/* Erros */
 
-{real_val}[a-zA-Z]+		{ erro_lexico(3); }
-[0-9]+[a-zA-Z]+			{ erro_lexico(2); }
-.           			{ erro_lexico(1); }
+.           		{ erro_lexico(); }
 
 %%
 
@@ -213,26 +204,9 @@ void processar_token(char* type)
 	printf("%d: %s -> %s\n", yylineno, yytext, type);
 }
 
-void erro_lexico(int err_num)
+void erro_lexico()
 {
-	switch(err_num) {
-
-		case 1:
-			// Leitura de simbolo desconhecido
-			fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-
-		case 2:
-			// Formato de identificador invalido
-			fprintf(yyout, "LEXICAL ERROR (%d): Invalid ID %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-
-		case 3:
-			// Formato de valor invalido
-			fprintf(yyout, "LEXICAL ERROR (%d): Invalid value %s\n", yylineno, yytext);
-			exit(EXIT_FAILURE);
-			break;
-	}
+	// Leitura de simbolo desconhecido
+	fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
+	exit(EXIT_FAILURE);
 }
