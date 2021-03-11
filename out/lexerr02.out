@@ -1,0 +1,6 @@
+4: let -> LET
+4: a -> ID
+4: : -> COLON
+4: string -> STRING
+4: = -> ASSIGN
+LEXICAL ERROR (4): Unknown symbol '

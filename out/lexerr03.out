@@ -1,0 +1,9 @@
+4: let -> LET
+4: x -> ID
+4: : -> COLON
+4: number -> NUMBER
+4: ; -> SEMI
+5: x -> ID
+5: = -> ASSIGN
+5: 6 -> INT_VAL
+LEXICAL ERROR (5): Unknown symbol #
