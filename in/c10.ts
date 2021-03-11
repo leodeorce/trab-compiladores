@@ -11,19 +11,19 @@ s = "Test";
 b = false;
 
 i = i + b;
-console.log(i);  //show 10
+console.log(i);
 
 r = r / 2;
-console.log(r);  //show 1.2 
+console.log(r);
 
 s = s + 'D\n';
-console.log(s);   //show "TestD\n"
+console.log(s);
 
 b = 20 < i;
-console.log(b);  //show false
+console.log(b);
 
 s = "i = " + i + "\n";
-console.log(s);  //show "i= 10\n"
+console.log(s);
 
 r = 4.2 + 2;
-console.log(r);  //show 6.2
+console.log(r);

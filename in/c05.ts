@@ -1,4 +1,7 @@
-// Manipulação de vetor + teste básico de loop - while
+/**
+ * Manipulação de vetor
+ * Teste básico de loop - while
+ */
 
 let vet:number[] = [0, 0, 0, 0, 0];
 let i:number = 0;
