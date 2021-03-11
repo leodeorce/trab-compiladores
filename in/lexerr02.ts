@@ -1,4 +1,4 @@
-/* Apóstrofe, aspas e crase são desconhecidas exceto quando identificam uma string
+/* Apóstrofo, aspas e crase são desconhecidos exceto quando identificam uma string
  * ou fazem parte de um comentário
  */
 
