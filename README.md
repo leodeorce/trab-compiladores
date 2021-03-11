@@ -1,7 +1,6 @@
-# trab-compiladores
-Trabalho da disciplina Compiladores 2020/2-EARTE
+# scanner
+Scanner
 
 Observações:
-  - Ignorar módulos/imports;
-  - Assumir que ponto e vírgula é sempre usado;
-  - Ignorar tratamento de exceções.
+  - Voltado para correção independente;
+  - Não inclui parser.h e função yylex não retorna.
