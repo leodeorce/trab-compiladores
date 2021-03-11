@@ -308,8 +308,10 @@ var-met:
 args-list:
 	COMMA args-list					{ debug("args-list", 1); }
 |	expr COMMA args-list			{ debug("args-list", 2); }
-|	expr							{ debug("args-list", 3); }
-|	%empty							{ debug("args-list", 4); }
+|	assign-expr COMMA args-list		{ debug("args-list", 3); }
+|	expr							{ debug("args-list", 4); }
+|	assign-expr						{ debug("args-list", 5); }
+|	%empty							{ debug("args-list", 6); }
 ;
 
 var-obj:
