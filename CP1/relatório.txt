@@ -3,8 +3,8 @@ Disciplina    INF09281 Compiladores
 Período       2020/2 EARTE
 
 Grupo         Leonardo Deorce Lima de Oliveira
-	          Julio Bissoli
-	          Rodrigo Mattiolli
+              Julio Bissoli
+              Rodrigo Mattiolli
 
 ==========================================================
 
