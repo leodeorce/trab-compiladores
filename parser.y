@@ -21,7 +21,11 @@ extern char *yytext;
 int yylineno;
 
 
-Var_table* vt;
+Var_table *vt;
+Str_table *st;
+
+char text_ant[100];
+int text_ant_tam;
 
 
 %}
@@ -54,7 +58,7 @@ stmt-list:
 ;
 
 stmt:
-	var-declr  { new_var(); } SEMI { debug(yytext); } 
+	var-declr  SEMI { new_var(); }
 |	func-def
 |	class-def
 |	expr SEMI
@@ -211,8 +215,8 @@ var-declr:
 ;
 
 id-list:
-	ID { debug("id-list"); }  COMMA id-list 
-|	ID { debug("id-list"); }  
+	ID  COMMA id-list 
+|	ID  
 ;
 
 obj-def:
@@ -241,9 +245,9 @@ var-type:
 ;
 
 expr:
-	idx-safe-expr 
+	idx-safe-expr  
 |	idx-unsafe-expr
-|	LPAR expr RPAR
+|	LPAR expr RPAR 
 ;
 
 idx-unsafe-expr:
@@ -358,30 +362,28 @@ elmts-list:
 ;
 
 %%
-void debug(char* text){
-	printf("Lendo-> %s; Linha-> %d; debug-> %s;\n", yytext, yylineno, text);
-}
+
 
 void check_var() {
-	printf("chamo o verifica (tesxto da vex ->> %s)\n", yytext);
-    int idx = varExist(vt, yylineno);
-    if (idx == 1) {
+    int idx = varExist(vt, text_ant);
+	printf("(---Check var---) => \t yytext: %s | \t text_ant: %s | \t idx: %d\n", yytext, text_ant, idx);
+    if (idx == 0) {
         printf("SEMANTIC ERROR (%d): variable '%s' (teste verificadao-> %d).\n",
-                yylineno, yytext, idx);
+                yylineno, text_ant, idx);
         exit(EXIT_FAILURE);
     }
 }
 
 void new_var() {
-	printf("chamo o add (tesxto da vex ->> %s)\n", yytext);
+	printf("(---Add var---) => \t yytext: %s | \t text_ant: %s\n", yytext, text_ant);
 
-    int idx = varExist(vt, yylineno);
-    if (idx != 0) {
+    int idx = varExist(vt, text_ant);
+    if (idx == 1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line   (teste verificadao-> %d).\n",
-                yylineno, yytext, idx);
+                yylineno, text_ant, idx);
         exit(EXIT_FAILURE);
     }
-    addVar(&vt,yylineno, yytext);
+    addVar(&vt, yylineno, text_ant);
 }
 
 void yyerror(char const* s)
@@ -392,14 +394,17 @@ void yyerror(char const* s)
 
 int main(void){
 
-	// st = create_str_table();
+	st = createStrTable();
     vt = createVarTable();
 
+	if (yyparse() == 0) printf("Parse successful\n");
 
-	if (yyparse() == 0)printf("Parse successful\n");
+	
+    printVars(vt);
+	printStrs(st);
 
-    printVars(vt); printf("\n\n");
     freeVars(&vt);
+    freeStrs(&st);
 
 
 	return 0;

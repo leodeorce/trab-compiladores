@@ -4,8 +4,9 @@
 // #include "list.h";
 
 struct node;
-
 typedef struct node Var_table;
+
+
 
 //start table
 Var_table* createVarTable();
@@ -24,8 +25,23 @@ int lengthVarTable(Var_table* table);
 
 struct node* findVar(Var_table* table,int key);
 
-int varExist(Var_table* table, int key);
+int varExist(Var_table* table, char* str);
 
 void freeVars(Var_table** table);
+
+
+struct node_str;
+typedef struct node_str Str_table;
+
+Str_table* createStrTable();
+
+void printStrs(Str_table* table);
+
+void addStr(Str_table** table ,int key, char* str);
+
+struct node_str* getStr(Str_table* table, int key);
+
+void freeStrs(Str_table** table);
+
 
 #endif // TABLES_H

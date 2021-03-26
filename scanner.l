@@ -8,8 +8,13 @@
 
 #include <stdio.h>
 #include "parser.h"
+#include "list.h"
 
 void erro_lexico();
+
+extern Str_table *st;
+extern char text_ant[100];
+extern int text_ant_tam;
 
 %}
 
@@ -182,14 +187,14 @@ comment			"//"+.*
 
 {int_val}				{ return INT_VAL; }
 {real_val}				{ return REAL_VAL; }
-{str_quotes_val}		{ return STR_VAL; }
-{str_apost_val}			{ return STR_VAL; }
-{str_crasis_val}		{ return STR_VAL; }
+{str_quotes_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
+{str_apost_val}			{addStr(&st, yylineno, yytext); return STR_VAL; }
+{str_crasis_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
 
 
 	/* Identificadores */
 
-{id}				{ return ID; }
+{id}				{ strcpy(text_ant,yytext); return ID; }
 
 
 	/* Erros */

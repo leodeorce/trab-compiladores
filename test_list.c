@@ -11,10 +11,6 @@ void main()
     Var_table *table = createVarTable();
     addVar(&table, 1, "a");
     addVar(&table, 2, "b");
-    //    addVar(3,30);
-    //    addVar(4,1);
-    //    addVar(5,40);
-    //    addVar(6,56);
 
     printf("Original List: ");
 
@@ -26,9 +22,9 @@ void main()
     printVars(table);
     printf("\ntamanho -> %d\n",  lengthVarTable(table));
     
-    int teste = varExist(table ,3);
+    int teste = varExist(table ,"ccc");
 
-    printf("O objeto com ja foi inserido? -> %d \n", teste);
+    printf("A variavel 'ccc' com já foi inserido? -> %d \n", teste);
     freeVars(&table);
     printVars(table);
 
