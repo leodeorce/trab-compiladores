@@ -7,11 +7,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "list.h"
+
 
 int yylex(void);
 void yyerror(char const*);
 
+void check_var();
+void new_var();
+void debug(char* text);
+
+extern char *yytext;
 int yylineno;
+
+
+Var_table* vt;
+
 
 %}
 
@@ -43,7 +54,7 @@ stmt-list:
 ;
 
 stmt:
-	var-declr SEMI
+	var-declr  { new_var(); } SEMI { debug(yytext); } 
 |	func-def
 |	class-def
 |	expr SEMI
@@ -179,29 +190,29 @@ params:
 ;
 
 var-declr:
-	LET id-list
-|	LET id-list ASSIGN expr
-|	LET id-list ASSIGN obj-def
-|	LET ID COLON var-type
-|	LET ID COLON var-type ASSIGN expr
-|	LET ID COLON var-type LBRACKET RBRACKET
-|	LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-|	VAR id-list
-|	VAR id-list ASSIGN expr
-|	VAR id-list ASSIGN obj-def
-|	VAR ID COLON var-type
-|	VAR ID COLON var-type ASSIGN expr
-|	VAR ID COLON var-type LBRACKET RBRACKET
-|	VAR ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-|	CONST_RW id-list ASSIGN expr
-|	CONST_RW ID COLON var-type ASSIGN expr
-|	CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-|	CONST_RW id-list ASSIGN obj-def
+	LET id-list 
+|	LET id-list ASSIGN expr 
+|	LET id-list ASSIGN obj-def 
+|	LET ID  COLON var-type 
+|	LET ID COLON var-type ASSIGN expr 
+|	LET ID COLON var-type LBRACKET RBRACKET 
+|	LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	VAR id-list 
+|	VAR id-list ASSIGN expr 
+|	VAR id-list ASSIGN obj-def 
+|	VAR ID COLON var-type 
+|	VAR ID COLON var-type ASSIGN expr 
+|	VAR ID COLON var-type LBRACKET RBRACKET 
+|	VAR ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	CONST_RW id-list ASSIGN expr 
+|	CONST_RW ID COLON var-type ASSIGN expr 
+|	CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	CONST_RW id-list ASSIGN obj-def 
 ;
 
 id-list:
-	ID COMMA id-list
-|	ID
+	ID { debug("id-list"); }  COMMA id-list 
+|	ID { debug("id-list"); }  
 ;
 
 obj-def:
@@ -230,7 +241,7 @@ var-type:
 ;
 
 expr:
-	idx-safe-expr
+	idx-safe-expr 
 |	idx-unsafe-expr
 |	LPAR expr RPAR
 ;
@@ -347,6 +358,31 @@ elmts-list:
 ;
 
 %%
+void debug(char* text){
+	printf("Lendo-> %s; Linha-> %d; debug-> %s;\n", yytext, yylineno, text);
+}
+
+void check_var() {
+	printf("chamo o verifica (tesxto da vex ->> %s)\n", yytext);
+    int idx = varExist(vt, yylineno);
+    if (idx == 1) {
+        printf("SEMANTIC ERROR (%d): variable '%s' (teste verificadao-> %d).\n",
+                yylineno, yytext, idx);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void new_var() {
+	printf("chamo o add (tesxto da vex ->> %s)\n", yytext);
+
+    int idx = varExist(vt, yylineno);
+    if (idx != 0) {
+        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line   (teste verificadao-> %d).\n",
+                yylineno, yytext, idx);
+        exit(EXIT_FAILURE);
+    }
+    addVar(&vt,yylineno, yytext);
+}
 
 void yyerror(char const* s)
 {
@@ -354,10 +390,17 @@ void yyerror(char const* s)
 	exit(EXIT_FAILURE);
 }
 
-int main(void)
-{
-	if (yyparse() == 0)
-		printf("Parse successful\n");
+int main(void){
+
+	// st = create_str_table();
+    vt = createVarTable();
+
+
+	if (yyparse() == 0)printf("Parse successful\n");
+
+    printVars(vt); printf("\n\n");
+    freeVars(&vt);
+
 
 	return 0;
 }

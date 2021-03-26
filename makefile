@@ -13,7 +13,7 @@ comp-flex: comp-bison
 	flex scanner.l
 
 comp-gcc: comp-bison comp-flex
-	gcc -Wall scanner.c parser.c -ly -o parser
+	gcc -Wall scanner.c parser.c list.c -ly -o parser
 
 run-ts:
 	ts-node $(ENTRADA).ts
