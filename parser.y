@@ -58,7 +58,7 @@ stmt-list:
 ;
 
 stmt:
-	var-declr  SEMI { new_var(); }
+	var-declr SEMI 
 |	func-def
 |	class-def
 |	expr SEMI
@@ -74,7 +74,7 @@ stmt:
 ;
 
 assign-expr:
-	var-att assignment expr
+	var-att assignment expr 
 |	ID assignment expr
 |	vet-idx assignment expr
 ;
@@ -178,36 +178,36 @@ access-modif:
 ;
 
 func-def:
-	FUNCTION ID LPAR params RPAR LBRACE line RBRACE
-|	FUNCTION ID LPAR params RPAR COLON var-type LBRACE line RBRACE
+	FUNCTION ID { debug("func declr"); new_var(); } LPAR params RPAR LBRACE line RBRACE
+|	FUNCTION ID { debug("func declr"); new_var(); } LPAR params RPAR COLON var-type LBRACE line RBRACE
 ;
 
 params:
-	COMMA ID
-|	COMMA ID COLON var-type
-|	ID COMMA ID
-|	ID COLON var-type COMMA ID COLON var-type
-|	ID COLON var-type COMMA ID
-|	ID COLON var-type
-|	ID COMMA ID COLON var-type
-|	%empty
+	COMMA ID { new_var(); }
+|	COMMA ID COLON var-type { new_var(); }
+|	ID COMMA ID { new_var(); }
+|	ID COLON var-type  { new_var(); } COMMA ID COLON var-type { new_var(); }
+|	ID COLON var-type  { new_var(); } COMMA ID { new_var(); }
+|	ID COLON var-type { new_var(); }
+|	ID COMMA  { new_var(); } ID COLON var-type { new_var(); }
+|	%empty { new_var(); }
 ;
 
 var-declr:
-	LET id-list 
-|	LET id-list ASSIGN expr 
-|	LET id-list ASSIGN obj-def 
-|	LET ID  COLON var-type 
-|	LET ID COLON var-type ASSIGN expr 
-|	LET ID COLON var-type LBRACKET RBRACKET 
-|	LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
-|	VAR id-list 
+	LET id-list
+|	LET id-list ASSIGN expr
+|	LET id-list ASSIGN obj-def
+|	LET ID { new_var(); } COLON var-type 
+|	LET ID { new_var(); } COLON var-type ASSIGN expr 
+|	LET ID { new_var(); } COLON var-type LBRACKET RBRACKET 
+|	LET ID { new_var(); } COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	VAR id-list
 |	VAR id-list ASSIGN expr 
 |	VAR id-list ASSIGN obj-def 
-|	VAR ID COLON var-type 
-|	VAR ID COLON var-type ASSIGN expr 
-|	VAR ID COLON var-type LBRACKET RBRACKET 
-|	VAR ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	VAR ID { new_var(); } COLON var-type 
+|	VAR ID { new_var(); } COLON var-type ASSIGN expr 
+|	VAR ID { new_var(); } COLON var-type LBRACKET RBRACKET 
+|	VAR ID { new_var(); } COLON var-type LBRACKET RBRACKET ASSIGN expr 
 |	CONST_RW id-list ASSIGN expr 
 |	CONST_RW ID COLON var-type ASSIGN expr 
 |	CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
@@ -215,8 +215,8 @@ var-declr:
 ;
 
 id-list:
-	ID  COMMA id-list 
-|	ID  
+	ID { new_var(); } COMMA id-list 
+|	ID { new_var(); }
 ;
 
 obj-def:
@@ -245,9 +245,9 @@ var-type:
 ;
 
 expr:
-	idx-safe-expr  
-|	idx-unsafe-expr
-|	LPAR expr RPAR 
+	idx-safe-expr  { debug("idx-safe-expr"); check_var(); } 
+|	idx-unsafe-expr { debug("idx-unsafe-expr"); check_var(); }
+|	LPAR expr RPAR  { debug("LPAR expr RPAR"); check_var(); }
 ;
 
 idx-unsafe-expr:
@@ -363,6 +363,10 @@ elmts-list:
 
 %%
 
+void debug(char* text){
+	printf("DEBUG: %s \t\t Var-ant: %s \t\t yytext:%s\n", text, text_ant, yytext);
+	
+}
 
 void check_var() {
     int idx = varExist(vt, text_ant);
@@ -375,7 +379,7 @@ void check_var() {
 }
 
 void new_var() {
-	printf("(---Add var---) => \t yytext: %s | \t text_ant: %s\n", yytext, text_ant);
+	printf("(---Add var---) => yytext: %s | \t\t text_ant: %s \t\tline:%d \n", yytext, text_ant, yylineno);
 
     int idx = varExist(vt, text_ant);
     if (idx == 1) {

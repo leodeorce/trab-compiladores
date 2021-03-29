@@ -22,6 +22,6 @@ function gcd(a:number, b:number):number{
 }
 
 
-let a = gcd(10, 3);
+let res = gcd(10, 3);
 
-console.log(a);
+console.log(res);
