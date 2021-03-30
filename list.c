@@ -43,7 +43,7 @@ void printVars(Var_table* table) {
 }
 
 //insert link at the first location
-void addVar(Var_table** table ,int line, char* str) {
+void addVar(Var_table** table ,int line, char* str, Type type) {
    //create a link
 
    struct node *link = (struct node*) malloc(sizeof(struct node));
@@ -52,9 +52,9 @@ void addVar(Var_table** table ,int line, char* str) {
    link->line = line;
    link->name = malloc( sizeof(char) * strlen (str)); 
    strcpy(link->name, str);
-	
-   Type any = ANY_TYPE;
-   link->type = any; 
+
+   link->type = type; 
+   
 
    //point it to old first node
    link->next = *table;

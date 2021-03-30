@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "list.h"
 #include "types.h"
 
@@ -15,9 +16,10 @@ int yylex(void);
 void yyerror(char const*);
 
 void check_var();
-void new_var();
+void new_var(Type type);
 void debug(char* text);
 void add_type(Type type);
+
 extern char *yytext;
 int yylineno;
 
@@ -26,6 +28,8 @@ Var_table *vt;
 Str_table *st;
 
 char text_ant[100];
+char name_func[100];
+
 int text_ant_tam;
 
 
@@ -60,7 +64,7 @@ stmt-list:
 
 stmt:
 	var-declr SEMI 
-|	func-def
+|	func-def { debug("STMT funccccc	--->1"); }
 |	class-def
 |	expr SEMI
 |	assign-expr SEMI
@@ -179,36 +183,36 @@ access-modif:
 ;
 
 func-def:
-	FUNCTION ID { debug("func declr"); new_var(); } LPAR params RPAR LBRACE line RBRACE
-|	FUNCTION ID { debug("func declr"); new_var(); } LPAR params RPAR COLON var-type LBRACE line RBRACE
+	FUNCTION ID { debug("FUNCAAOOOOOO--->1"); } LPAR params RPAR LBRACE line RBRACE
+|	FUNCTION ID { debug("FUNCAOOOOOOOO--->2"); } LPAR params RPAR COLON var-type LBRACE line RBRACE
 ;
 
 params:
-	COMMA ID { new_var(); }
-|	COMMA ID COLON var-type { new_var(); }
-|	ID COMMA ID { new_var(); }
-|	ID COLON var-type  { new_var(); } COMMA ID COLON var-type { new_var(); }
-|	ID COLON var-type  { new_var(); } COMMA ID { new_var(); }
-|	ID COLON var-type { new_var(); }
-|	ID COMMA  { new_var(); } ID COLON var-type { new_var(); }
-|	%empty { new_var(); }
+	COMMA ID
+|	COMMA ID COLON var-type
+|	ID COMMA ID
+|	ID COLON var-type  COMMA ID COLON var-type
+|	ID COLON var-type  COMMA ID
+|	ID COLON var-type
+|	ID COMMA  ID COLON var-type
+|	%empty
 ;
 
 var-declr:
 	LET id-list
 |	LET id-list ASSIGN expr
 |	LET id-list ASSIGN obj-def
-|	LET ID { new_var(); } COLON var-type 
-|	LET ID { new_var(); } COLON var-type ASSIGN expr 
-|	LET ID { new_var(); } COLON var-type LBRACKET RBRACKET 
-|	LET ID { new_var(); } COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	LET ID COLON var-type 
+|	LET ID COLON var-type ASSIGN expr 
+|	LET ID COLON var-type LBRACKET RBRACKET 
+|	LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
 |	VAR id-list
 |	VAR id-list ASSIGN expr 
 |	VAR id-list ASSIGN obj-def 
-|	VAR ID { new_var(); } COLON var-type 
-|	VAR ID { new_var(); } COLON var-type ASSIGN expr 
-|	VAR ID { new_var(); } COLON var-type LBRACKET RBRACKET 
-|	VAR ID { new_var(); } COLON var-type LBRACKET RBRACKET ASSIGN expr 
+|	VAR ID COLON var-type 
+|	VAR ID COLON var-type ASSIGN expr 
+|	VAR ID COLON var-type LBRACKET RBRACKET 
+|	VAR ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
 |	CONST_RW id-list ASSIGN expr 
 |	CONST_RW ID COLON var-type ASSIGN expr 
 |	CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr 
@@ -216,8 +220,8 @@ var-declr:
 ;
 
 id-list:
-	ID { new_var(); } COMMA id-list 
-|	ID { new_var(); }
+	ID COMMA id-list 
+|	ID 
 ;
 
 obj-def:
@@ -236,17 +240,17 @@ obj-att:
 ;
 
 var-type:
-	NUMBER 		{ add_type(NUMBER_TYPE); } 
-|	STRING 		{ add_type(STRING_TYPE); }
-|	UNKNOWN 	{ add_type(UNKNOWN_TYPE); }
-|	BOOLTYPE 	{ add_type(BOOLTYPE_TYPE); }
-|	ANY 		{ add_type(ANY_TYPE); }
-|	VOID_RW 	{ add_type(VOID_RW_TYPE); }
-|	NEVER 		{ add_type(NEVER_TYPE); }
+	NUMBER 		{ new_var(NUMBER_TYPE); } 
+|	STRING 		{ new_var(STRING_TYPE); }
+|	UNKNOWN 	{ new_var(UNKNOWN_TYPE); }
+|	BOOLTYPE 	{ new_var(BOOLTYPE_TYPE); }
+|	ANY 		{ new_var(ANY_TYPE); }
+|	VOID_RW 	{ new_var(VOID_RW_TYPE); }
+|	NEVER 		{ new_var(NEVER_TYPE); }
 ;
 
 expr:
-	idx-safe-expr  { debug("idx-safe-expr"); check_var(); } 
+	idx-safe-expr  	{ debug("idx-safe-expr"); check_var(); } 
 |	idx-unsafe-expr { debug("idx-unsafe-expr"); check_var(); }
 |	LPAR expr RPAR  { debug("LPAR expr RPAR"); check_var(); }
 ;
@@ -379,7 +383,7 @@ void check_var() {
     }
 }
 
-void new_var() {
+void new_var(Type type) {
 	printf("(---Add var---) => yytext: %s | \t\t text_ant: %s \t\tline:%d \n", yytext, text_ant, yylineno);
 
     int idx = varExist(vt, text_ant);
@@ -388,7 +392,7 @@ void new_var() {
                 yylineno, text_ant, idx);
         exit(EXIT_FAILURE);
     }
-    addVar(&vt, yylineno, text_ant);
+    addVar(&vt, yylineno, text_ant, type);
 }
 
 void add_type(Type type){

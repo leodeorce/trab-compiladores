@@ -18,7 +18,7 @@ Var_table* createVarTable();
 void printVars(Var_table* table);
 
 //insert link at the first location
-void addVar(Var_table** table ,int key, char* str);
+void addVar(Var_table** table ,int line, char* str, Type type);
 
 //delete first item
 void deleteVarFirst(Var_table** table);
