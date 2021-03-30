@@ -2,6 +2,8 @@
 #define LIST_H
 
 // #include "list.h";
+#include "types.h"
+
 
 struct node;
 typedef struct node Var_table;
@@ -23,12 +25,16 @@ void deleteVarFirst(Var_table** table);
 
 int lengthVarTable(Var_table* table);
 
-struct node* findVar(Var_table* table,int key);
+struct node* findVar(Var_table** table, char* str);
+
+void changeVarType(Var_table** table, char* key_var, Type type);
 
 int varExist(Var_table* table, char* str);
 
 void freeVars(Var_table** table);
 
+
+// ---------- Str_table-----------
 
 struct node_str;
 typedef struct node_str Str_table;

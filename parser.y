@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
+#include "types.h"
 
 
 int yylex(void);
@@ -16,7 +17,7 @@ void yyerror(char const*);
 void check_var();
 void new_var();
 void debug(char* text);
-
+void add_type(Type type);
 extern char *yytext;
 int yylineno;
 
@@ -235,13 +236,13 @@ obj-att:
 ;
 
 var-type:
-	NUMBER
-|	STRING
-|	UNKNOWN
-|	BOOLTYPE
-|	ANY
-|	VOID_RW
-|	NEVER
+	NUMBER 		{ add_type(NUMBER_TYPE); } 
+|	STRING 		{ add_type(STRING_TYPE); }
+|	UNKNOWN 	{ add_type(UNKNOWN_TYPE); }
+|	BOOLTYPE 	{ add_type(BOOLTYPE_TYPE); }
+|	ANY 		{ add_type(ANY_TYPE); }
+|	VOID_RW 	{ add_type(VOID_RW_TYPE); }
+|	NEVER 		{ add_type(NEVER_TYPE); }
 ;
 
 expr:
@@ -388,6 +389,11 @@ void new_var() {
         exit(EXIT_FAILURE);
     }
     addVar(&vt, yylineno, text_ant);
+}
+
+void add_type(Type type){
+	changeVarType(&vt, text_ant, type);
+	printf("Add type->> %s \t\t var_ant->>%s\n", get_text(type), text_ant);
 }
 
 void yyerror(char const* s)

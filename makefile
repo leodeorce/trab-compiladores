@@ -1,7 +1,7 @@
 # Makefile - Ubuntu 20.04.2 - bison
 SHELL := /bin/bash
 
-ENTRADA = entrada
+ENTRADA = in/c10
 
 all: comp-bison comp-flex comp-gcc
 	@echo "Done."
@@ -13,13 +13,13 @@ comp-flex: comp-bison
 	flex scanner.l
 
 comp-gcc: comp-bison comp-flex
-	gcc -Wall scanner.c parser.c list.c -ly -o parser
+	gcc -Wall scanner.c parser.c list.c types.c -ly -o analitcs_sem
 
 run-ts:
 	ts-node $(ENTRADA).ts
 
 run:
-	./parser < $(ENTRADA).ts
+	./analitcs_sem < $(ENTRADA).ts
 
 clean:
 	rm -f scanner.c parser.c parser.h parser.output parser

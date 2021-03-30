@@ -2,11 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 #include "list.h"
+#include "types.h"
+
 
 typedef struct node {
    char* name;
    int line;
+   Type type;
    struct node *next;
 } Var_table;
 
@@ -31,7 +35,7 @@ void printVars(Var_table* table) {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("linha-> %d\t | nome-> %s \n",ptr->line,ptr->name);
+      printf("linha-> %d\t\t | nome-> %s | \t\t type->  %s\n", ptr->line, ptr->name, get_text(ptr->type));
       ptr = ptr->next;
    }
 	
@@ -47,9 +51,11 @@ void addVar(Var_table** table ,int line, char* str) {
 	
    link->line = line;
    link->name = malloc( sizeof(char) * strlen (str)); 
-
    strcpy(link->name, str);
 	
+   Type any = ANY_TYPE;
+   link->type = any; 
+
    //point it to old first node
    link->next = *table;
 
@@ -57,6 +63,15 @@ void addVar(Var_table** table ,int line, char* str) {
    *table = link;
 
 //    return table;
+}
+
+void changeVarType(Var_table** table, char* key_var, Type type){
+  
+  struct node* var = findVar(table, key_var);
+
+  if(var != NULL){
+     var->type = type;
+  }
 }
 
 //delete first item
@@ -89,10 +104,10 @@ int lengthVarTable(Var_table* table) {
 }
 
 //find a link with given line
-struct node* findVar(Var_table* table,int line) {
+struct node* findVar(Var_table** table, char* str) {
 
    //start from the first link
-   struct node* current = table;
+   struct node* current = *table;
 
    //if list is empty
    if(table == NULL) {
@@ -100,7 +115,7 @@ struct node* findVar(Var_table* table,int line) {
    }
 
    //navigate through list
-   while(current->line != line) {
+   while(strcmp(current->name, str)) {
 	
       //if it is last node
       if(current->next == NULL) {
