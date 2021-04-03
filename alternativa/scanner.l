@@ -13,8 +13,6 @@
 void erro_lexico();
 
 extern Str_table *st;
-extern char text_ant[100];
-extern int text_ant_tam;
 
 %}
 
@@ -187,14 +185,16 @@ comment			"//"+.*
 
 {int_val}				{ return INT_VAL; }
 {real_val}				{ return REAL_VAL; }
-{str_quotes_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
-{str_apost_val}			{addStr(&st, yylineno, yytext); return STR_VAL; }
-{str_crasis_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
+{str_quotes_val}		{ addStr(&st, yylineno, yytext); return STR_VAL; }
+{str_apost_val}			{ addStr(&st, yylineno, yytext); return STR_VAL; }
+{str_crasis_val}		{ addStr(&st, yylineno, yytext); return STR_VAL; }
 
 
 	/* Identificadores */
 
-{id}				{ strcpy(text_ant,yytext); return ID; }
+{id}				{ yylval.tupla.name = strdup(yytext);
+					  yylval.tupla.line = yylineno;
+					  return ID; }
 
 
 	/* Erros */

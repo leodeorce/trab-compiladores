@@ -11,27 +11,19 @@
 #include "list.h"
 #include "types.h"
 
-
 int yylex(void);
 void yyerror(char const*);
 
-void check_var();
-void new_var(Type type);
-void debug(char* text);
-void add_type(Type type);
+void check_var(char*);
+void new_var(char*, int, Type);
+void debug(char*);
+void add_type(char*, Type);
 
 extern char *yytext;
-int yylineno;
-
+extern int yylineno;
 
 Var_table *vt;
 Str_table *st;
-
-char text_ant[100];
-char name_func[100];
-
-int text_ant_tam;
-
 
 %}
 
@@ -50,6 +42,14 @@ int text_ant_tam;
 %precedence ID
 %right DOT
 
+%union {
+	struct tupla {
+		char* name;
+		int line;
+		int type;
+	} tupla;
+};
+
 %%
 
 line:
@@ -63,7 +63,7 @@ stmt-list:
 ;
 
 stmt:
-	var-declr SEMI 
+	var-declr SEMI { debug("stmt-1"); }
 |	func-def { debug("STMT funccccc	--->1"); }
 |	class-def
 |	expr SEMI
@@ -200,7 +200,7 @@ params:
 
 var-declr:
 	LET id-list
-|	LET id-list ASSIGN expr
+|	LET id-list ASSIGN expr 									{ new_var($<tupla.name>2, $<tupla.line>2, UNKNOWN_TYPE); }
 |	LET id-list ASSIGN obj-def
 |	LET ID COLON var-type 
 |	LET ID COLON var-type ASSIGN expr 
@@ -220,8 +220,8 @@ var-declr:
 ;
 
 id-list:
-	ID COMMA id-list 
-|	ID 
+	ID COMMA id-list
+|	ID
 ;
 
 obj-def:
@@ -240,19 +240,19 @@ obj-att:
 ;
 
 var-type:
-	NUMBER 		{ new_var(NUMBER_TYPE); } 
-|	STRING 		{ new_var(STRING_TYPE); }
-|	UNKNOWN 	{ new_var(UNKNOWN_TYPE); }
-|	BOOLTYPE 	{ new_var(BOOLTYPE_TYPE); }
-|	ANY 		{ new_var(ANY_TYPE); }
-|	VOID_RW 	{ new_var(VOID_RW_TYPE); }
-|	NEVER 		{ new_var(NEVER_TYPE); }
+	NUMBER
+|	STRING
+|	UNKNOWN
+|	BOOLTYPE
+|	ANY
+|	VOID_RW
+|	NEVER
 ;
 
 expr:
-	idx-safe-expr  	{ debug("idx-safe-expr"); check_var(); } 
-|	idx-unsafe-expr { debug("idx-unsafe-expr"); check_var(); }
-|	LPAR expr RPAR  { debug("LPAR expr RPAR"); check_var(); }
+	idx-safe-expr  	{ debug("expr-1"); } 
+|	idx-unsafe-expr { debug("expr-2"); }
+|	LPAR expr RPAR  { debug("expr-3"); }
 ;
 
 idx-unsafe-expr:
@@ -262,7 +262,7 @@ idx-unsafe-expr:
 ;
 
 idx-safe-expr:
-	var-val
+	var-val			{ debug("idx-safe-expr-1"); } 
 |	var-att
 |	arit-expr
 |	bitw-expr
@@ -341,7 +341,7 @@ var-obj:
 ;
 
 var-val:
-	INT_VAL
+	INT_VAL  	{ debug("var-val-1"); }
 |	REAL_VAL
 |	STR_VAL
 |	TRUE_RW
@@ -368,51 +368,57 @@ elmts-list:
 
 %%
 
-void debug(char* text){
-	printf("DEBUG: %s \t\t Var-ant: %s \t\t yytext:%s\n", text, text_ant, yytext);
-	
+void debug(char* text) {
+	printf("DEBUG: %s \t\t yytext:%s\n", text, yytext);	
 }
 
-void check_var() {
-    int idx = varExist(vt, text_ant);
-	printf("(---Check var---) => \t yytext: %s | \t text_ant: %s | \t idx: %d\n", yytext, text_ant, idx);
+void check_var(char* name) {
+
+    int idx = varExist(vt, name);
+
+	printf("(---Check var---) => \t yytext: %s | \t name: %s | \t idx: %d\n",
+			yytext, name, idx);
+
     if (idx == 0) {
-        printf("SEMANTIC ERROR (%d): variable '%s' (teste verificadao-> %d).\n",
-                yylineno, text_ant, idx);
+        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
+                yylineno, name);
         exit(EXIT_FAILURE);
     }
 }
 
-void new_var(Type type) {
-	printf("(---Add var---) => yytext: %s | \t\t text_ant: %s \t\tline:%d \n", yytext, text_ant, yylineno);
+void new_var(char* name, int line, Type type) {
 
-    int idx = varExist(vt, text_ant);
-    if (idx == 1) {
-        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line   (teste verificadao-> %d).\n",
-                yylineno, text_ant, idx);
+	printf("(---Add var---) => yytext: %s | \t\t name: %s \t\tline:%d \n",
+			yytext, name, line);
+
+    struct node* item = findVar(&vt, name);
+
+    if (item != NULL) {
+        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
+        		line, name, getLine(item));
         exit(EXIT_FAILURE);
     }
-    addVar(&vt, yylineno, text_ant, type);
+
+    addVar(&vt, line, name, type);
 }
 
-void add_type(Type type){
-	changeVarType(&vt, text_ant, type);
-	printf("Add type->> %s \t\t var_ant->>%s\n", get_text(type), text_ant);
+void add_type(char* name, Type type) {
+	changeVarType(&vt, name, type);
+	printf("Add type->> %s \t\t var_ant->>%s\n", get_text(type), name);
 }
 
-void yyerror(char const* s)
-{
+void yyerror(char const* s) {
 	printf("SYNTAX ERROR (%d): %s\n", yylineno, s);
 	exit(EXIT_FAILURE);
 }
 
-int main(void){
+int main(void) {
 
 	st = createStrTable();
     vt = createVarTable();
 
-	if (yyparse() == 0) printf("Parse successful\n");
-
+	if (yyparse() == 0)
+		printf("Parse successful\n");
 	
     printVars(vt);
 	printStrs(st);
@@ -420,6 +426,7 @@ int main(void){
     freeVars(&vt);
     freeStrs(&st);
 
+    yylex_destroy();
 
 	return 0;
 }
