@@ -7,8 +7,8 @@
 %{
 
 #include <stdio.h>
-#include "parser.h"
 #include "list.h"
+#include "parser.h"
 
 void erro_lexico();
 

@@ -1,0 +1,36 @@
+
+Disciplina    INF09281 Compiladores
+Período       2020/2 EARTE
+
+Grupo         Leonardo Deorce Lima de Oliveira
+              Julio Bissoli
+              Rodrigo Mattiolli
+
+==========================================================
+
+Linguagem de entrada:                   TypeScript
+Arquitetura de saída:                   MIPS
+Ferramenta para análise léxica:         flex 2.6.4
+Ferramenta para análise sintática,
+    semântica e geração de código
+    intermediário:                      GNU Bison 3.5.1
+
+==========================================================
+
+Analisador semântico:
+
+
+
+==========================================================
+
+Código intermediário:
+
+
+
+==========================================================
+
+Considerações de projeto:
+
+- Arrays só admitem elementos de mesmo tipo;
+- Apenas uma variável pode ser declarada por linha;
+-

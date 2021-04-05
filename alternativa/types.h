@@ -2,14 +2,15 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef enum{
+typedef enum {
     NUMBER_TYPE,
     STRING_TYPE,
     UNKNOWN_TYPE,
-    BOOLTYPE_TYPE,
-    VOID_RW_TYPE,
-    NEVER_TYPE, 
-    ANY_TYPE, // Used when we need to pass a non-existing type to a function.
+    BOOLEAN_TYPE,
+    VOID_TYPE,
+    NEVER_TYPE,
+    ANY_TYPE,
+    FUNCTION_TYPE
 } Type;
 
 const char *get_text(Type type);

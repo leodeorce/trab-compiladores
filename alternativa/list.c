@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "list.h"
-//#include "types.h"
 
 struct node {
    char* name;
@@ -13,53 +12,44 @@ struct node {
    struct node *next;
 };
 
-// struct node *head = NULL;
-// struct node *current = NULL;
-
 
 // -------- Var_table ---------
 
-Var_table* createVarTable() {
-    Var_table *head = NULL;
-    return head;
-};
+Var_table* createVarTable(void) {
+    return NULL;
+}
 
 void printVars(Var_table* table) {
 
-   // struct node *ptr = head;
+   int i = 0;
+   
    struct node *ptr = table;
-   printf("\n---------Tabela de Variaveis-------\n");
+   printf("---------Tabela de Variaveis-------\n");
 	
-   //start from the beginning
    while(ptr != NULL) {
-      printf("linha-> %d\t\t | nome-> %s | \t\t type->  %s\n", ptr->line, ptr->name, get_text(ptr->type));
+      printf("Pos %d -- name: %s,\tline: %d,\ttype: %s\n", i, ptr->name, ptr->line, get_text(ptr->type));
       ptr = ptr->next;
+      i++;
    }
-	
-   printf(" \n");
 }
 
 void addVar(Var_table** table ,int line, char* str, Type type) {
 
-   //create a link
    struct node *link = (struct node*) malloc(sizeof(struct node));
    	
    link->line = line;
    link->name = malloc( sizeof(char) * (strlen (str) + 1)); 
    strcpy(link->name, str);
 
-   link->type = type; 
-   
-   //point it to old first node
+   link->type = type;   
    link->next = *table;
 
-   //point first to new first node
    *table = link;
 }
 
-void changeVarType(Var_table** table, char* key_var, Type type) {
+void changeVarType(Var_table* table, char* name, Type type) {
   
-  struct node* var = findVar(table, key_var);
+  struct node* var = findVar(table, name);
 
   if(var != NULL) {
      var->type = type;
@@ -68,16 +58,14 @@ void changeVarType(Var_table** table, char* key_var, Type type) {
 
 void deleteVarFirst(Var_table** table) {
 
-   //save reference to first link
    Var_table* aux = *table;
    struct node *tempLink = aux;
 	
    free(tempLink->name);
    free(tempLink);
-   //mark next to first link as first 
+
    aux = aux->next;
    
-   //change reference origes
    *table = aux;
 }
 
@@ -93,56 +81,26 @@ int lengthVarTable(Var_table* table) {
    return length;
 }
 
-struct node* findVar(Var_table** table, char* str) {
+struct node* findVar(Var_table* table, char* name) {
 
-   //start from the first link
-   struct node* current = *table;
+	// Caso lista vazia
+	if(table == NULL) {
+		return NULL;
+	}
 
-   //if list is empty
-   if(current == NULL) {
-      return NULL;
-   }
+	struct node* current = table;
 
-   //navigate through list
-   while(strcmp(current->name, str)) {
-	
-      //if it is last node
-      if(current->next == NULL) {
-         return NULL;
-      } else {
-         //go to next link
-         current = current->next;
-      }
-   }      
-	
-   //if data found, return the current Link
-   return current;
-}
+	while(strcmp(current->name, name) != 0) {
 
-int varExist(Var_table* table, char* str) {
+		// Caso chegou ao final
+		if(current->next == NULL) {
+			return NULL;
+		}
 
-   //start from the first link
-   struct node* current = table;
+		current = current->next;
+	}
 
-   //if list is empty
-   if(table == NULL) {
-      return 0;
-   }
-
-   //navigate through list
-   while(strcmp(current->name, str)) {
-	
-      //if it is last node
-      if(current->next == NULL) {
-         return 0;
-      } else {
-         //go to next link
-         current = current->next;
-      }
-   }      
-	
-   //if data found, return the current Link
-   return 1;
+	return current;
 }
 
 void freeVars(Var_table** table) {
@@ -156,11 +114,12 @@ void freeVars(Var_table** table) {
       free(current);
       current = next;
    }
+
 	*table = NULL;
 }
 
 int getLine(struct node* item) {
-   return item->line;
+	return item->line;
 }
 
 
@@ -179,17 +138,16 @@ Str_table* createStrTable() {
 
 void printStrs(Str_table* table) {
 
-   // struct node *ptr = head;
+   int i = 0;
    struct node_str *ptr = table;
-     printf("\n---------Tabela de Strings-------\n");
+   printf("---------Tabela de Strings-------\n");
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("linha-> %d\t | string-> %s \n", ptr->key, ptr->str);
+      printf("Pos %d -- line: %d,\tstring: %s\n", i, ptr->key, ptr->str);
       ptr = ptr->next;
+      i++;
    }
-	
-   printf("\n");
 }
 
 void addStr(Str_table** table ,int key, char* str) {

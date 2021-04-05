@@ -11,7 +11,7 @@ struct node;
 typedef struct node Var_table;
 
 // Inicia tabela
-Var_table* createVarTable();
+Var_table* createVarTable(void);
 
 // Escreve os itens da tabela
 void printVars(Var_table* table);
@@ -25,14 +25,11 @@ void deleteVarFirst(Var_table** table);
 // Retorna o tamanho da tabela
 int lengthVarTable(Var_table* table);
 
-// Retorna um item da tabela a partir de um identificador
-struct node* findVar(Var_table** table, char* str);
-
 // Modifica o tipo de uma variavel especifica
-void changeVarType(Var_table** table, char* key_var, Type type);
+void changeVarType(Var_table* table, char* name, Type type);
 
-// Verifica se uma variavel existe na tabela
-int varExist(Var_table* table, char* str);
+// Verifica se uma variavel existe na tabela e retorna seu link
+struct node* findVar(Var_table* table, char* name);
 
 // Libera a tabela
 void freeVars(Var_table** table);
