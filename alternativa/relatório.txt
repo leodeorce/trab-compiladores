@@ -19,7 +19,12 @@ Ferramenta para análise sintática,
 
 Analisador semântico:
 
-
+A verificação de tipos foi feita com o auxílio de códigos
+de teste para cada combinação de operadores e tipos supor-
+tada pelo projeto, uma vez que este procedimento é mais
+eficaz que uma busca extensa sobre a documentação que não
+traz esse tipo de informação de forma íntegra, dando ênfa-
+se maior a casos excepcionais.
 
 ==========================================================
 
@@ -31,6 +36,6 @@ Código intermediário:
 
 Considerações de projeto:
 
-- Arrays só admitem elementos de mesmo tipo;
-- Apenas uma variável pode ser declarada por linha;
+- (?) Arrays só admitem elementos de mesmo tipo;
+- (?) Apenas uma variável pode ser declarada por linha;
 -

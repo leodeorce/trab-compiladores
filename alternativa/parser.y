@@ -19,6 +19,7 @@ void check_var(char*);
 void new_var(char*, int, Type);
 void debug(char*);
 void add_type(char*, Type);
+void type_error(char*, Type, Type);
 
 extern char *yytext;
 extern int yylineno;
@@ -186,9 +187,9 @@ access-modif:
 
 func-def:
 	FUNCTION ID LPAR params RPAR LBRACE line RBRACE					{ debug("func-def-1");
-																		new_var($<tupla.name>2, $<tupla.line>2, FUNCTION_TYPE); }
+																		/*new_var($<tupla.name>2, $<tupla.line>2, FUNCTION_TYPE);*/ }
 |	FUNCTION ID LPAR params RPAR COLON var-type LBRACE line RBRACE	{ debug("func-def-2");
-																		new_var($<tupla.name>2, $<tupla.line>2, FUNCTION_TYPE); }
+																		/*new_var($<tupla.name>2, $<tupla.line>2, FUNCTION_TYPE);*/ }
 ;
 
 params:
@@ -411,8 +412,7 @@ void check_var(char* name) {
 	printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, name);
 
     if (item == NULL) {
-        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
-                yylineno, name);
+        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", yylineno, name);
         exit(EXIT_FAILURE);
     }
 }
@@ -435,6 +435,20 @@ void new_var(char* name, int line, Type type) {
 void add_type(char* name, Type type) {
 	printf("ADD_TYPE\t\t%s\tname: %s\n", get_text(type), name);
 	changeVarType(vt, name, type);
+}
+
+void check_assign(Type left, Type right) {
+
+	// Com referencia ao lado esquerdo, verifica se o direito eh um tipo aceito para atribuicao.
+    if ( left == NUMBER_TYPE && !(right == NUMBER_TYPE || right == ANY_TYPE) ) type_error("=", left, right);
+    if ( left == STRING_TYPE &&
+         !(right == STRING_TYPE || right == ANY_TYPE || right == NEVER_TYPE) ) type_error("=", left, right);
+    if ( left == UNKNOWN_TYPE && 1 ) type_error("=", left, right);
+	// Continuar
+}
+
+void type_error(char* op, Type left, Type right) {
+
 }
 
 void yyerror(char const* s) {

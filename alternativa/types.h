@@ -10,7 +10,7 @@ typedef enum {
     VOID_TYPE,
     NEVER_TYPE,
     ANY_TYPE,
-    FUNCTION_TYPE
+    NO_TYPE
 } Type;
 
 const char *get_text(Type type);
