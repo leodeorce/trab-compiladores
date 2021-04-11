@@ -1,51 +1,68 @@
 // Testando atribuição
 
-let num:number;
-let str:string;
+// let num:number;
+// let str:string;
+// let unk:unknown;
+// let bool:boolean;
+// let void_rw:void;
+// let never:never;
+// let any:any;
+
+let num:number = 1;
+let str:string = "str";
 let unk:unknown;
-let bool:boolean;
+let bool:boolean = true;
 let void_rw:void;
 let never:never;
-let any:any;
+let any:any = "foo";
 
-let result1:string = "teste";
-console.log("result1: " + typeof result1);
-console.log("num: " + typeof num);
-result1 = num;
-console.log("result1 = num: " + typeof result1);
+let result1;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof num);
+result1 = any + num;
+console.log("result1:\t> " + typeof result1);
+console.log("");
 
-let result2:string = "teste";
-console.log("result2: " + typeof result2);
-console.log("str: " + typeof str);
-result2 = str;
-console.log("result2 = str: " + typeof result2);
+let result2;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof str);
+result2 = any + str;
+console.log("result2:\t> " + typeof result2);
+console.log("");
 
-let result3:string = "teste";
-console.log("result3: " + typeof result3);
-console.log("unk: " + typeof unk);
-result3 = unk;
-console.log("result3 = unk: " + typeof result3);
+let result3;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof unk);
+result3 = any + unk;
+console.log("result3:\t> " + typeof result3);
+console.log("");
 
-let result4:string = "teste";
-console.log("result4: " + typeof result4);
-console.log("bool: " + typeof bool);
-result4 = bool;
-console.log("result4 = bool: " + typeof result4);
+let result4;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof bool);
+result4 = any + bool;
+console.log("result4:\t> " + typeof result4);
+console.log("");
 
-let result5:string = "teste";
-console.log("result5: " + typeof result5);
-console.log("void_rw: " + typeof void_rw);
-result5 = void_rw;
-console.log("result5 = void_rw: " + typeof result5);
+let result5;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof void_rw);
+result5 = any + void_rw;
+console.log("result5:\t> " + typeof result5);
+console.log("");
 
-let result6:string = "teste";
-console.log("result6: " + typeof result6);
-console.log("never: " + typeof never);
-result6 = never;
-console.log("result6 = never: " + typeof result6);
+let result6;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof never);
+result6 = any + never;
+console.log("result6:\t> " + typeof result6);
+console.log("");
 
-let result7:string = "teste";
-console.log("result7: " + typeof result7);
-console.log("any: " + typeof any);
-result7 = any;
-console.log("result7 = any: " + typeof result7);
+let result7;
+console.log("left:\t\t" + typeof any);
+console.log("right:\t\t" + typeof any);
+result7 = any + any;
+console.log("result7:\t> " + typeof result7);
+console.log("");
+
+let i:number, j = 1;

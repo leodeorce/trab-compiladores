@@ -17,7 +17,7 @@ Var_table* createVarTable(void);
 void printVars(Var_table* table);
 
 // Insere novo item no início da tabela
-void addVar(Var_table** table, int line, char* str, Type type);
+void addVar(Var_table** table, int line, const char* str, Type type);
 
 // Deleta o primeiro item da tabela
 void deleteVarFirst(Var_table** table);
@@ -26,16 +26,19 @@ void deleteVarFirst(Var_table** table);
 int lengthVarTable(Var_table* table);
 
 // Modifica o tipo de uma variavel especifica
-void changeVarType(Var_table* table, char* name, Type type);
+void changeVarType(Var_table* table, const char* name, Type type);
 
 // Verifica se uma variavel existe na tabela e retorna seu link
-struct node* findVar(Var_table* table, char* name);
+struct node* findVar(Var_table* table, const char* name);
 
 // Libera a tabela
 void freeVars(Var_table** table);
 
 // Retorna a linha na qual uma variavel foi declarada
 int getLine(struct node* item);
+
+// Retorna o tipo de uma variavel
+Type getType(struct node* item);
 
 
 // ---------- Str_table -----------
@@ -50,7 +53,7 @@ Str_table* createStrTable();
 void printStrs(Str_table* table);
 
 // Insere novo item no início da tabela
-void addStr(Str_table** table, int key, char* str);
+void addStr(Str_table** table, int key, const char* str);
 
 // Retorna um item da tabela a partir de um identificador
 struct node_str* getStr(Str_table* table, int key);

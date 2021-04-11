@@ -1,4 +1,4 @@
-let a = 0;
+let a;
 let b:number = 0;
 // let c:string = 0; // erro
 let d:string = "str";
@@ -14,7 +14,8 @@ const i:any = -false;
 
 // let j = [1, 2, "str"];
 
-a = 2;
+d = h;
 // l = false;
 
-e - b;
+let n = 1;
+let m = n + b;

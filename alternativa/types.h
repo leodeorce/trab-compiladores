@@ -15,8 +15,8 @@ typedef enum {
 
 const char *get_text(Type type);
 
-// Type unify_plus(Type lt, Type rt);
-// Type unify_other_arith(Type lt, Type rt);
-// Type unify_comp(Type lt, Type rt);
+Type unify_plus(Type, Type);
+Type unify_other_arith(Type, Type);
+Type unify_comp(Type, Type);
 
 #endif // TYPES_H

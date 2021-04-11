@@ -27,13 +27,13 @@ void printVars(Var_table* table) {
    printf("---------Tabela de Variaveis-------\n");
 	
    while(ptr != NULL) {
-      printf("Pos %d -- name: %s,\tline: %d,\ttype: %s\n", i, ptr->name, ptr->line, get_text(ptr->type));
+      printf("Pos %d\t-- name: %s,\tline: %d,\ttype: %s\n", i, ptr->name, ptr->line, get_text(ptr->type));
       ptr = ptr->next;
       i++;
    }
 }
 
-void addVar(Var_table** table ,int line, char* str, Type type) {
+void addVar(Var_table** table, int line, const char* str, Type type) {
 
    struct node *link = (struct node*) malloc(sizeof(struct node));
    	
@@ -47,7 +47,7 @@ void addVar(Var_table** table ,int line, char* str, Type type) {
    *table = link;
 }
 
-void changeVarType(Var_table* table, char* name, Type type) {
+void changeVarType(Var_table* table, const char* name, Type type) {
   
   struct node* var = findVar(table, name);
 
@@ -81,7 +81,7 @@ int lengthVarTable(Var_table* table) {
    return length;
 }
 
-struct node* findVar(Var_table* table, char* name) {
+struct node* findVar(Var_table* table, const char* name) {
 
 	// Caso lista vazia
 	if(table == NULL) {
@@ -122,6 +122,10 @@ int getLine(struct node* item) {
 	return item->line;
 }
 
+Type getType(struct node* item) {
+   return item->type;
+}
+
 
 // ----------- Str_table -----------
 
@@ -144,13 +148,13 @@ void printStrs(Str_table* table) {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("Pos %d -- line: %d,\tstring: %s\n", i, ptr->key, ptr->str);
+      printf("Pos %d\t-- line: %d,\tstring: %s\n", i, ptr->key, ptr->str);
       ptr = ptr->next;
       i++;
    }
 }
 
-void addStr(Str_table** table ,int key, char* str) {
+void addStr(Str_table** table, int key, const char* str) {
 
    struct node_str *link = (struct node_str*) malloc(sizeof(struct node));
    
@@ -184,7 +188,7 @@ struct node_str* getStr(Str_table* table, int key) {
    return current;
 }
 
-void freeStrs(Str_table** table){
+void freeStrs(Str_table** table) {
 
    struct node_str* current = *table;
    struct node_str* next;
@@ -223,7 +227,7 @@ bool isEmpty(Var_table* table) {
 }
 
 //delete a link with given line
-Var_table* delete(Var_table* table,int line) {
+Var_table* delete(Var_table* table, int line) {
 
    //start from the first link
    Var_table* current = table;

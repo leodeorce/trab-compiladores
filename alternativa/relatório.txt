@@ -37,5 +37,5 @@ Código intermediário:
 Considerações de projeto:
 
 - (?) Arrays só admitem elementos de mesmo tipo;
-- (?) Apenas uma variável pode ser declarada por linha;
+- Apenas uma variável pode ser declarada por linha;
 -
