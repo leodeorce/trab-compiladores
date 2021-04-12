@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "tupla.h"
 
 struct tupla {
@@ -6,6 +7,14 @@ struct tupla {
     int  line;
     AST  *node;
 };
+
+Tupla* new_tupla(char* name, int line, AST* node) {
+    Tupla* tupla = (struct tupla*) malloc(sizeof(struct tupla));
+    tupla->name = name;
+    tupla->line = line;
+    tupla->node = node;
+    return tupla;
+}
 
 void tupla_add_child(Tupla* parent, Tupla* child) {
     add_child(parent->node, child->node);
@@ -28,7 +37,9 @@ void change_line(Tupla* tupla, int line) {
 }
 
 void change_node(Tupla* tupla, AST* node) {
+    printf("check1\n");
     tupla->node = node;
+    printf("check2\n");
 }
 
 AST* getAST(Tupla* tupla) {

@@ -67,7 +67,7 @@ comment			"//"+.*
 "export"  			{ return EXPORT; }
 "extends"  			{ return EXTENDS; }
 
-"false"  			{ change_node(yylval, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
+"false"  			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
 					  return FALSE_RW; }
 
 "finally"  			{ return FINALLY; }
@@ -92,7 +92,7 @@ comment			"//"+.*
 "this"  			{ return THIS; }
 "throw"  			{ return THROW; }
 
-"true"  			{ change_node(yylval, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
+"true"  			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
 					  return TRUE_RW; }
 
 "try"  			    { return TRY; }
@@ -196,26 +196,25 @@ comment			"//"+.*
 
 	/* Valores */
 
-{int_val}				{ change_node(yylval, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+{int_val}				{ yylval = new_tupla(strdup(yytext), yylineno, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
 						  set_double_data(getAST(yylval), (double) atof(yytext));
 						  return INT_VAL; }
 
-{real_val}				{ change_node(yylval, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+{real_val}				{ yylval = new_tupla(strdup(yytext), yylineno, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
 						  set_double_data(getAST(yylval), (double) atof(yytext));
 						  return REAL_VAL; }
 
-{str_quotes_val}		{ change_node(yylval, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+{str_quotes_val}		{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
 						  return STR_VAL; }
-{str_apost_val}			{ change_node(yylval, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+{str_apost_val}			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
 						  return STR_VAL; }
-{str_crasis_val}		{ change_node(yylval, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+{str_crasis_val}		{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
 						  return STR_VAL; }
 
 
 	/* Identificadores */
 
-{id}				{ printf("id1\n"); change_name(yylval, strdup(yytext));
-					  printf("id2\n"); change_line(yylval, yylineno);
+{id}				{ yylval = new_tupla(strdup(yytext), yylineno, NULL);
 					  return ID; }
 
 

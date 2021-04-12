@@ -86,7 +86,7 @@ line:
 
 stmt-list:
     stmt-list stmt  { debug("stmt-list-1"); tupla_add_child($1, $2); $$ = $1; }
-|   stmt            { debug("stmt-list-2"); change_node($$, new_node(BLOCK_NODE, 0, NO_TYPE)); }
+|   stmt            { debug("stmt-list-2"); $$ = $1; change_node($$, new_node(BLOCK_NODE, 0, NO_TYPE)); }
 ;
 
 stmt:
@@ -247,7 +247,9 @@ var-declr:
     LET id-list
     {
         debug("var-declr-1");
+        $$ = $2;
         change_node($$, new_var($2, UNKNOWN_TYPE));
+        printf("check3\n");
     }
 
 |   LET id-list ASSIGN expr
@@ -573,6 +575,7 @@ AST* new_var(Tupla* tupla, Type type) {
     }
 
     int idx = addVar(&vt, tupla_get_line(tupla), tupla_get_name(tupla), type);
+
     return new_node(VAR_DECL_NODE, idx, type);
 }
 

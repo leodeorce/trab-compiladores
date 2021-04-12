@@ -6,6 +6,8 @@
 struct tupla;
 typedef struct tupla Tupla;
 
+Tupla* new_tupla(char* name, int line, AST* node);
+
 void tupla_add_child(Tupla* parent, Tupla* child);
 void empty_tupla(Tupla* tupla);
 

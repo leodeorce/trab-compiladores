@@ -1,7 +1,7 @@
 # Makefile - Ubuntu 20.04.2 - bison
 SHELL := /bin/bash
 
-ENTRADA = in/c10
+ENTRADA = teste
 
 all: comp-bison comp-flex comp-gcc
 	@echo "Done."
