@@ -1,7 +1,6 @@
 #ifndef LIST_H
 #define LIST_H
 
-// #include "list.h";
 #include "types.h"
 
 
@@ -17,7 +16,7 @@ Var_table* createVarTable(void);
 void printVars(Var_table* table);
 
 // Insere novo item no início da tabela
-void addVar(Var_table** table, int line, const char* str, Type type);
+int addVar(Var_table** table, int line, const char* str, Type type);
 
 // Deleta o primeiro item da tabela
 void deleteVarFirst(Var_table** table);
@@ -40,6 +39,9 @@ int getLine(struct node* item);
 // Retorna o tipo de uma variavel
 Type getType(struct node* item);
 
+// Retorna o nome de uma variavel
+char* getName(Var_table* table, int idx);
+
 
 // ---------- Str_table -----------
 
@@ -53,7 +55,7 @@ Str_table* createStrTable();
 void printStrs(Str_table* table);
 
 // Insere novo item no início da tabela
-void addStr(Str_table** table, int key, const char* str);
+int addStr(Str_table** table, const char* str);
 
 // Retorna um item da tabela a partir de um identificador
 struct node_str* getStr(Str_table* table, int key);

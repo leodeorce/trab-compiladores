@@ -1,38 +1,57 @@
-%output "parser.c"
+%output  "parser.c"
 %defines "parser.h"
-%define parse.error verbose
-%define parse.lac full
+%define  parse.error verbose
+%define  parse.lac   full
 
 %{
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "list.h"
 #include "types.h"
+#include "list.h"
+#include "tupla.h"
+#include "ast.h"
+#include "parser.h"
 
-int yylex(void);
-void yyerror(const char*);
-int yylex_destroy(void);
+int  yylex(void);
+void yyerror(const char* s);
+int  yylex_destroy(void);
 
 void debug(char*);
-void check_var(const char*);
-void new_var(const char*, int, Type);
-Type get_type(const char*);
-void change_type(const char*, Type);
-Type unify_bin_op(Type, Type, const char*, Type (*unify)(Type, Type));
-void check_assign(Type, Type);
+
+AST* check_var(Tupla* tupla);
+AST* new_var(Tupla* tupla, Type type);
+
+AST* unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
+AST* check_assign(Type left, Type right);
+AST* change_type(Tupla* tupla, Type type);
+
 void type_error(const char*, Type, Type);
 
 extern char *yytext;
-extern int yylineno;
+extern int  yylineno;
 
 Var_table *vt;
 Str_table *st;
 
+AST *root;
+
 %}
 
-%token ASSIGN ARROW COMMA SEMI COLON TERNARY CHAIN PIPELINE DOT SPREAD PLUS INCREMENT PLUS_ASSIGN SUB DECREMENT SUB_ASSIGN MULT MULT_ASSIGN DIV DIV_ASSIGN EXP EXP_ASSIGN REM REM_ASSIGN BITWISE_NOT BITWISE_AND BITWISE_AND_ASSIGN BITWISE_OR BITWISE_OR_ASSIGN BITWISE_XOR BITWISE_XOR_ASSIGN LOGICAL_NOT LOGICAL_NULL LOGICAL_NULL_ASSIGN LOGICAL_AND LOGICAL_AND_ASSIGN LOGICAL_OR LOGICAL_OR_ASSIGN EQ EQ_STRICT INEQ INEQ_STRICT LT LT_EQ GT GT_EQ LSHIFT LSHIFT_ASSIGN RSHIFT RSHIFT_ASSIGN RSHIFT_UNSIGNED RSHIFT_UNSIGNED_ASSIGN LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET INT_VAL REAL_VAL STR_VAL ID BREAK CASE CATCH CLASS CONST_RW CONTINUE DEBUGGER DEFAULT DELETE DO ELSE ENUM EXPORT EXTENDS FALSE_RW FINALLY FOR FUNCTION IF IMPLEMENTS IMPORT IN INSTANCEOF INTERFACE LET NEW NULL_RW PACKAGE PRIVATE PROTECTED PUBLIC RETURN SUPER SWITCH THIS THROW TRUE_RW TRY TYPEOF VAR VOID_RW WHILE WITH AWAIT YIELD STATIC AS ASYNC FROM GET OF SET TARGET ANY BOOLTYPE CONSTRUCTOR DECLARE MODULE REQUIRE NEVER NUMBER STRING SYMBOL TYPE UNDEFINED UNKNOWN
+%define api.value.type {Tupla*}
+
+%token ASSIGN ARROW COMMA SEMI COLON TERNARY CHAIN PIPELINE DOT SPREAD PLUS INCREMENT
+PLUS_ASSIGN SUB DECREMENT SUB_ASSIGN MULT MULT_ASSIGN DIV DIV_ASSIGN EXP EXP_ASSIGN REM
+REM_ASSIGN BITWISE_NOT BITWISE_AND BITWISE_AND_ASSIGN BITWISE_OR BITWISE_OR_ASSIGN
+BITWISE_XOR BITWISE_XOR_ASSIGN LOGICAL_NOT LOGICAL_NULL LOGICAL_NULL_ASSIGN LOGICAL_AND
+LOGICAL_AND_ASSIGN LOGICAL_OR LOGICAL_OR_ASSIGN EQ EQ_STRICT INEQ INEQ_STRICT LT LT_EQ
+GT GT_EQ LSHIFT LSHIFT_ASSIGN RSHIFT RSHIFT_ASSIGN RSHIFT_UNSIGNED RSHIFT_UNSIGNED_ASSIGN
+LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET INT_VAL REAL_VAL STR_VAL ID BREAK CASE CATCH
+CLASS CONST_RW CONTINUE DEBUGGER DEFAULT DELETE DO ELSE ENUM EXPORT EXTENDS FALSE_RW
+FINALLY FOR FUNCTION IF IMPLEMENTS IMPORT IN INSTANCEOF INTERFACE LET NEW NULL_RW PACKAGE
+PRIVATE PROTECTED PUBLIC RETURN SUPER SWITCH THIS THROW TRUE_RW TRY TYPEOF VAR VOID_RW
+WHILE WITH AWAIT YIELD STATIC AS ASYNC FROM GET OF SET TARGET ANY BOOLTYPE CONSTRUCTOR
+DECLARE MODULE REQUIRE NEVER NUMBER STRING SYMBOL TYPE UNDEFINED UNKNOWN
 
 %precedence E_ID
 %left LOGICAL_NULL LOGICAL_AND LOGICAL_OR EQ EQ_STRICT INEQ INEQ_STRICT LT LT_EQ GT GT_EQ
@@ -47,28 +66,31 @@ Str_table *st;
 %precedence ID
 %right DOT
 
-%union {
-    struct tupla {
-        char* name;
-        int line;
-        Type type;
-    } tupla;
-};
+%start begin
 
 %%
 
+begin:
+    line
+    {
+        debug("begin-1");
+        root = new_node(BEGIN_NODE, 0, NO_TYPE);
+        add_child(root, getAST($1));
+    }
+;
+
 line:
-    stmt-list
-|   %empty
+    stmt-list       { debug("line-1"); $$ = $1; }
+|   %empty          { debug("line-2"); empty_tupla($$); }
 ;
 
 stmt-list:
-    stmt-list stmt
-|   stmt
+    stmt-list stmt  { debug("stmt-list-1"); tupla_add_child($1, $2); $$ = $1; }
+|   stmt            { debug("stmt-list-2"); change_node($$, new_node(BLOCK_NODE, 0, NO_TYPE)); }
 ;
 
 stmt:
-    var-declr SEMI          { debug("stmt-1"); }
+    var-declr SEMI          { debug("stmt-1"); $$ = $1; }
 |   func-def                { debug("stmt-2"); }
 |   class-def
 |   expr SEMI               { debug("stmt-4"); }
@@ -90,9 +112,9 @@ assign-expr:
 |   ID assignment expr
     {
         debug("assign-expr-2");
-        check_var($<tupla.name>1);
-        check_assign( get_type($<tupla.name>1), $<tupla.type>3 );
-        change_type($<tupla.name>1, $<tupla.type>3);
+        //check_var($1);
+        //check_assign( get_type($1), $3 );
+        //change_type($1, $3);
     }
 
 |   vet-idx assignment expr
@@ -225,13 +247,13 @@ var-declr:
     LET id-list
     {
         debug("var-declr-1");
-        new_var($<tupla.name>2, $<tupla.line>2, UNKNOWN_TYPE);
+        change_node($$, new_var($2, UNKNOWN_TYPE));
     }
 
 |   LET id-list ASSIGN expr
     {
         debug("var-declr-2");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   LET id-list ASSIGN obj-def
@@ -242,13 +264,13 @@ var-declr:
 |   LET ID COLON var-type
     {
         debug("var-declr-4");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   LET ID COLON var-type ASSIGN expr
     {
         debug("var-declr-5");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   LET ID COLON var-type LBRACKET RBRACKET
@@ -264,13 +286,13 @@ var-declr:
 |   VAR id-list
     {
         debug("var-declr-8");
-        new_var($<tupla.name>2, $<tupla.line>2, UNKNOWN_TYPE);
+        //new_var($2, UNKNOWN_TYPE);
     }
 
 |   VAR id-list ASSIGN expr
     {
         debug("var-declr-9");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   VAR id-list ASSIGN obj-def
@@ -281,13 +303,13 @@ var-declr:
 |   VAR ID COLON var-type
     {
         debug("var-declr-11");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   VAR ID COLON var-type ASSIGN expr
     {
         debug("var-declr-12");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   VAR ID COLON var-type LBRACKET RBRACKET
@@ -303,13 +325,13 @@ var-declr:
 |   CONST_RW id-list ASSIGN expr
     {
         debug("var-declr-15");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   CONST_RW ID COLON var-type ASSIGN expr
     {
         debug("var-declr-16");
-        new_var($<tupla.name>2, $<tupla.line>2, $<tupla.type>4);
+        //new_var($2, $4);
     }
 
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
@@ -325,7 +347,11 @@ var-declr:
 
 id-list:
     ID COMMA id-list
-|   ID                  { debug("var-declr-2"); }
+|   ID
+    {
+        debug("id-list-2");
+        $$ = $1;
+    }
 ;
 
 obj-def:
@@ -344,19 +370,19 @@ obj-att:
 ;
 
 var-type:
-    NUMBER      { debug("var-type-1"); $<tupla.type>$ = NUMBER_TYPE;  }
-|   STRING      { debug("var-type-2"); $<tupla.type>$ = STRING_TYPE;  }
-|   UNKNOWN     { debug("var-type-3"); $<tupla.type>$ = UNKNOWN_TYPE; }
-|   BOOLTYPE    { debug("var-type-4"); $<tupla.type>$ = BOOLEAN_TYPE; }
-|   ANY         { debug("var-type-5"); $<tupla.type>$ = ANY_TYPE;     }
-|   VOID_RW     { debug("var-type-6"); $<tupla.type>$ = VOID_TYPE;    }
-|   NEVER       { debug("var-type-7"); $<tupla.type>$ = NEVER_TYPE;   }
+    NUMBER      { debug("var-type-1"); /* $$ = NUMBER_TYPE;  */}
+|   STRING      { debug("var-type-2"); /* $$ = STRING_TYPE;  */}
+|   UNKNOWN     { debug("var-type-3"); /* $$ = UNKNOWN_TYPE; */}
+|   BOOLTYPE    { debug("var-type-4"); /* $$ = BOOLEAN_TYPE; */}
+|   ANY         { debug("var-type-5"); /* $$ = ANY_TYPE;     */}
+|   VOID_RW     { debug("var-type-6"); /* $$ = VOID_TYPE;    */}
+|   NEVER       { debug("var-type-7"); /* $$ = NEVER_TYPE;   */}
 ;
 
 expr:
     idx-safe-expr   { debug("expr-1"); }
 |   idx-unsafe-expr { debug("expr-2"); }
-|   LPAR expr RPAR  { debug("expr-3"); $<tupla>$ = $<tupla>2; }
+|   LPAR expr RPAR  { debug("expr-3"); $$ = $2; }
 ;
 
 idx-unsafe-expr:
@@ -376,8 +402,8 @@ idx-safe-expr:
 |   ID %prec E_ID
     {
         debug("idx-safe-expr-8");
-        check_var($<tupla.name>1);
-        $<tupla.type>$ = get_type($<tupla.name>1);
+        //check_var($1);
+        //$$ = get_type($1);
     }
 ;
 
@@ -390,7 +416,7 @@ unary-expr:
     INCREMENT ID
     {
         debug("unary-expr-1");
-        check_var($<tupla.name>2);
+        //check_var($2);
     }
 
 |   INCREMENT var-att
@@ -398,7 +424,7 @@ unary-expr:
 |   DECREMENT ID
     {
         debug("unary-expr-3");
-        check_var($<tupla.name>2);
+        //check_var($2);
     }
 
 |   DECREMENT var-att
@@ -406,7 +432,7 @@ unary-expr:
 |   ID INCREMENT
     {
         debug("unary-expr-5");
-        check_var($<tupla.name>1);
+        //check_var($1);
     }
 
 |   var-att INCREMENT
@@ -414,7 +440,7 @@ unary-expr:
 |   ID DECREMENT
     {
         debug("unary-expr-7");
-        check_var($<tupla.name>1);
+        //check_var($1);
     }
 
 |   var-att DECREMENT
@@ -429,13 +455,12 @@ arit-expr:
     expr PLUS expr
     {
         debug("arit-expr-1");
-        $<tupla.type>$ = unify_bin_op($<tupla.type>1, $<tupla.type>3, "+", unify_plus);
+        //$$ = unify_bin_op($1, $3, "+", unify_plus);
     }
 
 |   expr SUB expr
     {
         debug("arit-expr-2");
-        //$<tupla.type>$ = unify_bin_op($<tupla.type>1, $<tupla.type>3, "-", unify_comp);
     }
 
 |   expr MULT expr
@@ -471,7 +496,7 @@ var-met:
 ;
 
 args-list:
-    COMMA args-list               { debug("args-list-1"); $<tupla>$ = $<tupla>2; }
+    COMMA args-list               { debug("args-list-1"); $$ = $2; }
 |   expr COMMA args-list          { debug("args-list-2"); }
 |   assign-expr COMMA args-list   { debug("args-list-3"); }
 |   expr                          { debug("args-list-4"); }
@@ -487,16 +512,16 @@ var-obj:
 ;
 
 var-val:
-    INT_VAL         { debug("var-val-1");  $<tupla.type>$ = NUMBER_TYPE;  }
-|   REAL_VAL        { debug("var-val-2");  $<tupla.type>$ = NUMBER_TYPE;  }
-|   STR_VAL         { debug("var-val-3");  $<tupla.type>$ = STRING_TYPE;  }
-|   TRUE_RW         { debug("var-val-4");  $<tupla.type>$ = BOOLEAN_TYPE; }
-|   FALSE_RW        { debug("var-val-5");  $<tupla.type>$ = BOOLEAN_TYPE; }
-|   SUB INT_VAL     { debug("var-val-6");  $<tupla.type>$ = NUMBER_TYPE;  }
-|   SUB REAL_VAL    { debug("var-val-7");  $<tupla.type>$ = NUMBER_TYPE;  }
-|   SUB STR_VAL     { debug("var-val-8");  $<tupla.type>$ = STRING_TYPE;  }
-|   SUB TRUE_RW     { debug("var-val-9");  $<tupla.type>$ = BOOLEAN_TYPE; }
-|   SUB FALSE_RW    { debug("var-val-10"); $<tupla.type>$ = BOOLEAN_TYPE; }
+    INT_VAL         { debug("var-val-1");  /*$$ = NUMBER_TYPE;  */}
+|   REAL_VAL        { debug("var-val-2");  /*$$ = NUMBER_TYPE;  */}
+|   STR_VAL         { debug("var-val-3");  /*$$ = STRING_TYPE;  */}
+|   TRUE_RW         { debug("var-val-4");  /*$$ = BOOLEAN_TYPE; */}
+|   FALSE_RW        { debug("var-val-5");  /*$$ = BOOLEAN_TYPE; */}
+|   SUB INT_VAL     { debug("var-val-6");  /*$$ = NUMBER_TYPE;  */}
+|   SUB REAL_VAL    { debug("var-val-7");  /*$$ = NUMBER_TYPE;  */}
+|   SUB STR_VAL     { debug("var-val-8");  /*$$ = STRING_TYPE;  */}
+|   SUB TRUE_RW     { debug("var-val-9");  /*$$ = BOOLEAN_TYPE; */}
+|   SUB FALSE_RW    { debug("var-val-10"); /*$$ = BOOLEAN_TYPE; */}
 |   NULL_RW
 |   UNDEFINED
 ;
@@ -506,7 +531,7 @@ array-expr:
 ;
 
 elmts-list:
-    COMMA elmts-list            { debug("elmts-list-1"); $<tupla>$ = $<tupla>2; }
+    COMMA elmts-list            { debug("elmts-list-1"); $$ = $2; }
 |   var-val COMMA elmts-list    { debug("elmts-list-2"); }
 |   var-val                     { debug("elmts-list-3"); }
 |   %empty                      { debug("elmts-list-4"); }
@@ -514,49 +539,46 @@ elmts-list:
 
 %%
 
-void debug(char* text) {
-    printf("DEBUG\t%s\n", text);    
+void debug(char *text) {
+    printf("DEBUG\t%s\n", text);
 }
 
-void check_var(const char* name) {
+// -----------------------------------------------------------------------
 
-    struct node* item = findVar(vt, name);
+AST* check_var(Tupla* tupla) {
 
-    printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, name);
+    struct node *item = findVar(vt, tupla_get_name(tupla));
+
+    printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, tupla_get_name(tupla));
 
     if (item == NULL) {
-        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", yylineno, name);
+        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", yylineno, tupla_get_name(tupla));
         exit(EXIT_FAILURE);
     }
+
+    return NULL;
 }
 
-void new_var(const char* name, int line, Type type) {
+AST* new_var(Tupla* tupla, Type type) {
 
     printf("NEW_VAR\t\tyylineno: %d,\tname: %s,\tline: %d,\ttype: %s\n",
-            yylineno, name, line, get_text(type));
+            yylineno, tupla_get_name(tupla), tupla_get_line(tupla), get_text(type));
 
-    struct node* item = findVar(vt, name);
+    struct node *item = findVar(vt, tupla_get_name(tupla));
 
     if (item != NULL) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
-                line, name, getLine(item));
+                tupla_get_line(tupla), tupla_get_name(tupla), getLine(item));
         exit(EXIT_FAILURE);
     }
 
-    addVar(&vt, line, name, type);
+    int idx = addVar(&vt, tupla_get_line(tupla), tupla_get_name(tupla), type);
+    return new_node(VAR_DECL_NODE, idx, type);
 }
 
-Type get_type(const char* name) {
-    struct node* item = findVar(vt, name);
-    return getType(item);
-}
+// -----------------------------------------------------------------------
 
-void change_type(const char* name, Type type) {
-    printf("ADD_TYPE\t\tname: %s,\ttype: %s\n", get_text(type), name);
-    changeVarType(vt, name, type);
-}
-
-Type unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type,Type)) {
+AST* unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Type)) {
 
     printf("UNIFY\t\tyylineno: %d,\tleft: %s,\tright: %s,\top: %s\n",
             yylineno, get_text(left), get_text(right), op);
@@ -567,29 +589,13 @@ Type unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type,Type
         type_error(op, left, right);
     }
 
-    return unif;
+    return NULL;
 }
 
-void check_assign(Type left, Type right) {
+AST* check_assign(Type left, Type right) {
 
     printf("CHECK_ASSIGN\tyylineno: %d,\tleft: %s,\tright: %s\n",
             yylineno, get_text(left), get_text(right));
-
-    // // Com referencia ao lado esquerdo, verifica se o direito eh um tipo aceito para atribuicao.
-    // if ( left == NUMBER_TYPE  && !(right == NUMBER_TYPE  || right == ANY_TYPE  || right == NEVER_TYPE) )
-    //     type_error("=", left, right);
-
-    // if ( left == STRING_TYPE  && !(right == STRING_TYPE  || right == ANY_TYPE  || right == NEVER_TYPE) )
-    //     type_error("=", left, right);
-
-    // if ( left == BOOLEAN_TYPE && !(right == BOOLEAN_TYPE || right == ANY_TYPE  || right == NEVER_TYPE) )
-    //     type_error("=", left, right);
-
-    // if ( left == VOID_TYPE    && !(right == VOID_TYPE    || right == ANY_TYPE  || right == NEVER_TYPE) )
-    //     type_error("=", left, right);
-
-    // if ( left == NEVER_TYPE   && !(right == NEVER_TYPE) )
-    //     type_error("=", left, right);
 
     switch(left) {
 
@@ -638,32 +644,45 @@ void check_assign(Type left, Type right) {
 
         default: break;
     }
+
+    return NULL;
 }
 
-void type_error(const char* op, Type left, Type right) {
+AST* change_type(Tupla* tupla, Type type) {
+    printf("ADD_TYPE\t\tname: %s,\ttype: %s\n", get_text(type), tupla_get_name(tupla));
+    changeVarType(vt, tupla_get_name(tupla), type);
+    return NULL;
+}
+
+// -----------------------------------------------------------------------
+
+void type_error(const char *op, Type left, Type right) {
     printf("SEMANTIC ERROR (%d): incompatible types for operator '%s', LHS is '%s' and RHS is '%s'.\n",
             yylineno, op, get_text(left), get_text(right));
     exit(EXIT_FAILURE);
 }
 
-void yyerror(const char* s) {
+void yyerror(const char *s) {
     printf("SYNTAX ERROR (%d): %s\n", yylineno, s);
     exit(EXIT_FAILURE);
 }
+
+// -----------------------------------------------------------------------
 
 int main(void) {
 
     st = createStrTable();
     vt = createVarTable();
 
-    if (yyparse() == 0)
-        printf("Parse successful\n");
+    yyparse();
+    printf("Parse successful\n");
     
     printVars(vt);
     printStrs(st);
 
     freeVars(&vt);
     freeStrs(&st);
+    free_tree(root);
 
     yylex_destroy();
 
