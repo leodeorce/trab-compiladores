@@ -25,21 +25,15 @@ void empty_tupla(Tupla* tupla) {
 }
 
 void change_name(Tupla* tupla, char* name) {
-	printf("change_name1\n");
     tupla->name = name;
-	printf("change_name2\n");
 }
 
 void change_line(Tupla* tupla, int line) {
-	printf("change_line1\n");
     tupla->line = line;
-	printf("change_line2\n");
 }
 
 void change_node(Tupla* tupla, AST* node) {
-    printf("check1\n");
     tupla->node = node;
-    printf("check2\n");
 }
 
 AST* getAST(Tupla* tupla) {

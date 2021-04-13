@@ -35,8 +35,13 @@ AST* new_node(NodeKind kind, int data, Type type) {
 }
 
 void add_child(AST *parent, AST *child) {
-    parent->children.last->next = child;
-    parent->children.last = child;
+    if(parent->children.last != NULL) {
+        parent->children.last->next = child;
+        parent->children.last = child;
+    } else {
+        parent->children.first = child;
+        parent->children.last = child;
+    }
     parent->count++;
 }
 

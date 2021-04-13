@@ -6,13 +6,13 @@ ENTRADA = teste
 all: comp-bison comp-flex comp-gcc
 	@echo "Done."
 
-comp-bison:
-	bison -Wall -v -o parser.c parser.y
+comp-bison: parser.y
+	bison -Wall -v -o parser.c  parser.y
 
-comp-flex: comp-bison
+comp-flex: scanner.l
 	flex scanner.l
 
-comp-gcc: comp-bison comp-flex
+comp-gcc: scanner.c parser.c list.c types.c tupla.c ast.c
 	gcc -Wall scanner.c parser.c list.c types.c tupla.c ast.c -ly -o analise_sem
 
 run-ts:
@@ -21,5 +21,9 @@ run-ts:
 run:
 	./analise_sem < $(ENTRADA).ts
 
+dot:
+	./analise_sem < $(ENTRADA).ts 2> $(ENTRADA).dot
+	dot -Tpdf $(ENTRADA).dot -o $(ENTRADA).pdf
+
 clean:
-	rm -f scanner.c parser.c parser.h parser.output analise_sem
+	rm -f scanner.c parser.c parser.h parser.output analise_sem *.dot *.pdf

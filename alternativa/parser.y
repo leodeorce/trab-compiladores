@@ -81,12 +81,23 @@ begin:
 
 line:
     stmt-list       { debug("line-1"); $$ = $1; }
-|   %empty          { debug("line-2"); empty_tupla($$); }
+|   %empty          { debug("line-2"); $$ = new_tupla(NULL, 0, NULL); }
 ;
 
 stmt-list:
-    stmt-list stmt  { debug("stmt-list-1"); tupla_add_child($1, $2); $$ = $1; }
-|   stmt            { debug("stmt-list-2"); $$ = $1; change_node($$, new_node(BLOCK_NODE, 0, NO_TYPE)); }
+    stmt-list stmt
+    {
+        debug("stmt-list-1");
+        tupla_add_child($1, $2);
+        $$ = $1;
+    }
+|   stmt
+    {
+        debug("stmt-list-2");
+        $$ = $1;
+        //$$ = new_tupla(NULL, 0, new_node(BLOCK_NODE, 0, NO_TYPE));
+        //tupla_add_child($$, $1);
+    }
 ;
 
 stmt:
@@ -249,7 +260,6 @@ var-declr:
         debug("var-declr-1");
         $$ = $2;
         change_node($$, new_var($2, UNKNOWN_TYPE));
-        printf("check3\n");
     }
 
 |   LET id-list ASSIGN expr
@@ -682,6 +692,8 @@ int main(void) {
     
     printVars(vt);
     printStrs(st);
+
+    print_dot(root);
 
     freeVars(&vt);
     freeStrs(&st);
