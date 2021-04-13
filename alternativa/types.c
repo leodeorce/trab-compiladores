@@ -9,6 +9,7 @@ static const char *TYPE_STRING[] = {
     "void",
     "never",
     "any",
+    "notype"
 };
 
 const char *get_text(Type type) {

@@ -269,110 +269,96 @@ params:
 
 var-declr:
 
-    LET id-list
+    var-declr-rw id-list
     {
         debug("var-declr-1");
+        // check_var no $2
         $$ = $2;
         tupla_change_node($$, new_var($2, UNKNOWN_TYPE));
         tupla_free_name($$);
     }
 
-|   LET id-list ASSIGN expr
+|   var-declr-rw id-list ASSIGN expr
     {
         debug("var-declr-2");
-        //new_var($2, $4);
+        // check_var no $2
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
+        tupla_change_node($2, new_var($2, tupla_get_type($4)));
+        tupla_add_child($$, $2);
+        tupla_add_child($$, $4);
+        tupla_free_name($2);
+        tupla_free_name($4);
+        free($2);
+        free($4);
     }
 
-|   LET id-list ASSIGN obj-def
+|   var-declr-rw id-list ASSIGN obj-def
     {
         debug("var-declr-3");
     }
 
-|   LET ID COLON var-type
+|   var-declr-rw ID COLON var-type
     {
         debug("var-declr-4");
+        // check_var no $2
         $$ = $2;
         tupla_change_node($$, new_var($2, tupla_get_type($4)));
         tupla_free_name($$);
         free($4);
     }
 
-|   LET ID COLON var-type ASSIGN expr
+|   var-declr-rw ID COLON var-type ASSIGN expr
     {
         debug("var-declr-5");
-        //new_var($2, $4);
+        // check_var no $2
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
+        // check_type com $4 e $6
+        tupla_change_node($2, new_var($2, tupla_get_type($6)));
+        tupla_add_child($$, $2);
+        tupla_add_child($$, $6);
+        tupla_free_name($2);
+        tupla_free_name($6);
+        free($2);
+        free($4);
+        free($6);
     }
 
-|   LET ID COLON var-type LBRACKET RBRACKET
+|   var-declr-rw ID COLON var-type LBRACKET RBRACKET
     {
         debug("var-declr-6");
     }
 
-|   LET ID COLON var-type LBRACKET RBRACKET ASSIGN expr
+|   var-declr-rw ID COLON var-type LBRACKET RBRACKET ASSIGN expr
     {
         debug("var-declr-7");
     }
 
-|   VAR id-list
-    {
-        debug("var-declr-8");
-        //new_var($2, UNKNOWN_TYPE);
-    }
-
-|   VAR id-list ASSIGN expr
-    {
-        debug("var-declr-9");
-        //new_var($2, $4);
-    }
-
-|   VAR id-list ASSIGN obj-def
-    {
-        debug("var-declr-10");
-    }
-
-|   VAR ID COLON var-type
-    {
-        debug("var-declr-11");
-        //new_var($2, $4);
-    }
-
-|   VAR ID COLON var-type ASSIGN expr
-    {
-        debug("var-declr-12");
-        //new_var($2, $4);
-    }
-
-|   VAR ID COLON var-type LBRACKET RBRACKET
-    {
-        debug("var-declr-13");
-    }
-
-|   VAR ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-    {
-        debug("var-declr-14");
-    }
-
 |   CONST_RW id-list ASSIGN expr
     {
-        debug("var-declr-15");
+        debug("var-declr-8");
         //new_var($2, $4);
     }
 
 |   CONST_RW ID COLON var-type ASSIGN expr
     {
-        debug("var-declr-16");
+        debug("var-declr-9");
         //new_var($2, $4);
     }
 
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
     {
-        debug("var-declr-17");
+        debug("var-declr-10");
     }
 
 |   CONST_RW id-list ASSIGN obj-def
     {
-        debug("var-declr-18");
+        debug("var-declr-11");
     }
+;
+
+var-declr-rw:
+    LET         { debug("var-declr-rw-1"); }
+|   VAR         { debug("var-declr-rw-2"); }
 ;
 
 id-list:
@@ -410,7 +396,7 @@ var-type:
 ;
 
 expr:
-    idx-safe-expr   { debug("expr-1"); }
+    idx-safe-expr   { debug("expr-1"); $$ = $1; }
 |   idx-unsafe-expr { debug("expr-2"); }
 |   LPAR expr RPAR  { debug("expr-3"); $$ = $2; }
 ;
@@ -422,7 +408,7 @@ idx-unsafe-expr:
 ;
 
 idx-safe-expr:
-    var-val         { debug("idx-safe-expr-1"); }
+    var-val         { debug("idx-safe-expr-1"); $$ = $1; }
 |   var-att         { debug("idx-safe-expr-2"); }
 |   arit-expr       { debug("idx-safe-expr-3"); }
 |   bitw-expr       { debug("idx-safe-expr-4"); }
@@ -542,18 +528,18 @@ var-obj:
 ;
 
 var-val:
-    INT_VAL         { debug("var-val-1");  /*$$ = NUMBER_TYPE;  */}
-|   REAL_VAL        { debug("var-val-2");  /*$$ = NUMBER_TYPE;  */}
-|   STR_VAL         { debug("var-val-3");  /*$$ = STRING_TYPE;  */}
-|   TRUE_RW         { debug("var-val-4");  /*$$ = BOOLEAN_TYPE; */}
-|   FALSE_RW        { debug("var-val-5");  /*$$ = BOOLEAN_TYPE; */}
-|   SUB INT_VAL     { debug("var-val-6");  /*$$ = NUMBER_TYPE;  */}
-|   SUB REAL_VAL    { debug("var-val-7");  /*$$ = NUMBER_TYPE;  */}
-|   SUB STR_VAL     { debug("var-val-8");  /*$$ = STRING_TYPE;  */}
-|   SUB TRUE_RW     { debug("var-val-9");  /*$$ = BOOLEAN_TYPE; */}
-|   SUB FALSE_RW    { debug("var-val-10"); /*$$ = BOOLEAN_TYPE; */}
-|   NULL_RW
-|   UNDEFINED
+    INT_VAL         { debug("var-val-1");  $$ = $1; }
+|   REAL_VAL        { debug("var-val-2");  $$ = $1; }
+|   STR_VAL         { debug("var-val-3");  $$ = $1; }
+|   TRUE_RW         { debug("var-val-4");  $$ = $1; }
+|   FALSE_RW        { debug("var-val-5");  $$ = $1; }
+|   SUB INT_VAL     { debug("var-val-6");  $$ = $2; }
+|   SUB REAL_VAL    { debug("var-val-7");  $$ = $2; }
+|   SUB STR_VAL     { debug("var-val-8");  $$ = $2; } // NaN
+|   SUB TRUE_RW     { debug("var-val-9");  $$ = $2; }
+|   SUB FALSE_RW    { debug("var-val-10"); $$ = $2; } // -0
+|   NULL_RW         // Desconsiderado
+|   UNDEFINED       // Desconsiderado
 ;
 
 array-expr:

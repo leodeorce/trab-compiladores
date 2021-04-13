@@ -1,12 +1,12 @@
 let a;
 let b:number;
-// let d:string = "str";
-// let j;
+let d = "str";
+let j:boolean = true;
 // let k:boolean;
 
-// var e = 1;
-// var f:number = 1;
-// var g:boolean = true;
+var e = 1;
+var f:any = 1;
+var g:never;
 
 // const h = "abc";
 // const i:any = -false;

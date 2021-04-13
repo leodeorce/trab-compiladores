@@ -65,7 +65,7 @@ comment			"//"+.*
 "export"  			{ return EXPORT; }
 "extends"  			{ return EXTENDS; }
 
-"false"  			{ yylval = new_tupla(NULL, yylineno,
+"false"  			{ yylval = new_tupla(NULL, 0,
 					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
 					  return FALSE_RW; }
 
@@ -91,7 +91,7 @@ comment			"//"+.*
 "this"  			{ return THIS; }
 "throw"  			{ return THROW; }
 
-"true"  			{ yylval = new_tupla(NULL, yylineno,
+"true"  			{ yylval = new_tupla(NULL, 0,
 					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
 					  return TRUE_RW; }
 

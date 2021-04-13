@@ -15,7 +15,6 @@ Tupla* new_tupla(char* name, int line, Type type, AST* node) {
     tupla->line = line;
     tupla->type = type;
     tupla->node = node;
-    printf("tupla criada\n");
     return tupla;
 }
 
@@ -52,5 +51,6 @@ Type  tupla_get_type(Tupla* tupla) {
 }
 
 void tupla_free_name(Tupla* tupla) {
-    free(tupla->name);
+    if(tupla->name != NULL)
+        free(tupla->name);
 }

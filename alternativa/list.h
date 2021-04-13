@@ -58,7 +58,7 @@ void printStrs(Str_table* table);
 int addStr(Str_table** table, const char* str);
 
 // Retorna um item da tabela a partir de um identificador
-struct node_str* getStr(Str_table* table, int key);
+struct node_str* getStr(Str_table* table, int idx);
 
 // Libera a tabela
 void freeStrs(Str_table** table);

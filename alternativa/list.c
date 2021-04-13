@@ -43,7 +43,7 @@ int addVar(Var_table** table, int line, const char* str, Type type) {
    link->type = type;
    link->next = NULL;
 
-   int i = 1;
+   int i = 0;
 
    if(*table != NULL) {
 
@@ -146,7 +146,7 @@ char* getName(Var_table* table, int idx) {
    struct node *current = table;
    if(current == NULL)
       return NULL;
-   for(int i = 1; i < idx; i++) {
+   for(int i = 0; i < idx; i++) {
       current = current->next;
       if(current == NULL)
          return NULL;
@@ -159,13 +159,11 @@ char* getName(Var_table* table, int idx) {
 
 struct node_str {
    char *str;
-   int  key;
    struct node_str *next;
 };
 
 Str_table* createStrTable() {
-    Str_table *head = NULL;
-    return head;
+    return NULL;
 };
 
 void printStrs(Str_table* table) {
@@ -176,7 +174,7 @@ void printStrs(Str_table* table) {
 	
    //start from the beginning
    while(ptr != NULL) {
-      printf("Pos %d\t-- line: %d,\tstring: %s\n", i, ptr->key, ptr->str);
+      printf("Pos %d\t-- string: %s\n", i, ptr->str);
       ptr = ptr->next;
       i++;
    }
@@ -189,7 +187,7 @@ int addStr(Str_table** table, const char* str) {
    strcpy(link->str, str);
    link->next = NULL;
 
-   int i = 1;
+   int i = 0;
 	   
    if(*table != NULL) {
 
@@ -209,7 +207,7 @@ int addStr(Str_table** table, const char* str) {
    return i;
 }
 
-struct node_str* getStr(Str_table* table, int key) {
+struct node_str* getStr(Str_table* table, int idx) {
 
    struct node_str *current = table;
 
@@ -217,14 +215,13 @@ struct node_str* getStr(Str_table* table, int key) {
       return NULL;
    }
 
-   while(current->key != key) {
+   for(int i = 0; i < idx; i++) {
 
 	   if(current->next == NULL) {
          return NULL;
-      } 
-      else {
-         current = current->next;
       }
+
+      current = current->next;
    }      
 	
    return current;
