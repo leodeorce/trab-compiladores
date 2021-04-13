@@ -75,28 +75,42 @@ begin:
     {
         debug("begin-1");
         root = new_node(BEGIN_NODE, 0, NO_TYPE);
-        add_child(root, getAST($1));
+        add_child(root, tupla_get_node($1));
+        free($1);
     }
 ;
 
 line:
-    stmt-list       { debug("line-1"); $$ = $1; }
-|   %empty          { debug("line-2"); $$ = new_tupla(NULL, 0, NULL); }
+
+    stmt-list
+    {
+        debug("line-1");
+        $$ = $1;
+    }
+
+|   %empty
+    {
+        debug("line-2");
+        $$ = new_tupla(NULL, 0, NO_TYPE, NULL);
+    }
 ;
 
 stmt-list:
+
     stmt-list stmt
     {
         debug("stmt-list-1");
         tupla_add_child($1, $2);
         $$ = $1;
+        free($2);
     }
+
 |   stmt
     {
         debug("stmt-list-2");
-        $$ = $1;
-        //$$ = new_tupla(NULL, 0, new_node(BLOCK_NODE, 0, NO_TYPE));
-        //tupla_add_child($$, $1);
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(BLOCK_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $1);
+        free($1);
     }
 ;
 
@@ -259,7 +273,8 @@ var-declr:
     {
         debug("var-declr-1");
         $$ = $2;
-        change_node($$, new_var($2, UNKNOWN_TYPE));
+        tupla_change_node($$, new_var($2, UNKNOWN_TYPE));
+        tupla_free_name($$);
     }
 
 |   LET id-list ASSIGN expr
@@ -276,7 +291,10 @@ var-declr:
 |   LET ID COLON var-type
     {
         debug("var-declr-4");
-        //new_var($2, $4);
+        $$ = $2;
+        tupla_change_node($$, new_var($2, tupla_get_type($4)));
+        tupla_free_name($$);
+        free($4);
     }
 
 |   LET ID COLON var-type ASSIGN expr
@@ -382,13 +400,13 @@ obj-att:
 ;
 
 var-type:
-    NUMBER      { debug("var-type-1"); /* $$ = NUMBER_TYPE;  */}
-|   STRING      { debug("var-type-2"); /* $$ = STRING_TYPE;  */}
-|   UNKNOWN     { debug("var-type-3"); /* $$ = UNKNOWN_TYPE; */}
-|   BOOLTYPE    { debug("var-type-4"); /* $$ = BOOLEAN_TYPE; */}
-|   ANY         { debug("var-type-5"); /* $$ = ANY_TYPE;     */}
-|   VOID_RW     { debug("var-type-6"); /* $$ = VOID_TYPE;    */}
-|   NEVER       { debug("var-type-7"); /* $$ = NEVER_TYPE;   */}
+    NUMBER      { debug("var-type-1"); $$ = new_tupla(NULL, 0, NUMBER_TYPE, NULL);  }
+|   STRING      { debug("var-type-2"); $$ = new_tupla(NULL, 0, STRING_TYPE, NULL);  }
+|   UNKNOWN     { debug("var-type-3"); $$ = new_tupla(NULL, 0, UNKNOWN_TYPE, NULL); }
+|   BOOLTYPE    { debug("var-type-4"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL); }
+|   ANY         { debug("var-type-5"); $$ = new_tupla(NULL, 0, ANY_TYPE, NULL);     }
+|   VOID_RW     { debug("var-type-6"); $$ = new_tupla(NULL, 0, VOID_TYPE, NULL);    }
+|   NEVER       { debug("var-type-7"); $$ = new_tupla(NULL, 0, NEVER_TYPE, NULL);   }
 ;
 
 expr:

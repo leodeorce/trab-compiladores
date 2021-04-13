@@ -49,7 +49,7 @@ AST* get_child(AST *parent, int idx) {
     if(idx >= parent->count)
         return NULL;
     AST* node = parent->children.first;
-    for(int i = 1; i < idx; i++)
+    for(int i = 0; i < idx; i++)
         node = node->next;
     return node;
 }
@@ -81,6 +81,10 @@ double get_double_data(AST *node) {
     return node->data.as_number;
 }
 
+void set_node_type(AST *node, Type type) {
+    node->type = type;
+}
+
 Type get_node_type(AST *node) {
     return node->type;
 }
@@ -91,8 +95,11 @@ int get_child_count(AST *node) {
 
 void free_tree(AST *tree) {
     if (tree == NULL) return;
+    AST* aux;
     for (int i = 0; i < tree->count; i++) {
-        free_tree( get_child(tree, i) );
+        aux = tree->children.first->next;
+        free_tree(tree->children.first);
+        tree->children.first = aux;
     }
     free(tree);
 }

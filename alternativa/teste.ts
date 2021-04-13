@@ -1,5 +1,5 @@
 let a;
-// let b:number = 0;
+let b:number;
 // let d:string = "str";
 // let j;
 // let k:boolean;

@@ -49,6 +49,7 @@ int    get_idx(AST *node);
 void   set_double_data(AST *node, double data);
 double get_double_data(AST *node);
 
+void set_node_type(AST *node, Type type);
 Type get_node_type(AST *node);
 int  get_child_count(AST *node);
 

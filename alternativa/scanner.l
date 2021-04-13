@@ -16,10 +16,8 @@
 void erro_lexico();
 
 extern Str_table *st;
-extern void change_name(Tupla*, char*);
-extern void change_line(Tupla*, int);
 extern void change_node(Tupla*, AST*);
-extern AST* getAST(Tupla*);
+extern AST* tupla_get_node(Tupla*);
 
 %}
 
@@ -67,7 +65,8 @@ comment			"//"+.*
 "export"  			{ return EXPORT; }
 "extends"  			{ return EXTENDS; }
 
-"false"  			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
+"false"  			{ yylval = new_tupla(NULL, yylineno,
+					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
 					  return FALSE_RW; }
 
 "finally"  			{ return FINALLY; }
@@ -92,7 +91,8 @@ comment			"//"+.*
 "this"  			{ return THIS; }
 "throw"  			{ return THROW; }
 
-"true"  			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
+"true"  			{ yylval = new_tupla(NULL, yylineno,
+					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
 					  return TRUE_RW; }
 
 "try"  			    { return TRY; }
@@ -196,25 +196,42 @@ comment			"//"+.*
 
 	/* Valores */
 
-{int_val}				{ yylval = new_tupla(strdup(yytext), yylineno, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
-						  set_double_data(getAST(yylval), (double) atof(yytext));
-						  return INT_VAL; }
+{int_val}				{
+							yylval = new_tupla(NULL, yylineno,
+						    	NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+						  	return INT_VAL;
+						}
 
-{real_val}				{ yylval = new_tupla(strdup(yytext), yylineno, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
-						  set_double_data(getAST(yylval), (double) atof(yytext));
-						  return REAL_VAL; }
+{real_val}				{
+							yylval = new_tupla(NULL, yylineno,
+						        NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+						  	return REAL_VAL;
+						}
 
-{str_quotes_val}		{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  return STR_VAL; }
-{str_apost_val}			{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  return STR_VAL; }
-{str_crasis_val}		{ yylval = new_tupla(strdup(yytext), yylineno, new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  return STR_VAL; }
+{str_quotes_val}		{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
+
+{str_apost_val}			{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
+
+{str_crasis_val}		{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
 
 
 	/* Identificadores */
 
-{id}				{ yylval = new_tupla(strdup(yytext), yylineno, NULL);
+{id}				{ yylval = new_tupla(strdup(yytext), yylineno, UNKNOWN_TYPE, NULL);
 					  return ID; }
 
 
