@@ -1,18 +1,16 @@
-let a;
-let b:number;
+let a:number;
+let b;
 let d = "str";
 let j:boolean = true;
-// let k:boolean;
 
 var e = 1;
-var f:any = 1;
-var g:never;
+var f:number = 2;
 
-// Talvez não implementar const
-// const h = "abc";
-// const i:any = -false;
+a = b;
+// a = b;
 
-a = 1;
-a = f;
+b = "str";
 
-// let m = e + a;
+let n = e - b;
+e = a / 0;
+// e = f * e;

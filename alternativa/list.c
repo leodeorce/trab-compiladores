@@ -5,13 +5,13 @@
 
 #include "list.h"
 
-static struct node* getNode(Var_table* table, int idx);
+static struct node_var* getNode(Var_table* table, int idx);
 
-struct node {
+struct node_var {
    char *name;
    int  line;
    Type type;
-   struct node *next;
+   struct node_var *next;
 };
 
 // -------- Var_table ---------
@@ -24,7 +24,7 @@ void printVars(Var_table* table) {
 
    int i = 0;
    
-   struct node *ptr = table;
+   struct node_var *ptr = table;
    printf("---------Tabela de Variaveis-------\n");
 	
    while(ptr != NULL) {
@@ -36,7 +36,7 @@ void printVars(Var_table* table) {
 
 int addVar(Var_table** table, int line, const char* str, Type type) {
 
-   struct node *link = (struct node*) malloc(sizeof(struct node));
+   struct node_var *link = (struct node_var*) malloc(sizeof(struct node_var));
    	
    link->line = line;
    link->name = malloc(sizeof(char) * (strlen (str) + 1)); 
@@ -49,7 +49,7 @@ int addVar(Var_table** table, int line, const char* str, Type type) {
 
    if(*table != NULL) {
 
-      struct node *current = *table;
+      struct node_var *current = *table;
 
       while(current->next != NULL) {
          current = current->next;
@@ -66,14 +66,14 @@ int addVar(Var_table** table, int line, const char* str, Type type) {
 }
 
 void changeVarType(Var_table* table, int idx, Type type) {
-   struct node* node = getNode(table, idx);
+   struct node_var* node = getNode(table, idx);
    if(node != NULL) node->type = type;
 }
 
 void deleteVarFirst(Var_table** table) {
 
    Var_table *aux = *table;
-   struct node *tempLink = aux;
+   struct node_var *tempLink = aux;
 	
    free(tempLink->name);
    free(tempLink);
@@ -86,7 +86,7 @@ void deleteVarFirst(Var_table** table) {
 int lengthVarTable(Var_table* table) {
 
    int length = 0;
-   struct node *current;
+   struct node_var *current;
 	
    for(current = table; current != NULL; current = current->next) {
       length++;
@@ -102,7 +102,7 @@ int findVar(Var_table* table, const char *name) {
 		return -1;
 	}
 
-	struct node *current = table;
+	struct node_var *current = table;
    int i = 0;
 
 	while(strcmp(current->name, name) != 0) {
@@ -121,8 +121,8 @@ int findVar(Var_table* table, const char *name) {
 
 void freeVars(Var_table** table) {
 
-   struct node *current = *table;
-   struct node *next;
+   struct node_var *current = *table;
+   struct node_var *next;
 	
    while (current != NULL) {
       next = current->next;
@@ -135,27 +135,27 @@ void freeVars(Var_table** table) {
 }
 
 int getLine(Var_table* table, int idx) {
-   struct node* node = getNode(table, idx);
+   struct node_var* node = getNode(table, idx);
    if(node == NULL) return -1;
 	return node->line;
 }
 
 Type getType(Var_table* table, int idx) {
-   struct node* node = getNode(table, idx);
+   struct node_var* node = getNode(table, idx);
    if(node == NULL) return NO_TYPE;
    return node->type;
 }
 
 char* getName(Var_table* table, int idx) {
-   struct node* node = getNode(table, idx);
+   struct node_var* node = getNode(table, idx);
    if(node == NULL) return NULL;
    return node->name;
 }
 
-static struct node* getNode(Var_table* table, int idx) {
+static struct node_var* getNode(Var_table* table, int idx) {
    if(table == NULL || idx < 0)
       return NULL;
-   struct node* current = table;
+   struct node_var* current = table;
    for(int i = 0; i < idx; i++) {
       if(current == NULL)
          return NULL;
@@ -251,28 +251,7 @@ void freeStrs(Str_table** table) {
 	*table = NULL;
 }
 
-
 // ------ Utils ------
-
-void reverse(struct node** head_ref) {
-
-   struct node *prev   = NULL;
-   struct node *current = *head_ref;
-   struct node *next;
-	
-   while (current != NULL) {
-      next  = current->next;
-      current->next = prev;   
-      prev = current;
-      current = next;
-   }
-	
-   *head_ref = prev;
-}
-
-bool isEmpty(Var_table* table) {
-   return table == NULL;
-}
 
 //delete a link with given line
 Var_table* delete(Var_table* table, int line) {

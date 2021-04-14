@@ -231,7 +231,7 @@ comment			"//"+.*
 
 	/* Identificadores */
 
-{id}				{ yylval = new_tupla(strdup(yytext), yylineno, UNKNOWN_TYPE, NULL);
+{id}				{ yylval = new_tupla(strdup(yytext), yylineno, UNDEFINED_TYPE, NULL);
 					  return ID; }
 
 

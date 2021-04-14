@@ -5,13 +5,20 @@
 typedef enum {
     NUMBER_TYPE,
     STRING_TYPE,
-    UNKNOWN_TYPE,
     BOOLEAN_TYPE,
-    VOID_TYPE,
-    NEVER_TYPE,
-    ANY_TYPE,
+    UNDEFINED_TYPE,
     NO_TYPE
 } Type;
+
+typedef enum {  // Basic conversions between types.
+    N2S,
+    B2S,
+    U2S,
+    N2U,
+    S2U,
+    B2U,
+    NONE,
+} Conv;
 
 const char *get_text(Type type);
 

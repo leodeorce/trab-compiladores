@@ -23,7 +23,7 @@ int  check_var(Tupla* tupla);
 AST* new_var(Tupla* tupla, Type type);
 
 AST* unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
-AST* check_assign(Type left, Type right);
+Conv check_assign(Type left, Type right);
 void change_type(Tupla* tupla, Type type);
 
 void type_error(const char*, Type, Type);
@@ -116,9 +116,16 @@ stmt-list:
 
 stmt:
     var-declr SEMI          { debug("stmt-1"); $$ = $1; }
-|   func-def                { debug("stmt-2"); }
+|   func-def
 |   class-def
-|   expr SEMI               { debug("stmt-4"); }
+
+|   expr SEMI
+    {
+        debug("stmt-4");
+        tupla_free_name($1);
+        $$ = $1;
+    }
+
 |   assign-expr SEMI        { debug("stmt-5"); $$ = $1; }
 |   if-stmt
 |   while-stmt
@@ -137,13 +144,27 @@ assign-expr:
 |   ID assignment expr
     {
         debug("assign-expr-2");
-        int idx = check_var($1);
-        //check_assign( get_type($1), $3 );
-        //change_type($1, $3);
-        tupla_change_node($1, new_node(VAR_USE_NODE, idx, getType(vt, idx)));
+
+        int  idx = check_var($1);
+        Type id_type = getType(vt, idx);
+
+        tupla_change_node($1, new_node(VAR_USE_NODE, idx, id_type));
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
-        tupla_add_child($$, $1);
+
+        Conv conversion = check_assign( id_type, tupla_get_type($3) );
+
+        if(conversion != NONE) {
+            NodeKind conversion_nodekind = conv2node(conversion);
+            Tupla* type_conversion = new_tupla(NULL, 0, tupla_get_type($3),
+                new_node(conversion_nodekind, 0, tupla_get_type($3)));
+            tupla_add_child(type_conversion, $1);
+            tupla_add_child($$, type_conversion);
+        } else {
+            tupla_add_child($$, $1);
+        }
+
         tupla_add_child($$, $3);
+
         tupla_free_name($1);
         tupla_free_name($3);
         free($1);
@@ -281,7 +302,7 @@ var-declr:
     {
         debug("var-declr-1");
         $$ = $2;
-        tupla_change_node($$, new_var($2, UNKNOWN_TYPE));
+        tupla_change_node($$, new_var($2, UNDEFINED_TYPE));
         tupla_free_name($$);
     }
 
@@ -299,9 +320,6 @@ var-declr:
     }
 
 |   var-declr-rw id-list ASSIGN obj-def
-    {
-        debug("var-declr-3");
-    }
 
 |   var-declr-rw ID COLON var-type
     {
@@ -328,42 +346,16 @@ var-declr:
     }
 
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET
-    {
-        debug("var-declr-6");
-    }
 
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-    {
-        debug("var-declr-7");
-    }
 
 |   CONST_RW id-list ASSIGN expr
-    {
-        debug("var-declr-8");
-        //$$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
-        //tupla_change_node($2, new_var($2, tupla_get_type($4)));
-        //tupla_add_child($$, $2);
-        //tupla_add_child($$, $4);
-        //tupla_free_name($2);
-        //tupla_free_name($4);
-        //free($2);
-        //free($4);
-    }
 
 |   CONST_RW ID COLON var-type ASSIGN expr
-    {
-        debug("var-declr-9");
-    }
 
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-    {
-        debug("var-declr-10");
-    }
 
 |   CONST_RW id-list ASSIGN obj-def
-    {
-        debug("var-declr-11");
-    }
 ;
 
 var-declr-rw:
@@ -396,35 +388,35 @@ obj-att:
 ;
 
 var-type:
-    NUMBER      { debug("var-type-1"); $$ = new_tupla(NULL, 0, NUMBER_TYPE, NULL);  }
-|   STRING      { debug("var-type-2"); $$ = new_tupla(NULL, 0, STRING_TYPE, NULL);  }
-|   UNKNOWN     { debug("var-type-3"); $$ = new_tupla(NULL, 0, UNKNOWN_TYPE, NULL); }
-|   BOOLTYPE    { debug("var-type-4"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL); }
-|   ANY         { debug("var-type-5"); $$ = new_tupla(NULL, 0, ANY_TYPE, NULL);     }
-|   VOID_RW     { debug("var-type-6"); $$ = new_tupla(NULL, 0, VOID_TYPE, NULL);    }
-|   NEVER       { debug("var-type-7"); $$ = new_tupla(NULL, 0, NEVER_TYPE, NULL);   }
+    NUMBER      { debug("var-type-1"); $$ = new_tupla(NULL, 0, NUMBER_TYPE, NULL);    }
+|   STRING      { debug("var-type-2"); $$ = new_tupla(NULL, 0, STRING_TYPE, NULL);    }
+|   UNDEFINED   { debug("var-type-3"); $$ = new_tupla(NULL, 0, UNDEFINED_TYPE, NULL); }
+|   BOOLTYPE    { debug("var-type-4"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL);   }
+|   ANY         // Desconsiderado
+|   VOID_RW     // Desconsiderado
+|   NEVER       // Desconsiderado
 ;
 
 expr:
     idx-safe-expr   { debug("expr-1"); $$ = $1; }
-|   idx-unsafe-expr { debug("expr-2"); }
+|   idx-unsafe-expr
 |   LPAR expr RPAR  { debug("expr-3"); $$ = $2; }
 ;
 
 idx-unsafe-expr:
-    array-expr      { debug("idx-unsafe-expr-1"); }
-|   logic-expr      { debug("idx-unsafe-expr-2"); }
-|   var-obj         { debug("idx-unsafe-expr-3"); }
+    array-expr
+|   logic-expr
+|   var-obj
 ;
 
 idx-safe-expr:
     var-val         { debug("idx-safe-expr-1"); $$ = $1; }
-|   var-att         { debug("idx-safe-expr-2"); }
-|   arit-expr       { debug("idx-safe-expr-3"); }
-|   bitw-expr       { debug("idx-safe-expr-4"); }
-|   shift-expr      { debug("idx-safe-expr-5"); }
-|   unary-expr      { debug("idx-safe-expr-6"); }
-|   vet-idx         { debug("idx-safe-expr-7"); }
+|   var-att
+|   arit-expr       { debug("idx-safe-expr-3"); $$ = $1; }
+|   bitw-expr
+|   shift-expr
+|   unary-expr
+|   vet-idx
 |   ID %prec E_ID
     {
         debug("idx-safe-expr-8");
@@ -441,41 +433,15 @@ vet-idx:
 ;
 
 unary-expr:
-
     INCREMENT ID
-    {
-        debug("unary-expr-1");
-        //check_var($2);
-    }
-
 |   INCREMENT var-att
-
 |   DECREMENT ID
-    {
-        debug("unary-expr-3");
-        //check_var($2);
-    }
-
 |   DECREMENT var-att
-
 |   ID INCREMENT
-    {
-        debug("unary-expr-5");
-        //check_var($1);
-    }
-
 |   var-att INCREMENT
-
 |   ID DECREMENT
-    {
-        debug("unary-expr-7");
-        //check_var($1);
-    }
-
 |   var-att DECREMENT
-
 |   LOGICAL_NOT expr
-
 |   BITWISE_NOT expr
 ;
 
@@ -484,16 +450,51 @@ arit-expr:
     expr PLUS expr
     {
         debug("arit-expr-1");
-        //$$ = unify_bin_op($1, $3, "+", unify_plus);
+        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(PLUS_NODE, 0, tupla_get_type($1)));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        tupla_free_name($1);
+        tupla_free_name($3);
+        free($1);
+        free($3);
     }
 
 |   expr SUB expr
     {
         debug("arit-expr-2");
+        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(SUB_NODE, 0, tupla_get_type($1)));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        tupla_free_name($1);
+        tupla_free_name($3);
+        free($1);
+        free($3);
     }
 
 |   expr MULT expr
+    {
+        debug("arit-expr-2");
+        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(MULT_NODE, 0, tupla_get_type($1)));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        tupla_free_name($1);
+        tupla_free_name($3);
+        free($1);
+        free($3);
+    }
+
 |   expr DIV expr
+    {
+        debug("arit-expr-2");
+        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(DIV_NODE, 0, tupla_get_type($1)));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        tupla_free_name($1);
+        tupla_free_name($3);
+        free($1);
+        free($3);
+    }
+
 |   expr EXP expr
 |   expr REM expr
 ;
@@ -525,12 +526,12 @@ var-met:
 ;
 
 args-list:
-    COMMA args-list               { debug("args-list-1"); $$ = $2; }
-|   expr COMMA args-list          { debug("args-list-2"); }
-|   assign-expr COMMA args-list   { debug("args-list-3"); }
-|   expr                          { debug("args-list-4"); }
-|   assign-expr                   { debug("args-list-5"); }
-|   %empty                        { debug("args-list-6"); }
+    COMMA args-list
+|   expr COMMA args-list
+|   assign-expr COMMA args-list
+|   expr
+|   assign-expr
+|   %empty
 ;
 
 var-obj:
@@ -551,8 +552,6 @@ var-val:
 |   SUB STR_VAL     { debug("var-val-8");  $$ = $2; } // NaN
 |   SUB TRUE_RW     { debug("var-val-9");  $$ = $2; }
 |   SUB FALSE_RW    { debug("var-val-10"); $$ = $2; } // -0
-|   NULL_RW         // Desconsiderado
-|   UNDEFINED       // Desconsiderado
 ;
 
 array-expr:
@@ -581,7 +580,8 @@ int check_var(Tupla* tupla) {
     printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, tupla_get_name(tupla));
 
     if (idx == -1) {
-        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", yylineno, tupla_get_name(tupla));
+        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
+            yylineno, tupla_get_name(tupla));
         exit(EXIT_FAILURE);
     }
 
@@ -622,7 +622,7 @@ AST* unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Typ
     return NULL;
 }
 
-AST* check_assign(Type left, Type right) {
+Conv check_assign(Type left, Type right) {
 
     printf("CHECK_ASSIGN\tyylineno: %d,\tleft: %s,\tright: %s\n",
             yylineno, get_text(left), get_text(right));
@@ -631,51 +631,32 @@ AST* check_assign(Type left, Type right) {
 
         case NUMBER_TYPE:
             switch(right) {
-                case NUMBER_TYPE:  break;
-                case ANY_TYPE:     break;
-                case NEVER_TYPE:   break;
-                default:           type_error("=", left, right);
+                case NUMBER_TYPE:     break;
+                case UNDEFINED_TYPE:  return N2U;
+                default:              type_error("=", left, right);
             }
             break;
 
         case STRING_TYPE:
             switch(right) {
-                case STRING_TYPE:  break;
-                case ANY_TYPE:     break;
-                case NEVER_TYPE:   break;
-                default:           type_error("=", left, right);
+                case STRING_TYPE:     break;
+                case UNDEFINED_TYPE:  return S2U;
+                default:              type_error("=", left, right);
             }
             break;
 
         case BOOLEAN_TYPE:
             switch(right) {
-                case BOOLEAN_TYPE: break;
-                case ANY_TYPE:     break;
-                case NEVER_TYPE:   break;
-                default:           type_error("=", left, right);
-            }
-            break;
-
-        case VOID_TYPE:
-            switch(right) {
-                case VOID_TYPE:    break;
-                case ANY_TYPE:     break;
-                case NEVER_TYPE:   break;
-                default:           type_error("=", left, right);
-            }
-            break;
-
-        case NEVER_TYPE:
-            switch(right) {
-                case NEVER_TYPE:   break;
-                default:           type_error("=", left, right);
+                case BOOLEAN_TYPE:    break;
+                case UNDEFINED_TYPE:  return B2U;
+                default:              type_error("=", left, right);
             }
             break;
 
         default: break;
     }
 
-    return NULL;
+    return NONE;
 }
 
 void change_type(Tupla* tupla, Type type) {
@@ -687,7 +668,7 @@ void change_type(Tupla* tupla, Type type) {
 
 void type_error(const char *op, Type left, Type right) {
     printf("SEMANTIC ERROR (%d): incompatible types for operator '%s', LHS is '%s' and RHS is '%s'.\n",
-            yylineno, op, get_text(left), get_text(right));
+        yylineno, op, get_text(left), get_text(right));
     exit(EXIT_FAILURE);
 }
 

@@ -93,6 +93,18 @@ int get_child_count(AST *node) {
     return node->count;
 }
 
+NodeKind conv2node(Conv conv) {
+    switch(conv) {
+        case N2S: return N2S_NODE; break;
+        case B2S: return B2S_NODE; break;
+        case U2S: return U2S_NODE; break;
+        case N2U: return N2U_NODE; break;
+        case S2U: return S2U_NODE; break;
+        case B2U: return B2U_NODE; break;
+        default:  return BLOCK_NODE;
+    }
+}
+
 void free_tree(AST *tree) {
     if (tree == NULL) return;
     AST* aux;
@@ -117,21 +129,22 @@ char* kind2str(NodeKind kind) {
         case BEGIN_NODE:    return "begin";
         case BLOCK_NODE:    return "block";
         case BOOL_VAL_NODE: return "";
-        case IF_NODE:       return "if";
-        case NUM_VAL_NODE:  return "";
-        case LT_NODE:       return "<";
-        case SUB_NODE:      return "-";
         case DIV_NODE:      return "/";
-        case PLUS_NODE:     return "+";
-        case STR_VAL_NODE:  return "";
+        case IF_NODE:       return "if";
+        case LT_NODE:       return "<";
         case MULT_NODE:     return "*";
+        case NUM_VAL_NODE:  return "";
+        case PLUS_NODE:     return "+";
+        case SUB_NODE:      return "-";
+        case STR_VAL_NODE:  return "";
         case VAR_DECL_NODE: return "var_decl";
         case VAR_USE_NODE:  return "var_use";
-        case B2I_NODE:      return "B2I";
-        case B2R_NODE:      return "B2R";
         case B2S_NODE:      return "B2S";
-        case I2S_NODE:      return "I2S";
-        case R2S_NODE:      return "R2S";
+        case B2U_NODE:      return "B2U";
+        case N2S_NODE:      return "N2S";
+        case N2U_NODE:      return "N2U";
+        case S2U_NODE:      return "S2U";
+        case U2S_NODE:      return "U2S";
         default:            return "ERROR!!";
     }
 }

@@ -6,8 +6,8 @@
 
 // ----------- Var_table -----------
 
-struct node;
-typedef struct node Var_table;
+struct node_var;
+typedef struct node_var Var_table;
 
 // Inicia tabela
 Var_table* createVarTable(void);
