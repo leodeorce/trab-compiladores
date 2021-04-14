@@ -5,6 +5,8 @@
 
 #include "list.h"
 
+static struct node* getNode(Var_table* table, int idx);
+
 struct node {
    char *name;
    int  line;
@@ -63,13 +65,9 @@ int addVar(Var_table** table, int line, const char* str, Type type) {
    return i;
 }
 
-void changeVarType(Var_table* table, const char* name, Type type) {
-  
-  struct node *var = findVar(table, name);
-
-  if(var != NULL) {
-     var->type = type;
-  }
+void changeVarType(Var_table* table, int idx, Type type) {
+   struct node* node = getNode(table, idx);
+   if(node != NULL) node->type = type;
 }
 
 void deleteVarFirst(Var_table** table) {
@@ -97,26 +95,28 @@ int lengthVarTable(Var_table* table) {
    return length;
 }
 
-struct node* findVar(Var_table* table, const char *name) {
+int findVar(Var_table* table, const char *name) {
 
 	// Caso lista vazia
 	if(table == NULL) {
-		return NULL;
+		return -1;
 	}
 
 	struct node *current = table;
+   int i = 0;
 
 	while(strcmp(current->name, name) != 0) {
 
 		// Caso chegou ao final
 		if(current->next == NULL) {
-			return NULL;
+			return -1;
 		}
 
 		current = current->next;
+      i++;
 	}
 
-	return current;
+	return i;
 }
 
 void freeVars(Var_table** table) {
@@ -134,26 +134,35 @@ void freeVars(Var_table** table) {
 	*table = NULL;
 }
 
-int getLine(struct node* item) {
-	return item->line;
+int getLine(Var_table* table, int idx) {
+   struct node* node = getNode(table, idx);
+   if(node == NULL) return -1;
+	return node->line;
 }
 
-Type getType(struct node* item) {
-   return item->type;
+Type getType(Var_table* table, int idx) {
+   struct node* node = getNode(table, idx);
+   if(node == NULL) return NO_TYPE;
+   return node->type;
 }
 
 char* getName(Var_table* table, int idx) {
-   struct node *current = table;
-   if(current == NULL)
-      return NULL;
-   for(int i = 0; i < idx; i++) {
-      current = current->next;
-      if(current == NULL)
-         return NULL;
-   }
-   return current->name;
+   struct node* node = getNode(table, idx);
+   if(node == NULL) return NULL;
+   return node->name;
 }
 
+static struct node* getNode(Var_table* table, int idx) {
+   if(table == NULL || idx < 0)
+      return NULL;
+   struct node* current = table;
+   for(int i = 0; i < idx; i++) {
+      if(current == NULL)
+         return NULL;
+      current = current->next;
+   }
+   return current;
+}
 
 // ----------- Str_table -----------
 

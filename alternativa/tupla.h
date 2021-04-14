@@ -13,6 +13,7 @@ void tupla_add_child(Tupla* parent, Tupla* child);
 
 void tupla_change_name(Tupla* tupla, char* name);
 void tupla_change_line(Tupla* tupla, int line);
+void tupla_change_type(Tupla* tupla, Type type);
 void tupla_change_node(Tupla* tupla, AST* node);
 
 AST*  tupla_get_node(Tupla* tupla);

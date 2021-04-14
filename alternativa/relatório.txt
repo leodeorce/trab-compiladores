@@ -30,7 +30,10 @@ se maior a casos excepcionais.
 
 Código intermediário:
 
-
+A construção da AST tornou-se difícil pela dificuldade da
+manipulação de valores semânticos do flex. Optamos pelo
+uso de uma estrutura alocada dinamicamente fazendo o papel
+de uma tupla.
 
 ==========================================================
 
@@ -38,4 +41,5 @@ Considerações de projeto:
 
 - (?) Arrays só admitem elementos de mesmo tipo;
 - Apenas uma variável pode ser declarada por linha;
--
+- Tipos considerados: number, string, boolean, unknown;
+- Desconsideradas definições de objetos e classes;

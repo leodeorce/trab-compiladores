@@ -19,12 +19,12 @@ int  yylex_destroy(void);
 
 void debug(char*);
 
-AST* check_var(Tupla* tupla);
+int  check_var(Tupla* tupla);
 AST* new_var(Tupla* tupla, Type type);
 
 AST* unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
 AST* check_assign(Type left, Type right);
-AST* change_type(Tupla* tupla, Type type);
+void change_type(Tupla* tupla, Type type);
 
 void type_error(const char*, Type, Type);
 
@@ -119,7 +119,7 @@ stmt:
 |   func-def                { debug("stmt-2"); }
 |   class-def
 |   expr SEMI               { debug("stmt-4"); }
-|   assign-expr SEMI        { debug("stmt-5"); }
+|   assign-expr SEMI        { debug("stmt-5"); $$ = $1; }
 |   if-stmt
 |   while-stmt
 |   do-while-stmt
@@ -137,9 +137,17 @@ assign-expr:
 |   ID assignment expr
     {
         debug("assign-expr-2");
-        //check_var($1);
+        int idx = check_var($1);
         //check_assign( get_type($1), $3 );
         //change_type($1, $3);
+        tupla_change_node($1, new_node(VAR_USE_NODE, idx, getType(vt, idx)));
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        tupla_free_name($1);
+        tupla_free_name($3);
+        free($1);
+        free($3);
     }
 
 |   vet-idx assignment expr
@@ -272,7 +280,6 @@ var-declr:
     var-declr-rw id-list
     {
         debug("var-declr-1");
-        // check_var no $2
         $$ = $2;
         tupla_change_node($$, new_var($2, UNKNOWN_TYPE));
         tupla_free_name($$);
@@ -281,7 +288,6 @@ var-declr:
 |   var-declr-rw id-list ASSIGN expr
     {
         debug("var-declr-2");
-        // check_var no $2
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
         tupla_change_node($2, new_var($2, tupla_get_type($4)));
         tupla_add_child($$, $2);
@@ -300,7 +306,6 @@ var-declr:
 |   var-declr-rw ID COLON var-type
     {
         debug("var-declr-4");
-        // check_var no $2
         $$ = $2;
         tupla_change_node($$, new_var($2, tupla_get_type($4)));
         tupla_free_name($$);
@@ -310,7 +315,6 @@ var-declr:
 |   var-declr-rw ID COLON var-type ASSIGN expr
     {
         debug("var-declr-5");
-        // check_var no $2
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
         // check_type com $4 e $6
         tupla_change_node($2, new_var($2, tupla_get_type($6)));
@@ -336,13 +340,19 @@ var-declr:
 |   CONST_RW id-list ASSIGN expr
     {
         debug("var-declr-8");
-        //new_var($2, $4);
+        //$$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
+        //tupla_change_node($2, new_var($2, tupla_get_type($4)));
+        //tupla_add_child($$, $2);
+        //tupla_add_child($$, $4);
+        //tupla_free_name($2);
+        //tupla_free_name($4);
+        //free($2);
+        //free($4);
     }
 
 |   CONST_RW ID COLON var-type ASSIGN expr
     {
         debug("var-declr-9");
-        //new_var($2, $4);
     }
 
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
@@ -418,8 +428,11 @@ idx-safe-expr:
 |   ID %prec E_ID
     {
         debug("idx-safe-expr-8");
-        //check_var($1);
-        //$$ = get_type($1);
+        int idx = check_var($1);
+        Type type = getType(vt, idx);
+        tupla_change_type($1, type);
+        tupla_change_node($1, new_node(VAR_USE_NODE, idx, type));
+        $$ = $1;
     }
 ;
 
@@ -561,18 +574,18 @@ void debug(char *text) {
 
 // -----------------------------------------------------------------------
 
-AST* check_var(Tupla* tupla) {
+int check_var(Tupla* tupla) {
 
-    struct node *item = findVar(vt, tupla_get_name(tupla));
+    int idx = findVar(vt, tupla_get_name(tupla));
 
     printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, tupla_get_name(tupla));
 
-    if (item == NULL) {
+    if (idx == -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", yylineno, tupla_get_name(tupla));
         exit(EXIT_FAILURE);
     }
 
-    return NULL;
+    return idx;
 }
 
 AST* new_var(Tupla* tupla, Type type) {
@@ -580,11 +593,11 @@ AST* new_var(Tupla* tupla, Type type) {
     printf("NEW_VAR\t\tyylineno: %d,\tname: %s,\tline: %d,\ttype: %s\n",
             yylineno, tupla_get_name(tupla), tupla_get_line(tupla), get_text(type));
 
-    struct node *item = findVar(vt, tupla_get_name(tupla));
+    int idx_check = findVar(vt, tupla_get_name(tupla));
 
-    if (item != NULL) {
+    if (idx_check != -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
-                tupla_get_line(tupla), tupla_get_name(tupla), getLine(item));
+                tupla_get_line(tupla), tupla_get_name(tupla), getLine(vt, idx_check));
         exit(EXIT_FAILURE);
     }
 
@@ -665,10 +678,9 @@ AST* check_assign(Type left, Type right) {
     return NULL;
 }
 
-AST* change_type(Tupla* tupla, Type type) {
+void change_type(Tupla* tupla, Type type) {
     printf("ADD_TYPE\t\tname: %s,\ttype: %s\n", get_text(type), tupla_get_name(tupla));
-    changeVarType(vt, tupla_get_name(tupla), type);
-    return NULL;
+    changeVarType(vt, findVar(vt, tupla_get_name(tupla)), type);
 }
 
 // -----------------------------------------------------------------------

@@ -30,6 +30,10 @@ void tupla_change_line(Tupla* tupla, int line) {
     tupla->line = line;
 }
 
+void tupla_change_type(Tupla* tupla, Type type) {
+    tupla->type = type;
+}
+
 void tupla_change_node(Tupla* tupla, AST* node) {
     tupla->node = node;
 }

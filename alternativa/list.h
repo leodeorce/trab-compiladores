@@ -25,19 +25,19 @@ void deleteVarFirst(Var_table** table);
 int lengthVarTable(Var_table* table);
 
 // Modifica o tipo de uma variavel especifica
-void changeVarType(Var_table* table, const char* name, Type type);
+void changeVarType(Var_table* table, int idx, Type type);
 
-// Verifica se uma variavel existe na tabela e retorna seu link
-struct node* findVar(Var_table* table, const char* name);
+// Verifica se uma variavel existe na tabela e retorna seu indice ou -1 caso nao exista
+int findVar(Var_table* table, const char* name);
 
 // Libera a tabela
 void freeVars(Var_table** table);
 
 // Retorna a linha na qual uma variavel foi declarada
-int getLine(struct node* item);
+int getLine(Var_table* table, int idx);
 
 // Retorna o tipo de uma variavel
-Type getType(struct node* item);
+Type getType(Var_table* table, int idx);
 
 // Retorna o nome de uma variavel
 char* getName(Var_table* table, int idx);

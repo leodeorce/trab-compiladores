@@ -8,10 +8,11 @@ var e = 1;
 var f:any = 1;
 var g:never;
 
+// Talvez não implementar const
 // const h = "abc";
 // const i:any = -false;
 
-// d = h;
+a = 1;
+a = f;
 
-// let n = 1;
-// let m = n + b;
+// let m = e + a;
