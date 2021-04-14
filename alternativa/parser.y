@@ -22,7 +22,7 @@ void debug(char*);
 int  check_var(Tupla* tupla);
 AST* new_var(Tupla* tupla, Type type);
 
-AST* unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
+Type unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
 Conv check_assign(Type left, Type right);
 void change_type(Tupla* tupla, Type type);
 
@@ -405,7 +405,7 @@ expr:
 
 idx-unsafe-expr:
     array-expr
-|   logic-expr
+|   logic-expr      { debug("idx-unsafe-expr-1"); $$ = $1; }
 |   var-obj
 ;
 
@@ -450,9 +450,15 @@ arit-expr:
     expr PLUS expr
     {
         debug("arit-expr-1");
-        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(PLUS_NODE, 0, tupla_get_type($1)));
+
+        Type type1 = tupla_get_type($1);
+        Type type_final = unify_bin_op(type1, tupla_get_type($3), "+", unify_plus);
+
+        $$ = new_tupla(NULL, 0, type_final, new_node(PLUS_NODE, 0, type_final));
+
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
+
         tupla_free_name($1);
         tupla_free_name($3);
         free($1);
@@ -462,9 +468,15 @@ arit-expr:
 |   expr SUB expr
     {
         debug("arit-expr-2");
-        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(SUB_NODE, 0, tupla_get_type($1)));
+
+        Type type1 = tupla_get_type($1);
+        Type type_final = unify_bin_op(type1, tupla_get_type($3), "-", unify_other_arith);
+        
+        $$ = new_tupla(NULL, 0, type_final, new_node(SUB_NODE, 0, type_final));
+
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
+
         tupla_free_name($1);
         tupla_free_name($3);
         free($1);
@@ -474,9 +486,15 @@ arit-expr:
 |   expr MULT expr
     {
         debug("arit-expr-2");
-        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(MULT_NODE, 0, tupla_get_type($1)));
+
+        Type type1 = tupla_get_type($1);
+        Type type_final = unify_bin_op(type1, tupla_get_type($3), "*", unify_other_arith);
+        
+        $$ = new_tupla(NULL, 0, type_final, new_node(MULT_NODE, 0, type_final));
+
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
+
         tupla_free_name($1);
         tupla_free_name($3);
         free($1);
@@ -486,9 +504,15 @@ arit-expr:
 |   expr DIV expr
     {
         debug("arit-expr-2");
-        $$ = new_tupla(NULL, 0, tupla_get_type($1), new_node(DIV_NODE, 0, tupla_get_type($1)));
+
+        Type type1 = tupla_get_type($1);
+        Type type_final = unify_bin_op(type1, tupla_get_type($3), "/", unify_other_arith);
+        
+        $$ = new_tupla(NULL, 0, type_final, new_node(DIV_NODE, 0, type_final));
+
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
+
         tupla_free_name($1);
         tupla_free_name($3);
         free($1);
@@ -608,7 +632,7 @@ AST* new_var(Tupla* tupla, Type type) {
 
 // -----------------------------------------------------------------------
 
-AST* unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Type)) {
+Type unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Type)) {
 
     printf("UNIFY\t\tyylineno: %d,\tleft: %s,\tright: %s,\top: %s\n",
             yylineno, get_text(left), get_text(right), op);
@@ -619,7 +643,7 @@ AST* unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Typ
         type_error(op, left, right);
     }
 
-    return NULL;
+    return unif;
 }
 
 Conv check_assign(Type left, Type right) {
