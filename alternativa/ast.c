@@ -130,7 +130,11 @@ char* kind2str(NodeKind kind) {
         case BLOCK_NODE:    return "block";
         case BOOL_VAL_NODE: return "";
         case DIV_NODE:      return "/";
+        case GT_EQ_NODE:    return ">=";
+        case GT_NODE:       return ">";
         case IF_NODE:       return "if";
+        case INEQ_NODE:     return "!=";
+        case LT_EQ_NODE:    return "<=";
         case LT_NODE:       return "<";
         case MULT_NODE:     return "*";
         case NUM_VAL_NODE:  return "";

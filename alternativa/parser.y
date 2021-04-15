@@ -22,9 +22,10 @@ void debug(char*);
 int  check_var(Tupla* tupla);
 AST* new_var(Tupla* tupla, Type type);
 
-Type unify_bin_op(Type left, Type right, const char*, Type (*unify)(Type, Type));
+Type unify(Type left, Type right, const char*, Type (*unify)(Type, Type));
 Conv check_assign(Type left, Type right);
-void change_type(Tupla* tupla, Type type);
+
+void free_tupla_full(Tupla* t1, Tupla* t2);
 
 void type_error(const char*, Type, Type);
 
@@ -155,20 +156,15 @@ assign-expr:
 
         if(conversion != NONE) {
             NodeKind conversion_nodekind = conv2node(conversion);
-            Tupla* type_conversion = new_tupla(NULL, 0, tupla_get_type($3),
-                new_node(conversion_nodekind, 0, tupla_get_type($3)));
-            tupla_add_child(type_conversion, $1);
-            tupla_add_child($$, type_conversion);
+            AST* type_conversion = new_node(conversion_nodekind, 0, tupla_get_type($3));
+            add_child(type_conversion, tupla_get_node($1));
+            add_child(tupla_get_node($$), type_conversion);
         } else {
             tupla_add_child($$, $1);
         }
 
         tupla_add_child($$, $3);
-
-        tupla_free_name($1);
-        tupla_free_name($3);
-        free($1);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   vet-idx assignment expr
@@ -196,7 +192,7 @@ for-stmt:
 ;
 
 assignment:
-    ASSIGN
+    ASSIGN                  { debug("assignment-1"); }
 |   LOGICAL_NULL_ASSIGN
 |   LOGICAL_AND_ASSIGN
 |   LOGICAL_OR_ASSIGN
@@ -234,18 +230,95 @@ if-stmt:
 ;
 
 logic-expr:
+
     expr EQ expr
+    {
+        debug("logic-expr-1");
+        unify(tupla_get_type($1), tupla_get_type($3), "==", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(EQ_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr EQ_STRICT expr
+
 |   expr INEQ expr
+    {
+        debug("logic-expr-3");
+        unify(tupla_get_type($1), tupla_get_type($3), "!=", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(INEQ_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr INEQ_STRICT expr
+
 |   expr LT expr
+    {
+        debug("logic-expr-5");
+        unify(tupla_get_type($1), tupla_get_type($3), "<", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(LT_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   ID LT expr
+    {
+        debug("logic-expr-6");
+        int  idx = check_var($1);
+        Type id_type = getType(vt, idx);
+        unify(id_type, tupla_get_type($3), "<", unify_comp);
+        tupla_change_node($1, new_node(VAR_USE_NODE, idx, id_type));
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(LT_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr LT_EQ expr
+    {
+        debug("logic-expr-7");
+        unify(tupla_get_type($1), tupla_get_type($3), "<=", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(LT_EQ_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr GT expr
+    {
+        debug("logic-expr-8");
+        unify(tupla_get_type($1), tupla_get_type($3), ">", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(GT_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr GT_EQ expr
+    {
+        debug("logic-expr-9");
+        unify(tupla_get_type($1), tupla_get_type($3), ">=", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(GT_EQ_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
+    }
+
 |   expr LOGICAL_NULL expr
+
 |   expr LOGICAL_AND expr
+    {
+        debug("logic-expr-11");
+    }
+
 |   expr LOGICAL_OR expr
+    {
+        debug("logic-expr-12");
+    }
 ;
 
 class-def:
@@ -313,10 +386,7 @@ var-declr:
         tupla_change_node($2, new_var($2, tupla_get_type($4)));
         tupla_add_child($$, $2);
         tupla_add_child($$, $4);
-        tupla_free_name($2);
-        tupla_free_name($4);
-        free($2);
-        free($4);
+        free_tupla_full($2, $4);
     }
 
 |   var-declr-rw id-list ASSIGN obj-def
@@ -333,16 +403,13 @@ var-declr:
 |   var-declr-rw ID COLON var-type ASSIGN expr
     {
         debug("var-declr-5");
+        check_assign(tupla_get_type($4), tupla_get_type($6));
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
-        // check_type com $4 e $6
         tupla_change_node($2, new_var($2, tupla_get_type($6)));
         tupla_add_child($$, $2);
         tupla_add_child($$, $6);
-        tupla_free_name($2);
-        tupla_free_name($6);
-        free($2);
+        free_tupla_full($2, $6);
         free($4);
-        free($6);
     }
 
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET
@@ -450,73 +517,41 @@ arit-expr:
     expr PLUS expr
     {
         debug("arit-expr-1");
-
-        Type type1 = tupla_get_type($1);
-        Type type_final = unify_bin_op(type1, tupla_get_type($3), "+", unify_plus);
-
+        Type type_final = unify(tupla_get_type($1), tupla_get_type($3), "+", unify_plus);
         $$ = new_tupla(NULL, 0, type_final, new_node(PLUS_NODE, 0, type_final));
-
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
-
-        tupla_free_name($1);
-        tupla_free_name($3);
-        free($1);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   expr SUB expr
     {
         debug("arit-expr-2");
-
-        Type type1 = tupla_get_type($1);
-        Type type_final = unify_bin_op(type1, tupla_get_type($3), "-", unify_other_arith);
-        
+        Type type_final = unify(tupla_get_type($1), tupla_get_type($3), "-", unify_other_arith);
         $$ = new_tupla(NULL, 0, type_final, new_node(SUB_NODE, 0, type_final));
-
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
-
-        tupla_free_name($1);
-        tupla_free_name($3);
-        free($1);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   expr MULT expr
     {
         debug("arit-expr-2");
-
-        Type type1 = tupla_get_type($1);
-        Type type_final = unify_bin_op(type1, tupla_get_type($3), "*", unify_other_arith);
-        
+        Type type_final = unify(tupla_get_type($1), tupla_get_type($3), "*", unify_other_arith);
         $$ = new_tupla(NULL, 0, type_final, new_node(MULT_NODE, 0, type_final));
-
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
-
-        tupla_free_name($1);
-        tupla_free_name($3);
-        free($1);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   expr DIV expr
     {
         debug("arit-expr-2");
-
-        Type type1 = tupla_get_type($1);
-        Type type_final = unify_bin_op(type1, tupla_get_type($3), "/", unify_other_arith);
-        
+        Type type_final = unify(tupla_get_type($1), tupla_get_type($3), "/", unify_other_arith);
         $$ = new_tupla(NULL, 0, type_final, new_node(DIV_NODE, 0, type_final));
-
         tupla_add_child($$, $1);
         tupla_add_child($$, $3);
-
-        tupla_free_name($1);
-        tupla_free_name($3);
-        free($1);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   expr EXP expr
@@ -539,6 +574,12 @@ var-att:
     ID DOT var-att
 |   var-att DOT ID
 |   ID DOT var-met
+    {
+        debug("var-att-3");
+        //check_obj($1);
+        //tupla_change_node($1, new_node(OBJ_USE_NODE, idx, NO_TYPE));
+        //$$ = new_tupla(NULL, 0, NO_TYPE, new_node(METHOD_NODE, 0, NO_TYPE));
+    }
 |   var-met DOT ID
 |   var-met DOT var-att
 |   var-att DOT var-met
@@ -598,51 +639,38 @@ void debug(char *text) {
 // -----------------------------------------------------------------------
 
 int check_var(Tupla* tupla) {
-
     int idx = findVar(vt, tupla_get_name(tupla));
-
     printf("CHECK_VAR\tyylineno: %d,\tname: %s\n", yylineno, tupla_get_name(tupla));
-
     if (idx == -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
             yylineno, tupla_get_name(tupla));
         exit(EXIT_FAILURE);
     }
-
     return idx;
 }
 
 AST* new_var(Tupla* tupla, Type type) {
-
     printf("NEW_VAR\t\tyylineno: %d,\tname: %s,\tline: %d,\ttype: %s\n",
             yylineno, tupla_get_name(tupla), tupla_get_line(tupla), get_text(type));
-
     int idx_check = findVar(vt, tupla_get_name(tupla));
-
     if (idx_check != -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
                 tupla_get_line(tupla), tupla_get_name(tupla), getLine(vt, idx_check));
         exit(EXIT_FAILURE);
     }
-
     int idx = addVar(&vt, tupla_get_line(tupla), tupla_get_name(tupla), type);
-
     return new_node(VAR_DECL_NODE, idx, type);
 }
 
 // -----------------------------------------------------------------------
 
-Type unify_bin_op(Type left, Type right, const char* op, Type (*unify)(Type, Type)) {
-
+Type unify(Type left, Type right, const char* op, Type (*unify)(Type, Type)) {
     printf("UNIFY\t\tyylineno: %d,\tleft: %s,\tright: %s,\top: %s\n",
             yylineno, get_text(left), get_text(right), op);
-
     Type unif = unify(left, right);
-
     if (unif == NO_TYPE) {
         type_error(op, left, right);
     }
-
     return unif;
 }
 
@@ -683,9 +711,11 @@ Conv check_assign(Type left, Type right) {
     return NONE;
 }
 
-void change_type(Tupla* tupla, Type type) {
-    printf("ADD_TYPE\t\tname: %s,\ttype: %s\n", get_text(type), tupla_get_name(tupla));
-    changeVarType(vt, findVar(vt, tupla_get_name(tupla)), type);
+void free_tupla_full(Tupla* t1, Tupla* t2) {
+    tupla_free_name(t1);
+    tupla_free_name(t2);
+    free(t1);
+    free(t2);
 }
 
 // -----------------------------------------------------------------------
@@ -707,6 +737,10 @@ int main(void) {
 
     st = createStrTable();
     vt = createVarTable();
+    //ot = createVarTable();
+
+    //addVar(&ot, 0, "console", NO_TYPE);
+    //addVar(&ot, 0, "log", NO_TYPE);
 
     yyparse();
     printf("Parse successful\n");

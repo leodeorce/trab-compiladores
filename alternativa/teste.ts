@@ -13,4 +13,8 @@ b = "str";
 
 let n = e + b;
 e = a / 0;
-// e = f * e;
+
+let o = a == e;
+o = a < 1;
+o = 1 > a;
+o = e <= e;

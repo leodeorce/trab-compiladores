@@ -28,7 +28,8 @@ void printVars(Var_table* table) {
    printf("---------Tabela de Variaveis-------\n");
 	
    while(ptr != NULL) {
-      printf("Pos %d\t-- name: %s,\tline: %d,\ttype: %s\n", i, ptr->name, ptr->line, get_text(ptr->type));
+      printf("Pos %d\t-- name: %s,\tline: %d,\ttype: %s\n",
+         i, ptr->name, ptr->line, get_text(ptr->type));
       ptr = ptr->next;
       i++;
    }
