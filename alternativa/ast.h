@@ -5,6 +5,7 @@
 
 typedef enum {
 
+    AND_NODE,
     ASSIGN_NODE,
     EQ_NODE,
     BEGIN_NODE,
@@ -19,11 +20,13 @@ typedef enum {
     LT_NODE,
     MULT_NODE,
     NUM_VAL_NODE,
+    OR_NODE,
     PLUS_NODE,
     SUB_NODE,
     STR_VAL_NODE,
     VAR_DECL_NODE,
     VAR_USE_NODE,
+    WHILE_NODE,
 
     B2S_NODE,
     B2U_NODE,

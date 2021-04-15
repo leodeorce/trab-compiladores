@@ -124,6 +124,7 @@ extern Var_table *vt;
 
 char* kind2str(NodeKind kind) {
     switch(kind) {
+        case AND_NODE:      return "&&";
         case ASSIGN_NODE:   return "=";
         case EQ_NODE:       return "==";
         case BEGIN_NODE:    return "begin";
@@ -138,11 +139,13 @@ char* kind2str(NodeKind kind) {
         case LT_NODE:       return "<";
         case MULT_NODE:     return "*";
         case NUM_VAL_NODE:  return "";
+        case OR_NODE:       return "||";
         case PLUS_NODE:     return "+";
         case SUB_NODE:      return "-";
         case STR_VAL_NODE:  return "";
         case VAR_DECL_NODE: return "var_decl";
         case VAR_USE_NODE:  return "var_use";
+        case WHILE_NODE:    return "while";
         case B2S_NODE:      return "B2S";
         case B2U_NODE:      return "B2U";
         case N2S_NODE:      return "N2S";

@@ -24,6 +24,7 @@ AST* new_var(Tupla* tupla, Type type);
 
 Type unify(Type left, Type right, const char*, Type (*unify)(Type, Type));
 Conv check_assign(Type left, Type right);
+void check_bool_type(const char* cmd, Type type);
 
 void free_tupla_full(Tupla* t1, Tupla* t2);
 
@@ -55,7 +56,8 @@ WHILE WITH AWAIT YIELD STATIC AS ASYNC FROM GET OF SET TARGET ANY BOOLTYPE CONST
 DECLARE MODULE REQUIRE NEVER NUMBER STRING SYMBOL TYPE UNDEFINED UNKNOWN
 
 %precedence E_ID
-%left LOGICAL_NULL LOGICAL_AND LOGICAL_OR EQ EQ_STRICT INEQ INEQ_STRICT LT LT_EQ GT GT_EQ
+%left LOGICAL_NULL LOGICAL_AND LOGICAL_OR
+%left EQ EQ_STRICT INEQ INEQ_STRICT LT LT_EQ GT GT_EQ
 %left BITWISE_OR
 %left BITWISE_XOR
 %left BITWISE_AND
@@ -128,8 +130,8 @@ stmt:
     }
 
 |   assign-expr SEMI        { debug("stmt-5"); $$ = $1; }
-|   if-stmt
-|   while-stmt
+|   if-stmt                 { debug("stmt-6"); $$ = $1; }
+|   while-stmt              { debug("stmt-7"); $$ = $1; }
 |   do-while-stmt
 |   for-stmt
 |   RETURN SEMI
@@ -216,14 +218,64 @@ do-while-stmt:
 ;
 
 while-stmt:
+
     WHILE LPAR expr RPAR LBRACE line RBRACE
+    {
+        debug("while-stmt-1");
+        check_bool_type("while", tupla_get_type($3));
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(WHILE_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $3);
+        tupla_add_child($$, $6);
+        tupla_free_name($3);
+        free($3);
+        free($6);
+    }
+
 |   WHILE LPAR assign-expr RPAR LBRACE line RBRACE
 ;
 
 if-stmt:
+
     IF LPAR expr RPAR LBRACE line RBRACE
+    {
+        debug("if-stmt-1");
+        check_bool_type("if", tupla_get_type($3));
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(IF_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $3);
+        tupla_add_child($$, $6);
+        tupla_free_name($3);
+        free($3);
+        free($6);
+    }
+
 |   IF LPAR expr RPAR LBRACE line RBRACE ELSE LBRACE line RBRACE
+    {
+        debug("if-stmt-2");
+        check_bool_type("if", tupla_get_type($3));
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(IF_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $3);
+        tupla_add_child($$, $6);
+        tupla_add_child($$, $10);
+        tupla_free_name($3);
+        free($3);
+        free($6);
+        free($10);
+    }
+
 |   IF LPAR expr RPAR LBRACE line RBRACE ELSE stmt
+    {
+        debug("if-stmt-3");
+        check_bool_type("if", tupla_get_type($3));
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(IF_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $3);
+        tupla_add_child($$, $6);
+        tupla_add_child($$, $9);
+        tupla_free_name($3);
+        free($3);
+        free($6);
+        free($9);
+    }
+
 |   IF LPAR assign-expr RPAR LBRACE line RBRACE
 |   IF LPAR assign-expr RPAR LBRACE line RBRACE ELSE LBRACE line RBRACE
 |   IF LPAR assign-expr RPAR LBRACE line RBRACE ELSE stmt
@@ -313,11 +365,21 @@ logic-expr:
 |   expr LOGICAL_AND expr
     {
         debug("logic-expr-11");
+        unify(tupla_get_type($1), tupla_get_type($3), "&&", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(AND_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
     }
 
 |   expr LOGICAL_OR expr
     {
         debug("logic-expr-12");
+        unify(tupla_get_type($1), tupla_get_type($3), "||", unify_comp);
+        $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, new_node(OR_NODE, 0, BOOLEAN_TYPE));
+        tupla_add_child($$, $1);
+        tupla_add_child($$, $3);
+        free_tupla_full($1, $3);
     }
 ;
 
@@ -457,8 +519,8 @@ obj-att:
 var-type:
     NUMBER      { debug("var-type-1"); $$ = new_tupla(NULL, 0, NUMBER_TYPE, NULL);    }
 |   STRING      { debug("var-type-2"); $$ = new_tupla(NULL, 0, STRING_TYPE, NULL);    }
-|   UNDEFINED   { debug("var-type-3"); $$ = new_tupla(NULL, 0, UNDEFINED_TYPE, NULL); }
-|   BOOLTYPE    { debug("var-type-4"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL);   }
+|   BOOLTYPE    { debug("var-type-3"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL);   }
+|   UNDEFINED   { debug("var-type-4"); $$ = new_tupla(NULL, 0, UNDEFINED_TYPE, NULL); }
 |   ANY         // Desconsiderado
 |   VOID_RW     // Desconsiderado
 |   NEVER       // Desconsiderado
@@ -466,7 +528,7 @@ var-type:
 
 expr:
     idx-safe-expr   { debug("expr-1"); $$ = $1; }
-|   idx-unsafe-expr
+|   idx-unsafe-expr { debug("expr-2"); $$ = $1; }
 |   LPAR expr RPAR  { debug("expr-3"); $$ = $2; }
 ;
 
@@ -614,9 +676,9 @@ var-val:
 |   FALSE_RW        { debug("var-val-5");  $$ = $1; }
 |   SUB INT_VAL     { debug("var-val-6");  $$ = $2; }
 |   SUB REAL_VAL    { debug("var-val-7");  $$ = $2; }
-|   SUB STR_VAL     { debug("var-val-8");  $$ = $2; } // NaN
-|   SUB TRUE_RW     { debug("var-val-9");  $$ = $2; }
-|   SUB FALSE_RW    { debug("var-val-10"); $$ = $2; } // -0
+|   SUB STR_VAL
+|   SUB TRUE_RW
+|   SUB FALSE_RW
 ;
 
 array-expr:
@@ -624,10 +686,10 @@ array-expr:
 ;
 
 elmts-list:
-    COMMA elmts-list            { debug("elmts-list-1"); $$ = $2; }
-|   var-val COMMA elmts-list    { debug("elmts-list-2"); }
-|   var-val                     { debug("elmts-list-3"); }
-|   %empty                      { debug("elmts-list-4"); }
+    COMMA elmts-list
+|   var-val COMMA elmts-list
+|   var-val
+|   %empty
 ;
 
 %%
@@ -709,6 +771,14 @@ Conv check_assign(Type left, Type right) {
     }
 
     return NONE;
+}
+
+void check_bool_type(const char* cmd, Type type) {
+    if(type != BOOLEAN_TYPE) {
+        printf("SEMANTIC ERROR (%d): conditional expression in '%s' is '%s' instead of '%s'.\n",
+           yylineno, cmd, get_text(type), get_text(BOOLEAN_TYPE));
+        exit(EXIT_FAILURE);
+    }
 }
 
 void free_tupla_full(Tupla* t1, Tupla* t2) {
