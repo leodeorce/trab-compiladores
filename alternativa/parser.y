@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h"
 #include "types.h"
 #include "list.h"
 #include "tupla.h"
@@ -25,6 +26,8 @@ AST* new_var(Tupla* tupla, Type type);
 Type unify(Type left, Type right, const char*, Type (*unify)(Type, Type));
 Conv check_assign(Type left, Type right);
 void check_bool_type(const char* cmd, Type type);
+void check_name(Tupla* tupla, const char* name);
+Conv check_string(Tupla* tupla);
 
 void free_tupla_full(Tupla* t1, Tupla* t2);
 
@@ -479,11 +482,8 @@ var-declr:
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET ASSIGN expr
 
 |   CONST_RW id-list ASSIGN expr
-
 |   CONST_RW ID COLON var-type ASSIGN expr
-
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-
 |   CONST_RW id-list ASSIGN obj-def
 ;
 
@@ -494,11 +494,7 @@ var-declr-rw:
 
 id-list:
     ID COMMA id-list
-|   ID
-    {
-        debug("id-list-2");
-        $$ = $1;
-    }
+|   ID                  { debug("id-list-2"); $$ = $1; }
 ;
 
 obj-def:
@@ -635,13 +631,17 @@ shift-expr:
 var-att:
     ID DOT var-att
 |   var-att DOT ID
+
 |   ID DOT var-met
     {
         debug("var-att-3");
-        //check_obj($1);
-        //tupla_change_node($1, new_node(OBJ_USE_NODE, idx, NO_TYPE));
-        //$$ = new_tupla(NULL, 0, NO_TYPE, new_node(METHOD_NODE, 0, NO_TYPE));
+        check_name($1, "console");
+        $$ = new_tupla(NULL, 0, NO_TYPE, new_node(PRINT_NODE, 0, NO_TYPE));
+        tupla_add_child($$, $3);
+        tupla_free_name($3);
+        free($3);
     }
+
 |   var-met DOT ID
 |   var-met DOT var-att
 |   var-att DOT var-met
@@ -650,13 +650,33 @@ var-att:
 
 var-met:
     ID LPAR args-list RPAR
+    {
+        debug("var-met-1");
+        check_name($1, "log");
+        $$ = $3;
+    }
 ;
 
 args-list:
     COMMA args-list
 |   expr COMMA args-list
 |   assign-expr COMMA args-list
+
 |   expr
+    {
+        debug("args-list-4");
+        Conv conversion = check_string($1);
+        if(conversion == NONE)
+            $$ = $1;
+        else {
+            NodeKind conversion_nodekind = conv2node(conversion);
+            $$ = new_tupla(NULL, 0, STRING_TYPE, new_node(conversion_nodekind, 0, STRING_TYPE));
+            tupla_add_child($$, $1);
+            tupla_free_name($1);
+            free($1);
+        }
+    }
+
 |   assign-expr
 |   %empty
 ;
@@ -781,6 +801,23 @@ void check_bool_type(const char* cmd, Type type) {
     }
 }
 
+void check_name(Tupla* tupla, const char* name) {
+    char* tupla_name = tupla_get_name(tupla);
+    if(strcmp(tupla_name, name) != 0) {
+        printf("SEMANTIC ERROR (%d): cannot find name '%s'.\n", yylineno, tupla_name);
+        exit(EXIT_FAILURE);
+    }
+}
+
+Conv check_string(Tupla* tupla) {
+    switch(tupla_get_type(tupla)) {
+        case NUMBER_TYPE:    return N2S;
+        case BOOLEAN_TYPE:   return B2S;
+        case UNDEFINED_TYPE: return U2S;
+        default:             return NONE;
+    }
+}
+
 void free_tupla_full(Tupla* t1, Tupla* t2) {
     tupla_free_name(t1);
     tupla_free_name(t2);
@@ -790,7 +827,7 @@ void free_tupla_full(Tupla* t1, Tupla* t2) {
 
 // -----------------------------------------------------------------------
 
-void type_error(const char *op, Type left, Type right) {
+void type_error(const char* op, Type left, Type right) {
     printf("SEMANTIC ERROR (%d): incompatible types for operator '%s', LHS is '%s' and RHS is '%s'.\n",
         yylineno, op, get_text(left), get_text(right));
     exit(EXIT_FAILURE);
@@ -807,10 +844,6 @@ int main(void) {
 
     st = createStrTable();
     vt = createVarTable();
-    //ot = createVarTable();
-
-    //addVar(&ot, 0, "console", NO_TYPE);
-    //addVar(&ot, 0, "log", NO_TYPE);
 
     yyparse();
     printf("Parse successful\n");

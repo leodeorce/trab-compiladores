@@ -141,6 +141,7 @@ char* kind2str(NodeKind kind) {
         case NUM_VAL_NODE:  return "";
         case OR_NODE:       return "||";
         case PLUS_NODE:     return "+";
+        case PRINT_NODE:    return "print";
         case SUB_NODE:      return "-";
         case STR_VAL_NODE:  return "";
         case VAR_DECL_NODE: return "var_decl";

@@ -22,6 +22,7 @@ typedef enum {
     NUM_VAL_NODE,
     OR_NODE,
     PLUS_NODE,
+    PRINT_NODE,
     SUB_NODE,
     STR_VAL_NODE,
     VAR_DECL_NODE,

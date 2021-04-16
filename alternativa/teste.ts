@@ -38,3 +38,5 @@ if(circulo == true || triangulo == false) {
 while(area > 1) {
 	area = area - 1;
 }
+
+console.log(area);
