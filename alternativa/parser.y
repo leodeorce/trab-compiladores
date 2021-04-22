@@ -87,18 +87,8 @@ begin:
 ;
 
 line:
-
-    stmt-list
-    {
-        debug("line-1");
-        $$ = $1;
-    }
-
-|   %empty
-    {
-        debug("line-2");
-        $$ = new_tupla(NULL, 0, NO_TYPE, NULL);
-    }
+    stmt-list   { debug("line-1"); $$ = $1; }
+|   %empty      { debug("line-2"); $$ = new_tupla(NULL, 0, NO_TYPE, NULL); }
 ;
 
 stmt-list:
@@ -323,7 +313,7 @@ logic-expr:
 |   ID LT expr
     {
         debug("logic-expr-6");
-        int  idx = check_var($1);
+        int idx = check_var($1);
         Type id_type = getType(vt, idx);
         unify(id_type, tupla_get_type($3), "<", unify_comp);
         tupla_change_node($1, new_node(VAR_USE_NODE, idx, id_type));
@@ -478,9 +468,7 @@ var-declr:
     }
 
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET
-
 |   var-declr-rw ID COLON var-type LBRACKET RBRACKET ASSIGN expr
-
 |   CONST_RW id-list ASSIGN expr
 |   CONST_RW ID COLON var-type ASSIGN expr
 |   CONST_RW ID COLON var-type LBRACKET RBRACKET ASSIGN expr
@@ -517,9 +505,9 @@ var-type:
 |   STRING      { debug("var-type-2"); $$ = new_tupla(NULL, 0, STRING_TYPE, NULL);    }
 |   BOOLTYPE    { debug("var-type-3"); $$ = new_tupla(NULL, 0, BOOLEAN_TYPE, NULL);   }
 |   UNDEFINED   { debug("var-type-4"); $$ = new_tupla(NULL, 0, UNDEFINED_TYPE, NULL); }
-|   ANY         // Desconsiderado
-|   VOID_RW     // Desconsiderado
-|   NEVER       // Desconsiderado
+|   ANY
+|   VOID_RW
+|   NEVER
 ;
 
 expr:
@@ -536,7 +524,7 @@ idx-unsafe-expr:
 
 idx-safe-expr:
     var-val         { debug("idx-safe-expr-1"); $$ = $1; }
-|   var-att
+|   var-att         { debug("idx-safe-expr-2"); $$ = $1; }
 |   arit-expr       { debug("idx-safe-expr-3"); $$ = $1; }
 |   bitw-expr
 |   shift-expr
@@ -638,8 +626,7 @@ var-att:
         check_name($1, "console");
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(PRINT_NODE, 0, NO_TYPE));
         tupla_add_child($$, $3);
-        tupla_free_name($3);
-        free($3);
+        free_tupla_full($1, $3);
     }
 
 |   var-met DOT ID
@@ -653,6 +640,8 @@ var-met:
     {
         debug("var-met-1");
         check_name($1, "log");
+        tupla_free_name($1);
+        free($1);
         $$ = $3;
     }
 ;
@@ -666,8 +655,10 @@ args-list:
     {
         debug("args-list-4");
         Conv conversion = check_string($1);
-        if(conversion == NONE)
+        if(conversion == NONE) {
+            tupla_free_name($1);
             $$ = $1;
+        }
         else {
             NodeKind conversion_nodekind = conv2node(conversion);
             $$ = new_tupla(NULL, 0, STRING_TYPE, new_node(conversion_nodekind, 0, STRING_TYPE));

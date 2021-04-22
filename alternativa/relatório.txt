@@ -33,13 +33,15 @@ Código intermediário:
 A construção da AST tornou-se difícil pela dificuldade da
 manipulação de valores semânticos do flex. Optamos pelo
 uso de uma estrutura alocada dinamicamente fazendo o papel
-de uma tupla.
+de uma tupla, verificando e corrigindo vazamentos de memó-
+ria com o valgrind.
 
 ==========================================================
 
 Considerações de projeto:
 
-- (?) Arrays só admitem elementos de mesmo tipo;
 - Apenas uma variável pode ser declarada por linha;
 - Tipos considerados: number, string, boolean e undefined;
+- Números no Typescript não são divididos entre inteiros e
+ponto flutuante, logo o tipo number foi usado para ambos;
 - Desconsideradas definições de objetos e classes;
