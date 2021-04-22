@@ -1,0 +1,157 @@
+DEBUG	var-declr-rw-1
+DEBUG	var-type-1
+DEBUG	var-declr-4
+NEW_VAR		yylineno: 5,	name: x,	line: 5,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-2
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 6,	name: y,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-1
+UNIFY		yylineno: 8,	left: number,	right: number,	op: +
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 8,	name: x
+CHECK_ASSIGN	yylineno: 8,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 9,	name: y
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 9,	left: number,	right: number,	op: -
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 9,	name: x
+CHECK_ASSIGN	yylineno: 9,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 10,	name: y
+DEBUG	expr-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 10,	name: y
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 10,	left: number,	right: number,	op: *
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 10,	name: x
+CHECK_ASSIGN	yylineno: 10,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 11,	name: y
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 11,	left: number,	right: number,	op: *
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	expr-3
+DEBUG	arit-expr-2
+UNIFY		yylineno: 11,	left: number,	right: number,	op: /
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 11,	name: x
+CHECK_ASSIGN	yylineno: 11,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	var-type-3
+DEBUG	var-declr-4
+NEW_VAR		yylineno: 13,	name: z,	line: 13,	type: boolean
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 15,	name: y
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	logic-expr-8
+UNIFY		yylineno: 15,	left: number,	right: number,	op: >
+DEBUG	idx-unsafe-expr-1
+DEBUG	expr-2
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 15,	name: z
+CHECK_ASSIGN	yylineno: 15,	left: boolean,	right: boolean
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 16,	name: y
+DEBUG	expr-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 16,	name: y
+DEBUG	expr-1
+DEBUG	logic-expr-1
+UNIFY		yylineno: 16,	left: number,	right: number,	op: ==
+DEBUG	idx-unsafe-expr-1
+DEBUG	expr-2
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 16,	name: z
+CHECK_ASSIGN	yylineno: 16,	left: boolean,	right: boolean
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 17,	name: y
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 17,	left: number,	right: number,	op: -
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	expr-3
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 17,	name: y
+DEBUG	expr-1
+DEBUG	logic-expr-5
+UNIFY		yylineno: 17,	left: number,	right: number,	op: <
+DEBUG	idx-unsafe-expr-1
+DEBUG	expr-2
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 17,	name: z
+CHECK_ASSIGN	yylineno: 17,	left: boolean,	right: boolean
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	line-1
+DEBUG	begin-1
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0	-- name: x,	line: 5,	type: number
+Pos 1	-- name: y,	line: 6,	type: number
+Pos 2	-- name: z,	line: 13,	type: boolean
+---------Tabela de Strings-------

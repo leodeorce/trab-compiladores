@@ -1,0 +1,79 @@
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-declr-1
+NEW_VAR		yylineno: 5,	name: a,	line: 5,	type: undefined
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	var-type-1
+DEBUG	var-declr-4
+NEW_VAR		yylineno: 6,	name: b,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	var-type-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-5
+CHECK_ASSIGN	yylineno: 7,	left: number,	right: number
+NEW_VAR		yylineno: 7,	name: c,	line: 7,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-2
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 8,	name: d,	line: 8,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-3
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 9,	name: e,	line: 9,	type: string
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-2
+DEBUG	var-type-3
+DEBUG	var-val-4
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-5
+CHECK_ASSIGN	yylineno: 11,	left: boolean,	right: boolean
+NEW_VAR		yylineno: 11,	name: f,	line: 11,	type: boolean
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-2
+DEBUG	id-list-2
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 12,	name: g,	line: 12,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-2
+DEBUG	var-type-2
+DEBUG	var-declr-4
+NEW_VAR		yylineno: 13,	name: h,	line: 13,	type: string
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	line-1
+DEBUG	begin-1
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0	-- name: a,	line: 5,	type: undefined
+Pos 1	-- name: b,	line: 6,	type: number
+Pos 2	-- name: c,	line: 7,	type: number
+Pos 3	-- name: d,	line: 8,	type: number
+Pos 4	-- name: e,	line: 9,	type: string
+Pos 5	-- name: f,	line: 11,	type: boolean
+Pos 6	-- name: g,	line: 12,	type: number
+Pos 7	-- name: h,	line: 13,	type: string
+---------Tabela de Strings-------
+Pos 0	-- string: "string"

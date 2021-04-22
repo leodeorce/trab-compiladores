@@ -1,0 +1,27 @@
+DEBUG	var-declr-rw-1
+DEBUG	var-type-2
+DEBUG	var-val-3
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-5
+CHECK_ASSIGN	yylineno: 5,	left: string,	right: string
+NEW_VAR		yylineno: 5,	name: a,	line: 5,	type: string
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 6,	name: b,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 7,	name: b
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 7,	name: a
+CHECK_ASSIGN	yylineno: 7,	left: string,	right: number
+SEMANTIC ERROR (7): incompatible types for operator '=', LHS is 'string' and RHS is 'number'.

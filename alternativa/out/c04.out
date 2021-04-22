@@ -1,0 +1,72 @@
+DEBUG	var-declr-rw-1
+DEBUG	var-type-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-5
+CHECK_ASSIGN	yylineno: 5,	left: number,	right: number
+NEW_VAR		yylineno: 5,	name: i,	line: 5,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 6,	name: k,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 8,	name: i
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	logic-expr-7
+UNIFY		yylineno: 8,	left: number,	right: number,	op: <=
+DEBUG	idx-unsafe-expr-1
+DEBUG	expr-2
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 9,	name: k
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 9,	left: number,	right: number,	op: -
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 9,	name: k
+CHECK_ASSIGN	yylineno: 9,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-2
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 10,	name: i
+DEBUG	expr-1
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	arit-expr-1
+UNIFY		yylineno: 10,	left: number,	right: number,	op: +
+DEBUG	idx-safe-expr-3
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 10,	name: i
+CHECK_ASSIGN	yylineno: 10,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	line-1
+DEBUG	while-stmt-1
+DEBUG	stmt-7
+DEBUG	stmt-list-1
+DEBUG	line-1
+DEBUG	begin-1
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0	-- name: i,	line: 5,	type: number
+Pos 1	-- name: k,	line: 6,	type: number
+---------Tabela de Strings-------

@@ -1,0 +1,28 @@
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-3
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 5,	name: x,	line: 5,	type: string
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-2
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 6,	name: y,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 8,	name: x
+DEBUG	expr-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 8,	name: y
+DEBUG	expr-1
+DEBUG	arit-expr-2
+UNIFY		yylineno: 8,	left: string,	right: number,	op: *
+SEMANTIC ERROR (8): incompatible types for operator '*', LHS is 'string' and RHS is 'number'.

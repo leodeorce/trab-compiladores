@@ -1,0 +1,83 @@
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 5,	name: a,	line: 5,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-2
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-val-1
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	var-declr-2
+NEW_VAR		yylineno: 6,	name: b,	line: 6,	type: number
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 7,	name: b
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 7,	name: a
+CHECK_ASSIGN	yylineno: 7,	left: number,	right: number
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-declr-1
+NEW_VAR		yylineno: 9,	name: c,	line: 9,	type: undefined
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	var-val-3
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 10,	name: c
+CHECK_ASSIGN	yylineno: 10,	left: undefined,	right: string
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	var-type-3
+DEBUG	var-declr-4
+NEW_VAR		yylineno: 12,	name: d,	line: 12,	type: boolean
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	var-declr-rw-1
+DEBUG	id-list-2
+DEBUG	var-declr-1
+NEW_VAR		yylineno: 13,	name: e,	line: 13,	type: undefined
+DEBUG	stmt-1
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	var-val-5
+DEBUG	idx-safe-expr-1
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 14,	name: e
+CHECK_ASSIGN	yylineno: 14,	left: undefined,	right: boolean
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	assignment-1
+DEBUG	idx-safe-expr-8
+CHECK_VAR	yylineno: 15,	name: e
+DEBUG	expr-1
+DEBUG	assign-expr-2
+CHECK_VAR	yylineno: 15,	name: d
+CHECK_ASSIGN	yylineno: 15,	left: boolean,	right: undefined
+DEBUG	stmt-5
+DEBUG	stmt-list-1
+DEBUG	line-1
+DEBUG	begin-1
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0	-- name: a,	line: 5,	type: number
+Pos 1	-- name: b,	line: 6,	type: number
+Pos 2	-- name: c,	line: 9,	type: undefined
+Pos 3	-- name: d,	line: 12,	type: boolean
+Pos 4	-- name: e,	line: 13,	type: undefined
+---------Tabela de Strings-------
+Pos 0	-- string: "str"
