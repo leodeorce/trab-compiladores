@@ -44,4 +44,4 @@ Considerações de projeto:
 - Tipos considerados: number, string, boolean e undefined;
 - Números no Typescript não são divididos entre inteiros e
 ponto flutuante, logo o tipo number foi usado para ambos;
-- Desconsideradas definições de objetos e classes;
+- Desconsideradas definições de objetos e classes.
