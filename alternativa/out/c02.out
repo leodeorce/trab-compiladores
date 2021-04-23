@@ -74,10 +74,10 @@ DEBUG	line-1
 DEBUG	begin-1
 Parse successful
 ---------Tabela de Variaveis-------
-Pos 0	-- name: a,	line: 5,	type: number
-Pos 1	-- name: b,	line: 6,	type: number
-Pos 2	-- name: c,	line: 9,	type: undefined
-Pos 3	-- name: d,	line: 12,	type: boolean
-Pos 4	-- name: e,	line: 13,	type: undefined
+Pos 0   -- name: a         	line: 5   	type: number
+Pos 1   -- name: b         	line: 6   	type: number
+Pos 2   -- name: c         	line: 9   	type: undefined
+Pos 3   -- name: d         	line: 12  	type: boolean
+Pos 4   -- name: e         	line: 13  	type: undefined
 ---------Tabela de Strings-------
-Pos 0	-- string: "str"
+Pos 0   -- string: "str"

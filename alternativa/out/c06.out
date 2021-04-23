@@ -48,6 +48,7 @@ DEBUG	expr-1
 DEBUG	args-list-4
 DEBUG	var-met-1
 DEBUG	var-att-3
+DEBUG	idx-safe-expr-2
 DEBUG	expr-1
 DEBUG	stmt-4
 DEBUG	stmt-list-1
@@ -78,6 +79,7 @@ DEBUG	expr-1
 DEBUG	args-list-4
 DEBUG	var-met-1
 DEBUG	var-att-3
+DEBUG	idx-safe-expr-2
 DEBUG	expr-1
 DEBUG	stmt-4
 DEBUG	stmt-list-1
@@ -87,6 +89,7 @@ DEBUG	expr-1
 DEBUG	args-list-4
 DEBUG	var-met-1
 DEBUG	var-att-3
+DEBUG	idx-safe-expr-2
 DEBUG	expr-1
 DEBUG	stmt-4
 DEBUG	stmt-list-1
@@ -94,8 +97,8 @@ DEBUG	line-1
 DEBUG	begin-1
 Parse successful
 ---------Tabela de Variaveis-------
-Pos 0	-- name: a,	line: 5,	type: number
-Pos 1	-- name: b,	line: 6,	type: number
-Pos 2	-- name: c,	line: 7,	type: number
+Pos 0   -- name: a         	line: 5   	type: number
+Pos 1   -- name: b         	line: 6   	type: number
+Pos 2   -- name: c         	line: 7   	type: number
 ---------Tabela de Strings-------
-Pos 0	-- string: "str"
+Pos 0   -- string: "str"

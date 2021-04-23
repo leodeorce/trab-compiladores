@@ -17,6 +17,7 @@ DEBUG	expr-1
 DEBUG	args-list-4
 DEBUG	var-met-1
 DEBUG	var-att-3
+DEBUG	idx-safe-expr-2
 DEBUG	expr-1
 DEBUG	stmt-4
 DEBUG	stmt-list-2
@@ -29,6 +30,7 @@ CHECK_VAR	yylineno: 10,	name: x
 CHECK_ASSIGN	yylineno: 10,	left: number,	right: number
 DEBUG	var-met-1
 DEBUG	var-att-3
+DEBUG	idx-safe-expr-2
 DEBUG	expr-1
 DEBUG	stmt-4
 DEBUG	stmt-list-1

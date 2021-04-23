@@ -151,7 +151,7 @@ DEBUG	line-1
 DEBUG	begin-1
 Parse successful
 ---------Tabela de Variaveis-------
-Pos 0	-- name: x,	line: 5,	type: number
-Pos 1	-- name: y,	line: 6,	type: number
-Pos 2	-- name: z,	line: 13,	type: boolean
+Pos 0   -- name: x         	line: 5   	type: number
+Pos 1   -- name: y         	line: 6   	type: number
+Pos 2   -- name: z         	line: 13  	type: boolean
 ---------Tabela de Strings-------
