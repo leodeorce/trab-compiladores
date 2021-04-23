@@ -30,13 +30,13 @@ let altura:number = 10;
 let area:number;
 
 if(circulo == true || triangulo == false) {
-	area = pi * raio * raio;
+    area = pi * raio * raio;
 } else if(triangulo == true) {
-	area = base * altura / 2;
+    area = base * altura / 2;
 }
 
 while(area > 1) {
-	area = area - 1;
+    area = area - 1;
 }
 
-console.log(area);
+console.log(area == 0);
