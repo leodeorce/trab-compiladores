@@ -1,0 +1,47 @@
+
+Disciplina    INF09281 Compiladores
+Período       2020/2 EARTE
+
+Grupo         Leonardo Deorce Lima de Oliveira
+              Julio Bissoli
+              Rodrigo Mattiolli
+
+==========================================================
+
+Linguagem de entrada:                   TypeScript
+Arquitetura de saída:                   MIPS
+Ferramenta para análise léxica:         flex 2.6.4
+Ferramenta para análise sintática,
+    semântica e geração de código
+    intermediário:                      GNU Bison 3.5.1
+
+==========================================================
+
+Analisador semântico:
+
+A verificação de tipos foi feita em sua maior parte com o
+auxílio de códigos de teste para cada combinação de opera-
+dores e tipos suportada pelo projeto, uma vez que este
+procedimento é mais eficaz que uma busca extensa sobre a
+documentação que não foca no comportamento dos tipos pri-
+mitivos.
+
+==========================================================
+
+Código intermediário:
+
+A construção da AST tornou-se difícil pela dificuldade da
+manipulação de valores semânticos do flex. Optamos pelo
+uso de uma estrutura alocada dinamicamente fazendo o papel
+de uma tupla, verificando e corrigindo vazamentos de memó-
+ria com o valgrind.
+
+==========================================================
+
+Considerações de projeto:
+
+- Apenas uma variável pode ser declarada por linha;
+- Tipos considerados: number, string, boolean e undefined;
+- Números no Typescript não são divididos entre inteiros e
+ponto flutuante, logo o tipo number foi usado para ambos;
+- Desconsideradas definições de objetos e classes;
