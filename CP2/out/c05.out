@@ -1,0 +1,10 @@
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0   -- name: circulo   	line: 5   	type: boolean
+Pos 1   -- name: pi        	line: 6   	type: number
+Pos 2   -- name: raio      	line: 7   	type: number
+Pos 3   -- name: triangulo 	line: 9   	type: boolean
+Pos 4   -- name: base      	line: 10  	type: number
+Pos 5   -- name: altura    	line: 11  	type: number
+Pos 6   -- name: area      	line: 13  	type: number
+---------Tabela de Strings-------

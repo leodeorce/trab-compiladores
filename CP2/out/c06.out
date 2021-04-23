@@ -1,0 +1,7 @@
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0   -- name: a         	line: 5   	type: number
+Pos 1   -- name: b         	line: 6   	type: number
+Pos 2   -- name: c         	line: 7   	type: number
+---------Tabela de Strings-------
+Pos 0   -- string: "str"

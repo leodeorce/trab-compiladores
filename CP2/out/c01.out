@@ -1,0 +1,12 @@
+Parse successful
+---------Tabela de Variaveis-------
+Pos 0   -- name: a         	line: 5   	type: undefined
+Pos 1   -- name: b         	line: 6   	type: number
+Pos 2   -- name: c         	line: 7   	type: number
+Pos 3   -- name: d         	line: 8   	type: number
+Pos 4   -- name: e         	line: 9   	type: string
+Pos 5   -- name: f         	line: 11  	type: boolean
+Pos 6   -- name: g         	line: 12  	type: number
+Pos 7   -- name: h         	line: 13  	type: string
+---------Tabela de Strings-------
+Pos 0   -- string: "string"
