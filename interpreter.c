@@ -27,7 +27,6 @@ int sp; // stack pointer
 
 // All these ops should have a boundary check, buuuut... X_X
 
-// ------------------- Add e retira Numbers da pilha -------------
 void pushN(double x){
     stack[++sp].as_number = x;
 }
@@ -35,8 +34,6 @@ void pushN(double x){
 double popN(){
    return stack[sp--].as_number;
 }
-// -------------------------------------------------------------
-
 
 void pushi(int x) {
     stack[++sp].as_int = x;
@@ -69,9 +66,6 @@ void print_stack() {
     printf("\n");
 }
 
-// ----------------------------------------------------------------------------
-
-// Variables memory -----------------------------------------------------------
 
 #define MEM_SIZE 100
 
@@ -85,7 +79,6 @@ int loadi(int addr) {
     return mem[addr].as_int;
 }
 
-// ---------- Le e cria Number na pilha ----------
 
 double loadN(int addr) {
     return mem[addr].as_number;
@@ -95,7 +88,6 @@ void storeN(int addr, double val){
     mem[addr].as_number = val;
 }
 
-//--------------------------------------------------
 
 void storef(int addr, float val) {
     mem[addr].as_float = val;
@@ -111,7 +103,6 @@ void init_mem() {
     }
 }
 
-// ----------------------------------------------------------------------------
 
 // #define TRACE
 #ifdef TRACE
@@ -126,14 +117,12 @@ static char str_buf[MAX_STR_SIZE];
 
 void rec_run_ast(AST *ast);
 
-// -----------Read Numberrr=--------------
 void read_number(int var_idx){
     double x;
     printf("read (Number): ");
     scanf("%lf", &x);
     storeN(var_idx, x);
 }
-//---------------------------------------
 
 
 
@@ -153,11 +142,9 @@ void read_str(int var_idx) {
     storei(var_idx, addStr(&st, str_buf));
 }
 
-// --------------Printa um number -----------------
 void write_number(){
     printf("%lf\n", popN());
 }
-//-----------------------------------------------
 
 
 
@@ -194,14 +181,12 @@ void write_str() {
     rec_run_ast(lexpr);             \
     rec_run_ast(rexpr)
 
-// ------------------- Soma number ------------------
 void plus_number(AST *ast) {
     run_bin_op();
     double r = popN();
     double l = popN();
     pushN(l + r);
 }
-// -------------------------------------------------
 
 
 void plus_bool(AST *ast) {
@@ -223,7 +208,6 @@ void plus_str(AST *ast) {
 
 
 
-// ---------------- Roda outras aridades ----------------------
 void run_other_arith_number(AST *ast, int (*int_op)(int,int)) {
     run_bin_op();
     if (get_node_type(ast) == NUMBER_TYPE) {
@@ -235,29 +219,23 @@ void run_other_arith_number(AST *ast, int (*int_op)(int,int)) {
         printf("ver qq faz quando não for number");
     }
 }
-// ---------------------------------------------------
 
-// ------------ Subitração com Number ---------------
 double number_minus(double l, double r){
      return l - r;
     }
-// -------------------------------------------------
 
 
-// --------------- Divisão com Number---------------------
+
 double number_over(double l, double r) {
     return l / r;
 }
-// ----------------------------------------------------
 
 
-// ----------- Multiplicaçao com Number ----------------------
 double number_times(double l, double r) {
     return l * r;
 }
 
 
-// ***************** RUM CMP 2 ************************
 void run_cmp_2(AST *ast, int (*number_cmp)(int,int), int (*str_cmp)(char*,char*)) {
     run_bin_op();
     if (get_node_type(ast) == STRING_TYPE) {
@@ -271,13 +249,10 @@ void run_cmp_2(AST *ast, int (*number_cmp)(int,int), int (*str_cmp)(char*,char*)
         pushi(number_cmp(l,r));
     }
 }
-// *****************************************
 
-// ************ Igualdede entre numeros ************
 int number_eq(double l, double r){
     return l == r;
 }
-// *********************************
 
 
 
@@ -286,46 +261,37 @@ int str_eq(char *l, char *r) {
 }
 
 
-// ************* Mernor que com Bumber ***************
 int number_lt(double l, double r) {
     return l < r;
 }
-// *************8*******************************
 
 
 int str_lt(char *l, char *r) {
     return (strcmp(l, r) < 0);
 }
 
-// ----------------------------------------------------------------------------
 
 
 
 
-// -------------------------Roda atribuição de numeros*********************
 void run_assign_2(AST *ast) {
     trace("assign");
     AST *rexpr = get_child(ast, 1);
     rec_run_ast(rexpr);
     int var_idx = get_double_data(get_child(ast, 0));
     Type var_type = getType(vt, var_idx);
-    // if (var_type == REAL_TYPE) {
     if (var_type == NUMBER_TYPE) {
         storeN(var_idx, popN());
     } else {
-        // storei(var_idx, popi());
         printf("Ve qq vai fazer quando não for numero");
     }
 }
-// ****************************************
 
 
-// *************** Iqualdade entre numero*****************
 void run_eq_2(AST *ast) {
     trace("eq");
     run_cmp_2(ast, number_eq, str_eq);
 }
-// *******************************
 
 
 void run_block(AST *ast) {
@@ -352,37 +318,29 @@ void run_if(AST *ast) {
     }
 }
 
-// --------------- Run NUMBER val ---------------------
 void run_number_val(AST *ast){
     trace("numeber_val");
     pushN(get_double_data(ast));
 }
-// ------------------------------------
 
-// --------------- Rum lt --------------
 void run_lt_2(AST *ast) {
     trace("lt");
     run_cmp_2(ast, number_lt, str_lt);
 }
-// --------------- Rum lt --------------
 
 
 
-// ------------ Rum Minus --------------
 void run_minus_2(AST *ast) {
     trace("minus");
     run_other_arith_number(ast, number_minus);
 }
-// ----------------------------------------
 
-// ---------------- Rum Oven -------------------------
 void run_over_2(AST *ast) {
     trace("over");
     run_other_arith_number(ast, number_over);
 }
-// ---------------- =-------------------------
 
-// --------------------- Roda Soma-----------------
+
 void run_plus_2(AST *ast) {
     trace("plus");
     Type plus_type = get_node_type(ast);
@@ -396,7 +354,6 @@ void run_plus_2(AST *ast) {
             exit(EXIT_FAILURE);
     }
 }
-// --------------------------------------
 
 
 
@@ -407,7 +364,6 @@ void run_program(AST *ast) {
 }
 
 
-// ------------ rUM READ------------------------
 void run_read(AST *ast) {
     trace("read");
     int var_idx = get_double_data(get_child(ast, 0));
@@ -422,7 +378,6 @@ void run_read(AST *ast) {
             exit(EXIT_FAILURE);
     }
 }
-// ---------------------------------
 
 
 void run_repeat(AST *ast) {
@@ -440,36 +395,29 @@ void run_str_val(AST *ast) {
     pushi(get_double_data(ast));
 }
 
-// --------------m Multiplicação ----------------------
 void run_times_2(AST *ast) {
     trace("times");
     run_other_arith_number(ast, number_times);
 }
-// --------------m Multiplicação ----------------------
 
 
 void run_var_decl(AST *ast) {
     trace("var_decl");
-    // Nothing to do, memory was already cleared upon initialization.
 }
 
 
-// -------------------- Rum Var 2------------------
 void run_var_use_2(AST *ast) {
     trace("var_use");
     int var_idx = get_double_data(ast);
     if (get_node_type(ast) == NUMBER_TYPE) {
         pushf(loadN(var_idx));
     } else {
-        // pushi(loadi(var_idx));
         printf("ver oq fazer quando n e numero");
     }
 }
-// -------------------- Rum Var 2------------------
 
 
 
-// ------------------- Run weit var 2------------
 void run_write_2(AST *ast) {
     trace("write");
     AST *expr = get_child(ast, 0);
@@ -485,29 +433,24 @@ void run_write_2(AST *ast) {
             exit(EXIT_FAILURE);
     }
 }
-// ------------------- Run weit var 2------------
 
 
 
-// -------------------uSANDOOOOO--------------
 void run_b2s(AST* ast) {
     rec_run_ast(get_child(ast, 0));
     clear_str_buf();
     popi() == 0 ? sprintf(str_buf, "false") : sprintf(str_buf, "true");
     pushi(addStr(st, str_buf));
 }
-// -------------------uSANDOOOOO--------------
 
 
 
-// ***************** N2S*******************
 void run_n2s(AST* ast) {
     rec_run_ast(get_child(ast, 0));
     clear_str_buf();
     sprintf(str_buf, "%fl", popN());
     pushN(addStr(st, str_buf));
 }
-// ***********************************
 
 void debug(AST *ast, char* kid_name){
     printf("Rodando ->> %s \n", kid_name);
@@ -521,29 +464,27 @@ void rec_run_ast(AST *ast) {
     switch(get_kind(ast)) {
 
         // ---------- Aproveitamento das funções do professor--------
-        case BEGIN_NODE:            run_program(ast), debug(ast, "BEGIN_NODE") ;   break;  
+        case BEGIN_NODE:           run_program(ast),    debug(ast, "BEGIN_NODE") ;      break;  
+        case ASSIGN_NODE:          run_assign_2(ast),   debug(ast, "ASSIGN_NODE");      break;
+        case EQ_NODE:              run_eq_2(ast),       debug(ast, "EQ_NODE");          break;
+        case IF_NODE:              run_if(ast),         debug(ast, "BLOCK_NODE");       break;
+        case BLOCK_NODE:           run_block(ast),      debug(ast, "BLOCK_NODE");       break;
+        case BOOL_VAL_NODE:        run_bool_val(ast),   debug(ast, "BOOL_VAL_NODE");    break;
 
-        case ASSIGN_NODE:          run_assign_2(ast), debug(ast, "ASSIGN_NODE");             break;
-        case EQ_NODE:              run_eq_2(ast), debug(ast, "ASSIGN_NODE");                 break;
-        case IF_NODE:              run_if(ast), debug(ast, "ASSIGN_NODE");                 break;
-        case BLOCK_NODE:           run_block(ast), debug(ast, "ASSIGN_NODE");              break;
-        case BOOL_VAL_NODE:        run_bool_val(ast), debug(ast, "ASSIGN_NODE");           break;
-
-        case DIV_NODE:             run_over_2(ast), debug(ast, "ASSIGN_NODE");             break; 
-        case MULT_NODE:            run_times_2(ast), debug(ast, "ASSIGN_NODE");              break; 
-        case PLUS_NODE:            run_plus_2(ast), debug(ast, "ASSIGN_NODE");             break; 
-        case PRINT_NODE:           run_write_2(ast), debug(ast, "ASSIGN_NODE");            break;
-        case SUB_NODE:             run_minus_2(ast), debug(ast, "ASSIGN_NODE");            break;
-        case STR_VAL_NODE:         run_str_val(ast), debug(ast, "ASSIGN_NODE");            break;
-        case VAR_DECL_NODE:        run_var_decl(ast), debug(ast, "ASSIGN_NODE");           break;
-        case WHILE_NODE:           run_repeat(ast), debug(ast, "ASSIGN_NODE");             break;
-        case NUM_VAL_NODE:         run_number_val(ast), debug(ast, "ASSIGN_NODE");         break; 
-        case VAR_USE_NODE:         run_read(ast);               break;
-
-        case LT_NODE:               run_lt_2(ast), debug(ast, "ASSIGN_NODE");              break; 
-
-        case  B2S_NODE:             run_b2s(ast), debug(ast, "ASSIGN_NODE");               break;
-        case  N2S_NODE:             run_n2s(ast), debug(ast, "ASSIGN_NODE");               break;
+        // ----------------------Funções recriadas-------------------
+        case DIV_NODE:             run_over_2(ast),     debug(ast, "DIV_NODE");         break; 
+        case MULT_NODE:            run_times_2(ast),    debug(ast, "MULT_NODE");        break; 
+        case PLUS_NODE:            run_plus_2(ast),     debug(ast, "PLUS_NODE");        break; 
+        case PRINT_NODE:           run_write_2(ast),    debug(ast, "PRINT_NODE");       break;
+        case SUB_NODE:             run_minus_2(ast),    debug(ast, "SUB_NODE");         break;
+        case STR_VAL_NODE:         run_str_val(ast),    debug(ast, "STR_VAL_NODE");     break;
+        case VAR_DECL_NODE:        run_var_decl(ast),   debug(ast, "VAR_DECL_NODE");    break;
+        case WHILE_NODE:           run_repeat(ast),     debug(ast, "WHILE_NODE");       break;
+        case NUM_VAL_NODE:         run_number_val(ast), debug(ast, "NUM_VAL_NODE");     break; 
+        case VAR_USE_NODE:         run_read(ast),       debug(ast, "VAR_USE_NODE");     break;
+        case LT_NODE:              run_lt_2(ast),       debug(ast, "LT_NODE");          break; 
+        case B2S_NODE:             run_b2s(ast),        debug(ast, "B2S_NODE");         break;
+        case N2S_NODE:             run_n2s(ast),        debug(ast, "N2S_NODE");         break;
 
         //-----------------Tem que implementar--------------------
         case GT_EQ_NODE:            debug(ast, "GT_EQ_NODE");   break; 
