@@ -1,6 +1,0 @@
-7: let -> LET
-7: a -> ID
-7: : -> COLON
-7: string -> STRING
-7: = -> ASSIGN
-LEXICAL ERROR (7): Unknown symbol '
