@@ -2,20 +2,28 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef enum{
+typedef enum {
     NUMBER_TYPE,
     STRING_TYPE,
-    UNKNOWN_TYPE,
-    BOOLTYPE_TYPE,
-    VOID_RW_TYPE,
-    NEVER_TYPE, 
-    ANY_TYPE, // Used when we need to pass a non-existing type to a function.
+    BOOLEAN_TYPE,
+    UNDEFINED_TYPE,
+    NO_TYPE
 } Type;
+
+typedef enum {  // Basic conversions between types.
+    N2S,
+    B2S,
+    U2S,
+    N2U,
+    S2U,
+    B2U,
+    NONE,
+} Conv;
 
 const char *get_text(Type type);
 
-// Type unify_plus(Type lt, Type rt);
-// Type unify_other_arith(Type lt, Type rt);
-// Type unify_comp(Type lt, Type rt);
+Type unify_plus(Type, Type);
+Type unify_other_arith(Type, Type);
+Type unify_comp(Type, Type);
 
 #endif // TYPES_H

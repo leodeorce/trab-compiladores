@@ -1,52 +1,66 @@
 #ifndef LIST_H
 #define LIST_H
 
-// #include "list.h";
 #include "types.h"
 
 
-struct node;
-typedef struct node Var_table;
+// ----------- Var_table -----------
 
+struct node_var;
+typedef struct node_var Var_table;
 
+// Inicia tabela
+Var_table* createVarTable(void);
 
-//start table
-Var_table* createVarTable();
-
-
-//display the list
+// Escreve os itens da tabela
 void printVars(Var_table* table);
 
-//insert link at the first location
-void addVar(Var_table** table ,int line, char* str, Type type);
+// Insere novo item no início da tabela
+int addVar(Var_table** table, int line, const char* str, Type type);
 
-//delete first item
+// Deleta o primeiro item da tabela
 void deleteVarFirst(Var_table** table);
 
+// Retorna o tamanho da tabela
 int lengthVarTable(Var_table* table);
 
-struct node* findVar(Var_table** table, char* str);
+// Modifica o tipo de uma variavel especifica
+void changeVarType(Var_table* table, int idx, Type type);
 
-void changeVarType(Var_table** table, char* key_var, Type type);
+// Verifica se uma variavel existe na tabela e retorna seu indice ou -1 caso nao exista
+int findVar(Var_table* table, const char* name);
 
-int varExist(Var_table* table, char* str);
-
+// Libera a tabela
 void freeVars(Var_table** table);
 
+// Retorna a linha na qual uma variavel foi declarada
+int getLine(Var_table* table, int idx);
 
-// ---------- Str_table-----------
+// Retorna o tipo de uma variavel
+Type getType(Var_table* table, int idx);
+
+// Retorna o nome de uma variavel
+char* getName(Var_table* table, int idx);
+
+
+// ---------- Str_table -----------
 
 struct node_str;
 typedef struct node_str Str_table;
 
+// Inicia tabela
 Str_table* createStrTable();
 
+// Escreve os itens da tabela
 void printStrs(Str_table* table);
 
-void addStr(Str_table** table ,int key, char* str);
+// Insere novo item no início da tabela
+int addStr(Str_table** table, const char* str);
 
-struct node_str* getStr(Str_table* table, int key);
+// Retorna um item da tabela a partir de um identificador
+struct node_str* getStr(Str_table* table, int idx);
 
+// Libera a tabela
 void freeStrs(Str_table** table);
 
 

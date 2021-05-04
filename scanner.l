@@ -7,14 +7,17 @@
 %{
 
 #include <stdio.h>
-#include "parser.h"
+#include "types.h"
 #include "list.h"
+#include "tupla.h"
+#include "ast.h"
+#include "parser.h"
 
 void erro_lexico();
 
 extern Str_table *st;
-extern char text_ant[100];
-extern int text_ant_tam;
+extern void change_node(Tupla*, AST*);
+extern AST* tupla_get_node(Tupla*);
 
 %}
 
@@ -61,7 +64,11 @@ comment			"//"+.*
 "enum"  			{ return ENUM; }
 "export"  			{ return EXPORT; }
 "extends"  			{ return EXTENDS; }
-"false"  			{ return FALSE_RW; }
+
+"false"  			{ yylval = new_tupla(NULL, 0,
+					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
+					  return FALSE_RW; }
+
 "finally"  			{ return FINALLY; }
 "for"  			    { return FOR; }
 "function"  		{ return FUNCTION; }
@@ -83,7 +90,11 @@ comment			"//"+.*
 "switch"  			{ return SWITCH; }
 "this"  			{ return THIS; }
 "throw"  			{ return THROW; }
-"true"  			{ return TRUE_RW; }
+
+"true"  			{ yylval = new_tupla(NULL, 0,
+					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
+					  return TRUE_RW; }
+
 "try"  			    { return TRY; }
 "typeof"  			{ return TYPEOF; }
 "var"  			    { return VAR; }
@@ -185,16 +196,43 @@ comment			"//"+.*
 
 	/* Valores */
 
-{int_val}				{ return INT_VAL; }
-{real_val}				{ return REAL_VAL; }
-{str_quotes_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
-{str_apost_val}			{addStr(&st, yylineno, yytext); return STR_VAL; }
-{str_crasis_val}		{addStr(&st, yylineno, yytext); return STR_VAL; }
+{int_val}				{
+							yylval = new_tupla(NULL, yylineno,
+						    	NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+						  	return INT_VAL;
+						}
+
+{real_val}				{
+							yylval = new_tupla(NULL, yylineno,
+						        NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+						  	return REAL_VAL;
+						}
+
+{str_quotes_val}		{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
+
+{str_apost_val}			{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
+
+{str_crasis_val}		{
+							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+						  	return STR_VAL;
+						}
 
 
 	/* Identificadores */
 
-{id}				{ strcpy(text_ant,yytext); return ID; }
+{id}				{ yylval = new_tupla(strdup(yytext), yylineno, UNDEFINED_TYPE, NULL);
+					  return ID; }
 
 
 	/* Erros */
