@@ -12,14 +12,17 @@ comp-bison: parser.y
 comp-flex: scanner.l
 	flex scanner.l
 
-comp-gcc: scanner.c parser.c list.c types.c tupla.c ast.c
-	gcc -Wall scanner.c parser.c list.c types.c tupla.c ast.c -ly -o mips
+comp-gcc: scanner.c parser.c list.c types.c tupla.c ast.c code.c
+	gcc -Wall scanner.c parser.c list.c types.c tupla.c ast.c code.c -ly -o mips
 
 run-ts:
 	ts-node $(ENTRADA).ts
+
+run-out:
+	./mips < $(ENTRADA).ts > $(ENTRADA).out
 
 run:
 	./mips < $(ENTRADA).ts
 
 clean:
-	rm -f scanner.c parser.c parser.h parser.output mips
+	rm -f scanner.c parser.c parser.h parser.output *.out mips

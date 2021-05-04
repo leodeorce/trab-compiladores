@@ -14,11 +14,12 @@
 typedef enum {
 
     // Operações aritméticas
-    add,
+    ADD,
 
     // Operações sobre memória
-    la,
-    sw,
+    LA,
+    Ld,
+    Sd,
 
 } OpCode;
 
@@ -26,14 +27,16 @@ typedef enum {
 static char* OpStr[] = {
     "add",
     "la",
-    "sw",
+    "l.d",
+    "s.d",
 };
 
 // Número de argumentos para cada opcode.
 static int OpCount[] = {
     3,  // add
     2,  // la
-    2,  // sw
+    2,  // l.d
+    2,  // s.d
 };
 
 typedef enum {
@@ -43,19 +46,12 @@ typedef enum {
     V   // $v0
 } RegType;
 
-// Operandos
-typedef union {
-    char as_reg[3];
-    char as_addr[5];
-    char *as_label;
-} Operand;
-
 // Quádrupla.
 typedef struct {
     OpCode op;
-    Operand o1;
-    Operand o2;
-    Operand o3;
+    char *o1;
+    char *o2;
+    char *o3;
 } Instr;
 
 #endif // INSTRUCTION_H

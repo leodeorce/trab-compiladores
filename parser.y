@@ -13,6 +13,7 @@
 #include "tupla.h"
 #include "ast.h"
 #include "parser.h"
+#include "code.h"
 
 int  yylex(void);
 void yyerror(const char* s);
@@ -779,7 +780,7 @@ int main(void) {
 
     yyparse();
     
-    // run_ast
+    emit_code(root);
 
     freeVars(&vt);
     freeStrs(&st);
