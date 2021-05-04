@@ -57,8 +57,11 @@ void printStrs(Str_table* table);
 // Insere novo item no início da tabela
 int addStr(Str_table** table, const char* str);
 
+// Retorna o tamanho de uma tabela de strings
+int lengthStrTable(Str_table* table);
+
 // Retorna um item da tabela a partir de um identificador
-struct node_str* getStr(Str_table* table, int idx);
+char* getStr(Str_table* table, int idx);
 
 // Libera a tabela
 void freeStrs(Str_table** table);

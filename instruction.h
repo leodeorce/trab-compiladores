@@ -20,6 +20,7 @@ typedef enum {
     LA,
     Ld,
     Sd,
+    SW,
 
 } OpCode;
 
@@ -29,6 +30,7 @@ static char* OpStr[] = {
     "la",
     "l.d",
     "s.d",
+    "sw",
 };
 
 // Número de argumentos para cada opcode.
@@ -37,6 +39,7 @@ static int OpCount[] = {
     2,  // la
     2,  // l.d
     2,  // s.d
+    2,  // sw
 };
 
 typedef enum {

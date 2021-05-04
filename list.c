@@ -217,24 +217,27 @@ int addStr(Str_table** table, const char* str) {
    return i;
 }
 
-struct node_str* getStr(Str_table* table, int idx) {
+int lengthStrTable(Str_table* table) {
+   int length = 0;
+   struct node_str *current;
+   for(current = table; current != NULL; current = current->next) {
+      length++;
+   }
+   return length;
+}
 
+char* getStr(Str_table* table, int idx) {
    struct node_str *current = table;
-
    if(table == NULL) {
       return NULL;
    }
-
    for(int i = 0; i < idx; i++) {
-
 	   if(current->next == NULL) {
          return NULL;
       }
-
       current = current->next;
    }      
-	
-   return current;
+   return current->str;
 }
 
 void freeStrs(Str_table** table) {

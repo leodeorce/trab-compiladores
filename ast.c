@@ -129,7 +129,7 @@ char* kind2str(NodeKind kind) {
         case EQ_NODE:       return "==";
         case BEGIN_NODE:    return "begin";
         case BLOCK_NODE:    return "block";
-        case BOOL_VAL_NODE: return "";
+        case BOOL_VAL_NODE: return "bool_val";
         case DIV_NODE:      return "/";
         case GT_EQ_NODE:    return ">=";
         case GT_NODE:       return ">";
@@ -138,12 +138,12 @@ char* kind2str(NodeKind kind) {
         case LT_EQ_NODE:    return "<=";
         case LT_NODE:       return "<";
         case MULT_NODE:     return "*";
-        case NUM_VAL_NODE:  return "";
+        case NUM_VAL_NODE:  return "num_val";
         case OR_NODE:       return "||";
         case PLUS_NODE:     return "+";
         case PRINT_NODE:    return "print";
         case SUB_NODE:      return "-";
-        case STR_VAL_NODE:  return "";
+        case STR_VAL_NODE:  return "str_val";
         case VAR_DECL_NODE: return "var_decl";
         case VAR_USE_NODE:  return "var_use";
         case WHILE_NODE:    return "while";

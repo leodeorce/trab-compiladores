@@ -67,6 +67,7 @@ comment			"//"+.*
 
 "false"  			{ yylval = new_tupla(NULL, 0,
 					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
+					  set_double_data(tupla_get_node(yylval), 0);
 					  return FALSE_RW; }
 
 "finally"  			{ return FINALLY; }
@@ -93,6 +94,7 @@ comment			"//"+.*
 
 "true"  			{ yylval = new_tupla(NULL, 0,
 					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
+					  set_double_data(tupla_get_node(yylval), 1);
 					  return TRUE_RW; }
 
 "try"  			    { return TRY; }
