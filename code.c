@@ -147,24 +147,23 @@ int rec_emit_code(AST *ast);
 char* get_oper_reg(RegType regType, int num)
 {
     trace("get_oper_reg");
-    char *operand = (char*) malloc(4);
+    char operand[10];
     switch(regType) {
         case T: sprintf(operand, "$t%d", num); break;
         case F: sprintf(operand, "$f%d", num); break;
-        case A: sprintf(operand, "$a0");       break;
-        case V: sprintf(operand, "$v0");       break;
+        case A: sprintf(operand, "$a%d", num); break;
+        case V: sprintf(operand, "$v%d", num); break;
+        case Z: sprintf(operand, "$zero");     break;
     }
-    operand[3] = '\0';
-    return operand;
+    return strdup(operand);
 }
 
 char* get_oper_addr(int num)
 {
     trace("get_oper_addr");
-    char *operand = (char*) malloc(7);
+    char operand[10];
     sprintf(operand, "0($t%d)", num);
-    operand[6] = '\0';
-    return operand;
+    return strdup(operand);
 }
 
 char* get_oper_label(const char* label)
@@ -175,14 +174,20 @@ char* get_oper_label(const char* label)
     return operand;
 }
 
-char* get_oper_num(double val)
+char* get_oper_double(double val)
 {
-    trace("get_oper_num");
+    trace("get_oper_double");
     char operand[500];
     sprintf(operand, "%f", val);
-    char *operandDynamic = (char*) malloc(strlen(operand) + 1);
-    strcpy(operandDynamic, operand);
-    return operandDynamic;
+    return strdup(operand);
+}
+
+char* get_oper_int(int val)
+{
+    trace("get_oper_int");
+    char operand[50];
+    sprintf(operand, "%d", val);
+    return strdup(operand);
 }
 
 int emit_assign(AST *ast)
@@ -293,6 +298,37 @@ int emit_plus(AST *ast)
     return z;
 }
 
+int emit_print(AST *ast)
+{
+    trace("emit_print");
+    AST *child = get_child(ast, 0);
+    int x = rec_emit_code(child);
+    char *o1 = get_oper_reg(V, 0);
+    char *o2;
+    NodeKind kind = get_kind(child);
+    if(kind == STR_VAL_NODE) {
+        o2 = get_oper_int(4);
+        emit2(LI, o1, o2);
+        o1 = get_oper_reg(A, 0);
+        o2 = get_oper_reg(T, x);
+        emit2(MOVE, o1, o2);
+    } else if(kind == VAR_USE_NODE) {
+        o2 = get_oper_int(4);
+        emit2(LI, o1, o2);
+        o1 = get_oper_reg(A, 0);
+        o2 = get_oper_addr(x);
+        emit2(LW, o1, o2);
+    } else {
+        o2 = get_oper_int(3);
+        emit2(LI, o1, o2);
+        o1 = get_oper_reg(F, 12);
+        o2 = get_oper_reg(F, x);
+        emit2(MOVd, o1, o2);
+    }
+    emit0(SYSCALL);
+    return -1;
+}
+
 int emit_str_val(AST *ast)
 {
     trace("emit_str_val");
@@ -328,6 +364,14 @@ int emit_var_use(AST *ast)
     return x;
 }
 
+int emit_n2s(AST *ast)
+{
+    trace("emit_n2s");
+    AST *child = get_child(ast, 0);
+    int x = rec_emit_code(child);
+    return x;
+}
+
 // ----------------------------
 
 int rec_emit_code(AST *ast)
@@ -341,9 +385,12 @@ int rec_emit_code(AST *ast)
         case BOOL_VAL_NODE: return emit_num_val(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
         case PLUS_NODE:     return emit_plus(ast);
+        case PRINT_NODE:    return emit_print(ast);
         case STR_VAL_NODE:  return emit_str_val(ast);
         case VAR_DECL_NODE: return emit_var_decl(ast);
         case VAR_USE_NODE:  return emit_var_use(ast);
+
+        case N2S_NODE:      return emit_n2s(ast);
 
         default:
             fprintf(stderr, "NodeKind inválido: %s\n", kind2str(get_kind(ast)));

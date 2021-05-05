@@ -57,4 +57,5 @@ Type  tupla_get_type(Tupla* tupla) {
 void tupla_free_name(Tupla* tupla) {
     if(tupla->name != NULL)
         free(tupla->name);
+    tupla->name = NULL;
 }

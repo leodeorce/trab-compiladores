@@ -13,37 +13,53 @@
 // Opcodes.
 typedef enum {
 
-    // Operações aritméticas
+    // Operações sobre registradores
+    ADD,
     ADDd,
+    MOVE,
+    MOVd,
 
     // Operações sobre memória
     LA,
     Ld,
+    LI,
+    LW,
     Sd,
     SW,
+
+    // Chamada de sistema
+    SYSCALL,
 
 } OpCode;
 
 // Representação em string de opcodes.
 static char* OpStr[] = {
-    "add.d",
-    "la", "l.d", "s.d", "sw",
+    "add", "add.d", "move", "mov.d",
+    "la", "l.d", "li", "lw", "s.d", "sw",
+    "syscall",
 };
 
 // Número de argumentos para cada opcode.
 static int OpCount[] = {
+    3,  // add
     3,  // add.d
+    2,  // move
+    2,  // move.d
     2,  // la
     2,  // l.d
+    2,  // li
+    2,  // lw
     2,  // s.d
     2,  // sw
+    0,  // syscall
 };
 
 typedef enum {
     T,  // $t0 -> $t9
     F,  // $f0 -> $f30 (só os pares)
     A,  // $a0
-    V   // $v0
+    V,  // $v0
+    Z,  // $zero
 } RegType;
 
 // Quádrupla.
