@@ -1,4 +1,4 @@
 let a:number = 1;
-let b:boolean = true;
-let c:string = "str";
-let d = 3.14;
+let b:number = 2;
+let c:number;
+c = a + 3.14;

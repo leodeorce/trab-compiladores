@@ -14,7 +14,7 @@
 typedef enum {
 
     // Operações aritméticas
-    ADD,
+    ADDd,
 
     // Operações sobre memória
     LA,
@@ -26,16 +26,13 @@ typedef enum {
 
 // Representação em string de opcodes.
 static char* OpStr[] = {
-    "add",
-    "la",
-    "l.d",
-    "s.d",
-    "sw",
+    "add.d",
+    "la", "l.d", "s.d", "sw",
 };
 
 // Número de argumentos para cada opcode.
 static int OpCount[] = {
-    3,  // add
+    3,  // add.d
     2,  // la
     2,  // l.d
     2,  // s.d

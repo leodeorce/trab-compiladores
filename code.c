@@ -15,6 +15,14 @@ extern Var_table *vt;
 Instr code[INSTR_MEM_SIZE];
 int next_instr;
 
+void free_instr(void) {
+    for(int i = 0; i < next_instr; i++) {
+        free(code[i].o1);
+        free(code[i].o2);
+        free(code[i].o3);
+    }
+}
+
 // ===== Emits ================
 
 void emit(OpCode op, char *o1, char *o2, char *o3)
@@ -136,44 +144,40 @@ int rec_emit_code(AST *ast);
 
 // ----------------------------
 
-// Para saber se uma declaração inicializa a variável.
-int declareAssign = 0;
-
-// Para saber o tipo do registrador caso variável não tem tipo.
-RegType regType = T;
-
-char* new_oper_reg(RegType regType, int num)
+char* get_oper_reg(RegType regType, int num)
 {
-    trace("new_oper_reg");
-    char *operand = (char*) malloc(3);
+    trace("get_oper_reg");
+    char *operand = (char*) malloc(4);
     switch(regType) {
         case T: sprintf(operand, "$t%d", num); break;
         case F: sprintf(operand, "$f%d", num); break;
         case A: sprintf(operand, "$a0");       break;
         case V: sprintf(operand, "$v0");       break;
     }
+    operand[3] = '\0';
     return operand;
 }
 
-char* new_oper_addr(int num)
+char* get_oper_addr(int num)
 {
-    trace("new_oper_addr");
-    char *operand = (char*) malloc(6);
+    trace("get_oper_addr");
+    char *operand = (char*) malloc(7);
     sprintf(operand, "0($t%d)", num);
+    operand[6] = '\0';
     return operand;
 }
 
-char* new_oper_label(const char* label)
+char* get_oper_label(const char* label)
 {
-    trace("new_oper_label");
+    trace("get_oper_label");
     char *operand = (char*) malloc(strlen(label) + 1);
     sprintf(operand, "%s", label);
     return operand;
 }
 
-char* new_oper_num(double val)
+char* get_oper_num(double val)
 {
-    trace("new_oper_num");
+    trace("get_oper_num");
     char operand[500];
     sprintf(operand, "%f", val);
     char *operandDynamic = (char*) malloc(strlen(operand) + 1);
@@ -186,25 +190,35 @@ int emit_assign(AST *ast)
     trace("emit_assign");
     AST *leftChild = get_child(ast, 0);
     AST *rightChild = get_child(ast, 1);
-    declareAssign = 1;
     int x = rec_emit_code(leftChild);
-    declareAssign = 0;
     int y = rec_emit_code(rightChild);
+    char *o1, *o2;
     Type type = getType(vt, x);
-    char *o1;
-    char *o2 = new_oper_addr(x);
+    NodeKind leftKind = get_kind(leftChild);
+    if(leftKind == VAR_DECL_NODE) {
+        const char *name = getName(vt, x);
+        x = new_int_reg();
+        o1 = get_oper_reg(T, x);
+        o2 = get_oper_label(name);
+        emit2(LA, o1, o2);
+    }
+    o2 = get_oper_addr(x);
     if(type == NUMBER_TYPE || type == BOOLEAN_TYPE) {
-        o1 = new_oper_reg(F, y);
+        o1 = get_oper_reg(F, y);
         emit2(Sd, o1, o2);
     } else if(type == STRING_TYPE) {
-        o1 = new_oper_reg(T, y);
+        o1 = get_oper_reg(T, y);
         emit2(SW, o1, o2);
     } else {
-        if(regType == F) {
-            o1 = new_oper_reg(F, y);
+        // Considerar verificar NodeKind caso seja VAR_USE
+        // para checar tipo pela tabela e não pelo node
+        // (requer criar nodes de conversão undefined -> outros)
+        Type rightType = get_node_type(rightChild);
+        if(rightType == STRING_TYPE) {
+            o1 = get_oper_reg(T, y);
             emit2(Sd, o1, o2);
         } else {
-            o1 = new_oper_reg(T, y);
+            o1 = get_oper_reg(F, y);
             emit2(SW, o1, o2);
         }
     }
@@ -222,6 +236,8 @@ int emit_block(AST *ast) {
     int childCount = get_child_count(ast);
     for(int i = 0; i < childCount; i++) {
         rec_emit_code(get_child(ast, i));
+        int_regs_count = 0;
+        double_regs_count = 0;
     }
     return -1;
 }
@@ -229,37 +245,64 @@ int emit_block(AST *ast) {
 int emit_num_val(AST *ast)
 {
     trace("emit_num_val");
-    regType = F;
     double val = get_double_data(ast);
     char tempName[100];
     char *name = tempName;
     int tempNumber = new_temp_number();
-    sprintf(name, "temp%d", tempNumber);
-    print_data_double(tempName, val);
+    sprintf(name, "temp%d", tempNumber);  // Necessário para carregar um valor float
+    print_data_double(tempName, val);     // em um registrador $f# no simulador MARS.
     int x = new_double_reg();
-    char *o1 = new_oper_reg(regType, x);
-    char *o2 = new_oper_label(tempName);
+    char *o1 = get_oper_reg(F, x);
+    char *o2 = get_oper_label(tempName);
     emit2(Ld, o1, o2);
     return x;
 }
 
 int emit_plus(AST *ast)
 {
-    //
-    return 1;
+    trace("emit_plus");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    int z = new_double_reg();
+    char *o1 = get_oper_reg(F, z);
+    char *o2, *o3;
+    char *o4, *o5;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+    if(leftKind == VAR_USE_NODE) {
+        o5 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o4 = get_oper_reg(F, newReg);
+        emit2(Ld, o4, o5);
+        o2 = strdup(o4);
+    } else {
+        o2 = get_oper_reg(F, x);
+    }
+    if(rightKind == VAR_USE_NODE) {
+        o5 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o4 = get_oper_reg(F, newReg);
+        emit2(Ld, o4, o5);
+        o3 = strdup(o4);
+    } else {
+        o3 = get_oper_reg(F, y);
+    }
+    emit3(ADDd, o1, o2, o3);
+    return z;
 }
 
 int emit_str_val(AST *ast)
 {
     trace("emit_str_val");
-    regType = T;
     int idx = get_idx(ast);
     char strLabel[100];
     char *label = strLabel;
     sprintf(label, "string%d", idx);
     int x = new_int_reg();
-    char *o1 = new_oper_reg(regType, x);
-    char *o2 = new_oper_label(strLabel);
+    char *o1 = get_oper_reg(T, x);
+    char *o2 = get_oper_label(strLabel);
     emit2(LA, o1, o2);
     return x;
 }
@@ -270,19 +313,19 @@ int emit_var_decl(AST *ast)
     int x = get_idx(ast);
     char* name = getName(vt, x);
     print_data_null(name);
-    if(declareAssign == 1) {
-        x = new_int_reg();
-        char *o1 = new_oper_reg(T, x);
-        char *o2 = new_oper_label(name);
-        emit2(LA, o1, o2);
-    }
     return x;
 }
 
 int emit_var_use(AST *ast)
 {
-    //
-    return 1;
+    trace("emit_var_use");
+    int idx = get_idx(ast);
+    const char* name = getName(vt, idx);
+    int x = new_int_reg();
+    char *o1 = get_oper_reg(T, x);
+    char *o2 = get_oper_label(name);
+    emit2(LA, o1, o2);
+    return x;
 }
 
 // ----------------------------
@@ -297,10 +340,10 @@ int rec_emit_code(AST *ast)
         case BLOCK_NODE:    return emit_block(ast);
         case BOOL_VAL_NODE: return emit_num_val(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
-        // case PLUS_NODE:     return emit_plus(ast);
+        case PLUS_NODE:     return emit_plus(ast);
         case STR_VAL_NODE:  return emit_str_val(ast);
         case VAR_DECL_NODE: return emit_var_decl(ast);
-        // case VAR_USE_NODE:  return emit_var_use(ast);
+        case VAR_USE_NODE:  return emit_var_use(ast);
 
         default:
             fprintf(stderr, "NodeKind inválido: %s\n", kind2str(get_kind(ast)));
@@ -320,4 +363,5 @@ void emit_code(AST *ast)
     dump_str_table();
     rec_emit_code(ast);
     dump_program();
+    free_instr();
 }
