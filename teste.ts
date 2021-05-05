@@ -1,6 +1,6 @@
 let a:number = 1;
 let b:number = 2;
-let c = "a + b = ";
-console.log("Resultado: ");
+let c = false;
+let d = "str";
+console.log("c: ");
 console.log(c);
-console.log(a + b);

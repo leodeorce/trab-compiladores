@@ -130,19 +130,24 @@ assign-expr:
     {
         int  idx = check_var($1);
         Type id_type = getType(vt, idx);
+        Type expr_type = tupla_get_type($3);
 
         tupla_change_node($1, new_node(VAR_USE_NODE, idx, id_type));
         $$ = new_tupla(NULL, 0, NO_TYPE, new_node(ASSIGN_NODE, 0, NO_TYPE));
 
-        Conv conversion = check_assign( id_type, tupla_get_type($3) );
+        Conv conversion = check_assign( id_type, expr_type );
 
         if(conversion != NONE) {
             NodeKind conversion_nodekind = conv2node(conversion);
-            AST* type_conversion = new_node(conversion_nodekind, 0, tupla_get_type($3));
+            AST* type_conversion = new_node(conversion_nodekind, 0, expr_type);
             add_child(type_conversion, tupla_get_node($1));
             add_child(tupla_get_node($$), type_conversion);
         } else {
             tupla_add_child($$, $1);
+        }
+
+        if(id_type == UNDEFINED_TYPE) {
+            changeVarType(vt, idx, expr_type);
         }
 
         tupla_add_child($$, $3);

@@ -20,31 +20,43 @@ void free_instr(void) {
         free(code[i].o1);
         free(code[i].o2);
         free(code[i].o3);
+        free(code[i].label);
     }
 }
 
 // ===== Emits ================
 
-void emit(OpCode op, char *o1, char *o2, char *o3)
+void emit(OpCode op, char *o1, char *o2, char *o3, char *label)
 {
     code[next_instr].op = op;
     code[next_instr].o1 = o1;
     code[next_instr].o2 = o2;
     code[next_instr].o3 = o3;
+    code[next_instr].label = label;
     next_instr++;
 }
 
-#define emit0(op)      \
-    emit(op, NULL, NULL, NULL)  \
+void emitL(char *label)
+{
+    code[next_instr].op = LABEL;
+    code[next_instr].o1 = NULL;
+    code[next_instr].o2 = NULL;
+    code[next_instr].o3 = NULL;
+    code[next_instr].label = label;
+    next_instr++;
+}
 
-#define emit1(op, o1)  \
-    emit(op, o1, NULL, NULL)
+#define emit0(op)                    \
+    emit(op, NULL, NULL, NULL, NULL)
 
-#define emit2(op, o1, o2) \
-    emit(op, o1, o2, NULL)
+#define emit1(op, o1)                \
+    emit(op, o1, NULL, NULL, NULL)
 
-#define emit3(op, o1, o2, o3) \
-    emit(op, o1, o2, o3)
+#define emit2(op, o1, o2)            \
+    emit(op, o1, o2, NULL, NULL)
+
+#define emit3(op, o1, o2, o3)        \
+    emit(op, o1, o2, o3, NULL)
 
 // ===== Prints ===============
 
@@ -62,14 +74,19 @@ void get_instruction_string(Instr instr, char *str)
 {
     // trace("get_instruction_string");
     OpCode op = instr.op;
-    str += sprintf(str, "    %s", OpStr[op]);
-    int op_count = OpCount[op];
-    if (op_count == 1) {
-        sprintf(str, " %s", instr.o1);
-    } else if (op_count == 2) {
-        sprintf(str, " %s, %s", instr.o1, instr.o2);
-    } else if (op_count == 3) {
-        sprintf(str, " %s, %s, %s", instr.o1, instr.o2, instr.o3);
+    if(op == LABEL) {
+        char *label = instr.label;
+        str += sprintf(str, "%s:", label);
+    } else {
+        str += sprintf(str, "    %s", OpStr[op]);
+        int op_count = OpCount[op];
+        if (op_count == 1) {
+            sprintf(str, " %s", instr.o1);
+        } else if (op_count == 2) {
+            sprintf(str, " %s, %s", instr.o1, instr.o2);
+        } else if (op_count == 3) {
+            sprintf(str, " %s, %s, %s", instr.o1, instr.o2, instr.o3);
+        }
     }
 }
 
@@ -93,7 +110,34 @@ void dump_program()
     }
 }
 
-void dump_str_table()
+void print_data_null(const char *name)
+{
+    trace("print_data_null");
+    // Como uma variável pode ser undefined, não sabemos
+    // o espaço que ela ocupará ao ser inicializada.
+    // Logo alocamos o maior espaço dentre os possíveis tipos.
+    printf("    %s: .double 0\n", name);
+}
+
+void print_data_double(const char *name, double val)
+{
+    trace("print_data_double");
+    printf("    %s: .double %f\n", name, val);
+}
+
+void print_data_str(const char *name, const char *str)
+{
+    trace("print_data_str");
+    printf("    %s: .asciiz \"%s\"\n", name, str);
+}
+
+void print_label(const char *label)
+{
+    trace("print_label");
+    printf("    %s:\n", label);
+}
+
+void dump_str_table(void)
 {
     trace("dump_str_table");
     printf(".data:\n");
@@ -101,23 +145,10 @@ void dump_str_table()
     int table_size = lengthStrTable(st);
     for (int i = 0; i < table_size; i++) {
         str = getStr(st, i);
-        printf("    string%d: .asciiz %s\n", i, str);
+        char label[100];
+        sprintf(label, "string%d", i);
+        print_data_str(label, str);
     }
-}
-
-void print_data_null(const char* name)
-{
-    trace("print_data_null");
-    // Como uma variável pode ser undefined, não sabemos
-    // o espaço que ela ocupará ao ser inicializada.
-    // Logo alocamos o maior espaço.
-    printf("    %s: .double 0\n", name);
-}
-
-void print_data_double(const char* name, double val)
-{
-    trace("print_data_double");
-    printf("    %s: .double %f\n", name, val);
 }
 
 // ===== Caminhando a AST =====
@@ -130,6 +161,14 @@ int double_regs_count;
 
 int temp_number_count;
 
+int boolcheck_number_count;
+
+// Auxiliam na escrita de valores booleanos em stdout.
+int true_str_loaded = 0;
+int false_str_loaded = 0;
+int true_temp_idx;
+int false_temp_idx;
+
 #define new_int_reg() \
     int_regs_count++
 
@@ -140,9 +179,46 @@ int temp_number_count;
 #define new_temp_number() \
     temp_number_count++
 
+#define new_boolcheck_number() \
+    boolcheck_number_count++
+
 int rec_emit_code(AST *ast);
 
 // ----------------------------
+
+int true_str_addr(void)
+{
+    int addr;
+    int x;
+    if(true_str_loaded == 0) {
+        x = new_temp_number();
+        char label[100];
+        sprintf(label, "temp%d", x);
+        char str[5] = "true";
+        print_data_str(label, str);
+        true_temp_idx = x;
+        true_str_loaded = 1;
+    }
+    addr = true_temp_idx;
+    return addr;
+}
+
+int false_str_addr(void)
+{
+    int addr;
+    int y;
+    if(false_str_loaded == 0) {
+        y = new_temp_number();
+        char label[100];
+        sprintf(label, "temp%d", y);
+        char str[6] = "false";
+        print_data_str(label, str);
+        false_temp_idx = y;
+        false_str_loaded = 1;
+    }
+    addr = false_temp_idx;
+    return addr;
+}
 
 char* get_oper_reg(RegType regType, int num)
 {
@@ -303,22 +379,100 @@ int emit_print(AST *ast)
     trace("emit_print");
     AST *child = get_child(ast, 0);
     int x = rec_emit_code(child);
-    char *o1 = get_oper_reg(V, 0);
-    char *o2;
+    char *o1, *o2, *label;
     NodeKind kind = get_kind(child);
-    if(kind == STR_VAL_NODE) {
+    if(kind == STR_VAL_NODE || kind == U2S_NODE) {
+        o1 = get_oper_reg(V, 0);
         o2 = get_oper_int(4);
         emit2(LI, o1, o2);
         o1 = get_oper_reg(A, 0);
         o2 = get_oper_reg(T, x);
         emit2(MOVE, o1, o2);
     } else if(kind == VAR_USE_NODE) {
+        o1 = get_oper_reg(V, 0);
         o2 = get_oper_int(4);
         emit2(LI, o1, o2);
         o1 = get_oper_reg(A, 0);
         o2 = get_oper_addr(x);
         emit2(LW, o1, o2);
-    } else {
+    } else if(kind == B2S_NODE) {
+
+        // Carrega o tipo de syscall em $a0
+        o1 = get_oper_reg(V, 0);
+        o2 = get_oper_int(4);
+        emit2(LI, o1, o2);
+
+        // Busca o valor booleano da memória
+        int f = new_double_reg();
+        o2 = get_oper_addr(x);
+        o1 = get_oper_reg(F, f);
+        emit2(Ld, o1, o2);
+
+        // Cria os labels a serem usados
+        char labelT[100];
+        int boolCheckNum = new_boolcheck_number();
+        sprintf(labelT, "boolcheck%d", boolCheckNum);
+        char labelF[100];
+        boolCheckNum = new_boolcheck_number();
+        sprintf(labelF, "boolcheck%d", boolCheckNum);
+        char labelEnd[100];
+        boolCheckNum = new_boolcheck_number();
+        sprintf(labelEnd, "boolcheck%d", boolCheckNum);
+
+        // Avalia expressão condicional
+        char tempName[10];
+        int tempNumber = new_temp_number();
+        sprintf(tempName, "temp%d", tempNumber);
+        print_data_double(tempName, 0);
+        int zeroRegNum = new_double_reg();
+        o1 = get_oper_reg(F, zeroRegNum);
+        o2 = get_oper_label(tempName);
+        emit2(Ld, o1, o2);
+        o1 = get_oper_reg(F, f);
+        o2 = get_oper_reg(F, zeroRegNum);
+        emit2(CEQd, o1, o2);
+
+        o1 = get_oper_label(labelF);
+        emit1(BC1T, o1);
+
+        // Imprime o resultado como 'true'
+        label = get_oper_label(labelT);
+        emitL(label);
+        int regTrue = new_int_reg();
+        o1 = get_oper_reg(T, regTrue);
+        int trueStrAddr = true_str_addr();
+        char tempNameTrue[10];
+        sprintf(tempNameTrue, "temp%d", trueStrAddr);
+        o2 = get_oper_label(tempNameTrue);
+        emit2(LA, o1, o2);
+        o1 = get_oper_reg(A, 0);
+        o2 = get_oper_reg(T, regTrue);
+        emit2(MOVE, o1, o2);
+
+        // Salto incondicional após 'true'
+        o1 = get_oper_label(labelEnd);
+        emit1(J, o1);
+
+        // Imprime o resultado como 'false'
+        label = get_oper_label(labelF);
+        emitL(label);
+        int regFalse = new_int_reg();
+        o1 = get_oper_reg(T, regFalse);
+        int falseStrAddr = false_str_addr();
+        char tempNameFalse[10];
+        sprintf(tempNameFalse, "temp%d", falseStrAddr);
+        o2 = get_oper_label(tempNameFalse);
+        emit2(LA, o1, o2);
+        o1 = get_oper_reg(A, 0);
+        o2 = get_oper_reg(T, regFalse);
+        emit2(MOVE, o1, o2);
+
+        // Label para salto incondicional
+        label = get_oper_label(labelEnd);
+        emitL(label);
+
+    } else if(kind == N2S_NODE) {
+        o1 = get_oper_reg(V, 0);
         o2 = get_oper_int(3);
         emit2(LI, o1, o2);
         o1 = get_oper_reg(F, 12);
@@ -364,11 +518,34 @@ int emit_var_use(AST *ast)
     return x;
 }
 
+int emit_b2s(AST *ast)
+{
+    trace("emit_b2s");
+    AST *child = get_child(ast, 0);
+    int x = rec_emit_code(child);
+    return x;
+}
+
 int emit_n2s(AST *ast)
 {
     trace("emit_n2s");
     AST *child = get_child(ast, 0);
     int x = rec_emit_code(child);
+    return x;
+}
+
+int emit_u2s(AST *ast)
+{
+    trace("emit_u2s");
+    char tempName[10];
+    int tempNumber = new_temp_number();
+    sprintf(tempName, "temp%d", tempNumber);
+    char tempStr[10] = "undefined";
+    print_data_str(tempName, tempStr);
+    int x = new_double_reg();
+    char *o1 = get_oper_reg(T, x);
+    char *o2 = get_oper_label(tempName);
+    emit2(LA, o1, o2);
     return x;
 }
 
@@ -390,7 +567,9 @@ int rec_emit_code(AST *ast)
         case VAR_DECL_NODE: return emit_var_decl(ast);
         case VAR_USE_NODE:  return emit_var_use(ast);
 
+        case B2S_NODE:      return emit_b2s(ast);
         case N2S_NODE:      return emit_n2s(ast);
+        case U2S_NODE:      return emit_u2s(ast);
 
         default:
             fprintf(stderr, "NodeKind inválido: %s\n", kind2str(get_kind(ast)));
@@ -407,8 +586,10 @@ void emit_code(AST *ast)
     int_regs_count = 0;
     double_regs_count = 0;
     temp_number_count = 0;
+    boolcheck_number_count = 0;
     dump_str_table();
     rec_emit_code(ast);
     dump_program();
+    // dump_last_syscall();
     free_instr();
 }

@@ -7,6 +7,7 @@
 %{
 
 #include <stdio.h>
+#include <string.h>
 #include "types.h"
 #include "list.h"
 #include "tupla.h"
@@ -36,7 +37,7 @@ comment			"//"+.*
 
 %%
 
-	/* Ignorados */
+    /* Ignorados */
 
 "/*"					{ BEGIN(comment); }
 <comment>[^*\n]*		{ /* Fazer nada */ }
@@ -48,7 +49,7 @@ comment			"//"+.*
 {comment}				{ /* Fazer nada */ }
 
 
-	/* Palavras reservadas */
+    /* Palavras reservadas */
 
 "break" 			{ return BREAK; }
 "case"  			{ return CASE; }
@@ -66,9 +67,9 @@ comment			"//"+.*
 "extends"  			{ return EXTENDS; }
 
 "false"  			{ yylval = new_tupla(NULL, 0,
-					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
-					  set_double_data(tupla_get_node(yylval), 0);
-					  return FALSE_RW; }
+                          BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 0, BOOLEAN_TYPE));
+                      set_double_data(tupla_get_node(yylval), 0);
+                      return FALSE_RW; }
 
 "finally"  			{ return FINALLY; }
 "for"  			    { return FOR; }
@@ -93,9 +94,9 @@ comment			"//"+.*
 "throw"  			{ return THROW; }
 
 "true"  			{ yylval = new_tupla(NULL, 0,
-					      BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
-					  set_double_data(tupla_get_node(yylval), 1);
-					  return TRUE_RW; }
+                          BOOLEAN_TYPE, new_node(BOOL_VAL_NODE, 1, BOOLEAN_TYPE));
+                      set_double_data(tupla_get_node(yylval), 1);
+                      return TRUE_RW; }
 
 "try"  			    { return TRY; }
 "typeof"  			{ return TYPEOF; }
@@ -128,7 +129,7 @@ comment			"//"+.*
 "unknown"  			{ return UNKNOWN; }
 
 
-	/* Pontuadores */
+    /* Pontuadores */
 
 "="					{ return ASSIGN; }
 "=>"				{ return ARROW; }
@@ -196,48 +197,54 @@ comment			"//"+.*
 "]"					{ return RBRACKET; }
 
 
-	/* Valores */
+    /* Valores */
 
 {int_val}				{
-							yylval = new_tupla(NULL, yylineno,
-						    	NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
-						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
-						  	return INT_VAL;
-						}
+                            yylval = new_tupla(NULL, yylineno,
+                                NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+                              set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+                              return INT_VAL;
+                        }
 
 {real_val}				{
-							yylval = new_tupla(NULL, yylineno,
-						        NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
-						  	set_double_data(tupla_get_node(yylval), (double) atof(yytext));
-						  	return REAL_VAL;
-						}
+                            yylval = new_tupla(NULL, yylineno,
+                                NUMBER_TYPE, new_node(NUM_VAL_NODE, 0, NUMBER_TYPE));
+                              set_double_data(tupla_get_node(yylval), (double) atof(yytext));
+                              return REAL_VAL;
+                        }
 
 {str_quotes_val}		{
-							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
-								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  	return STR_VAL;
-						}
+                            yytext++;
+                            yytext[strlen(yytext) - 1] = '\0';
+                            yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+                                new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+                              return STR_VAL;
+                        }
 
 {str_apost_val}			{
-							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
-								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  	return STR_VAL;
-						}
+                            yytext++;
+                            yytext[strlen(yytext) - 1] = '\0';
+                            yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+                                new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+                              return STR_VAL;
+                        }
 
 {str_crasis_val}		{
-							yylval = new_tupla(NULL, yylineno, STRING_TYPE,
-								new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
-						  	return STR_VAL;
-						}
+                            yytext++;
+                            yytext[strlen(yytext) - 1] = '\0';
+                            yylval = new_tupla(NULL, yylineno, STRING_TYPE,
+                                new_node(STR_VAL_NODE, addStr(&st, yytext), STRING_TYPE));
+                              return STR_VAL;
+                        }
 
 
-	/* Identificadores */
+    /* Identificadores */
 
 {id}				{ yylval = new_tupla(strdup(yytext), yylineno, UNDEFINED_TYPE, NULL);
-					  return ID; }
+                      return ID; }
 
 
-	/* Erros */
+    /* Erros */
 
 .           		{ erro_lexico(); }
 
@@ -245,7 +252,7 @@ comment			"//"+.*
 
 void erro_lexico()
 {
-	// Leitura de simbolo desconhecido
-	fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
-	exit(EXIT_FAILURE);
+    // Leitura de simbolo desconhecido
+    fprintf(yyout, "LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
+    exit(EXIT_FAILURE);
 }

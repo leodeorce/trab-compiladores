@@ -16,6 +16,7 @@ typedef enum {
     // Operações sobre registradores
     ADD,
     ADDd,
+    CEQd,
     MOVE,
     MOVd,
 
@@ -27,22 +28,33 @@ typedef enum {
     Sd,
     SW,
 
+    // Saltos
+    BC1T,
+    BEQ,
+    J,
+
     // Chamada de sistema
     SYSCALL,
+
+    // Nenhum
+    LABEL,
 
 } OpCode;
 
 // Representação em string de opcodes.
 static char* OpStr[] = {
-    "add", "add.d", "move", "mov.d",
+    "add", "add.d", "c.eq.d", "move", "mov.d",
     "la", "l.d", "li", "lw", "s.d", "sw",
+    "bc1t", "beq", "j",
     "syscall",
+    "",
 };
 
 // Número de argumentos para cada opcode.
 static int OpCount[] = {
     3,  // add
     3,  // add.d
+    2,  // c.eq.d
     2,  // move
     2,  // move.d
     2,  // la
@@ -51,7 +63,11 @@ static int OpCount[] = {
     2,  // lw
     2,  // s.d
     2,  // sw
+    1,  // bc1t
+    3,  // beq
+    1,  // j
     0,  // syscall
+    0,  // label
 };
 
 typedef enum {
@@ -68,6 +84,7 @@ typedef struct {
     char *o1;
     char *o2;
     char *o3;
+    char *label;
 } Instr;
 
 #endif // INSTRUCTION_H
