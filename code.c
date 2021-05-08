@@ -222,7 +222,6 @@ int false_str_addr(void)
 
 char* get_oper_reg(RegType regType, int num)
 {
-    trace("get_oper_reg");
     char operand[10];
     switch(regType) {
         case T: sprintf(operand, "$t%d", num); break;
@@ -236,7 +235,6 @@ char* get_oper_reg(RegType regType, int num)
 
 char* get_oper_addr(int num)
 {
-    trace("get_oper_addr");
     char operand[10];
     sprintf(operand, "0($t%d)", num);
     return strdup(operand);
@@ -244,7 +242,6 @@ char* get_oper_addr(int num)
 
 char* get_oper_label(const char* label)
 {
-    trace("get_oper_label");
     char *operand = (char*) malloc(strlen(label) + 1);
     sprintf(operand, "%s", label);
     return operand;
@@ -252,7 +249,6 @@ char* get_oper_label(const char* label)
 
 char* get_oper_double(double val)
 {
-    trace("get_oper_double");
     char operand[500];
     sprintf(operand, "%f", val);
     return strdup(operand);
@@ -260,7 +256,6 @@ char* get_oper_double(double val)
 
 char* get_oper_int(int val)
 {
-    trace("get_oper_int");
     char operand[50];
     sprintf(operand, "%d", val);
     return strdup(operand);
@@ -318,23 +313,22 @@ int emit_assign(AST *ast)
         o2 = get_oper_label(name);
         emit2(LA, o1, o2);
     }
-    o2 = get_oper_addr(x);
-    if(type == NUMBER_TYPE || type == BOOLEAN_TYPE) {
-        o1 = get_oper_reg(F, y);
+    NodeKind rightKind = get_kind(rightChild);
+    if(rightKind == VAR_USE_NODE) {
+        int newReg = new_double_reg();
+        o1 = get_oper_reg(F, newReg);
+        o2 = get_oper_addr(y);
+        emit2(Ld, o1, o2);
+        o1 = get_oper_reg(F, newReg);
+        o2 = get_oper_addr(x);
         emit2(Sd, o1, o2);
-    } else if(type == STRING_TYPE) {
-        o1 = get_oper_reg(T, y);
-        emit2(SW, o1, o2);
     } else {
-        // Considerar verificar NodeKind caso seja VAR_USE
-        // para checar tipo pela tabela e não pelo node
-        // (requer criar nodes de conversão undefined -> outros)
-        Type rightType = get_node_type(rightChild);
-        if(rightType == STRING_TYPE) {
-            o1 = get_oper_reg(T, y);
+        o2 = get_oper_addr(x);
+        if(type == NUMBER_TYPE || type == BOOLEAN_TYPE) {
+            o1 = get_oper_reg(F, y);
             emit2(Sd, o1, o2);
         } else {
-            o1 = get_oper_reg(F, y);
+            o1 = get_oper_reg(T, y);
             emit2(SW, o1, o2);
         }
     }
