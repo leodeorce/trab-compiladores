@@ -162,6 +162,7 @@ int double_regs_count;
 int temp_number_count;
 
 int boolcheck_number_count;
+int compcheck_number_count;
 
 // Auxiliam na escrita de valores booleanos em stdout.
 int true_str_loaded = 0;
@@ -181,6 +182,9 @@ int false_temp_idx;
 
 #define new_boolcheck_number() \
     boolcheck_number_count++
+
+#define new_compcheck_number() \
+    compcheck_number_count++
 
 int rec_emit_code(AST *ast);
 
@@ -358,6 +362,164 @@ int emit_div(AST *ast)
 {
     trace("emit_div");
     return emit_arithmetic(ast, DIVd);
+}
+
+int emit_gt(AST *ast)
+{
+    trace("emit_gt");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    char *o1, *o2;
+    char *o3, *o4;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+    if(leftKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = strdup(o3);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    if(rightKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o2 = strdup(o3);
+    } else {
+        o2 = get_oper_reg(F, y);
+    }
+    emit2(CLEd, o1, o2);
+
+    // Cria labels para saltos
+    char *label;
+    int returnReg, compCheckNum;
+    char labelF[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelF, "compcheck%d", compCheckNum);
+    char labelT[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelT, "compcheck%d", compCheckNum);
+    char labelEnd[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelEnd, "compcheck%d", compCheckNum);
+
+    // Branch caso esq <= dir, significando que esq > dir é falso
+    o1 = get_oper_label(labelT);
+    emit1(BC1T, o1);
+
+    // Armazena 1 em um registrador $f# caso esq > dir
+    label = get_oper_label(labelF);
+    emitL(label);
+    returnReg = new_double_reg();
+    o1 = get_oper_reg(F, returnReg);
+    char tempNameFalse[10];
+    int tempNumberFalse = new_temp_number();
+    sprintf(tempNameFalse, "temp%d", tempNumberFalse);
+    print_data_double(tempNameFalse, 1);
+    o2 = get_oper_label(tempNameFalse);
+    emit2(Ld, o1, o2);
+    o1 = get_oper_label(labelEnd);
+    emit1(J, o1);
+
+    // Armazena 0 em um registrador $f# caso esq <= dir
+    label = get_oper_label(labelT);
+    emitL(label);
+    o1 = get_oper_reg(F, returnReg);
+    char tempNameTrue[10];
+    int tempNumberTrue = new_temp_number();
+    sprintf(tempNameTrue, "temp%d", tempNumberTrue);
+    print_data_double(tempNameTrue, 0);
+    o2 = get_oper_label(tempNameTrue);
+    emit2(Ld, o1, o2);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return returnReg;
+}
+
+int emit_lt(AST *ast)
+{
+    trace("emit_lt");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    char *o1, *o2;
+    char *o3, *o4;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+    if(leftKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = strdup(o3);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    if(rightKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o2 = strdup(o3);
+    } else {
+        o2 = get_oper_reg(F, y);
+    }
+    emit2(CLTd, o1, o2);
+
+    // Cria labels para saltos
+    char *label;
+    int returnReg, compCheckNum;
+    char labelT[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelT, "compcheck%d", compCheckNum);
+    char labelF[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelF, "compcheck%d", compCheckNum);
+    char labelEnd[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelEnd, "compcheck%d", compCheckNum);
+
+    // Branch caso esq < dir
+    o1 = get_oper_label(labelT);
+    emit1(BC1T, o1);
+
+    // Armazena 0 em um registrador $f# caso esq >= dir
+    label = get_oper_label(labelF);
+    emitL(label);
+    returnReg = new_double_reg();
+    o1 = get_oper_reg(F, returnReg);
+    char tempNameFalse[10];
+    int tempNumberFalse = new_temp_number();
+    sprintf(tempNameFalse, "temp%d", tempNumberFalse);
+    print_data_double(tempNameFalse, 0);
+    o2 = get_oper_label(tempNameFalse);
+    emit2(Ld, o1, o2);
+    o1 = get_oper_label(labelEnd);
+    emit1(J, o1);
+
+    // Armazena 0 em um registrador $f# caso esq < dir
+    label = get_oper_label(labelT);
+    emitL(label);
+    o1 = get_oper_reg(F, returnReg);
+    char tempNameTrue[10];
+    int tempNumberTrue = new_temp_number();
+    sprintf(tempNameTrue, "temp%d", tempNumberTrue);
+    print_data_double(tempNameTrue, 1);
+    o2 = get_oper_label(tempNameTrue);
+    emit2(Ld, o1, o2);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return returnReg;
 }
 
 int emit_mult(AST *ast)
@@ -591,6 +753,8 @@ int rec_emit_code(AST *ast)
         case BLOCK_NODE:    return emit_block(ast);
         case BOOL_VAL_NODE: return emit_num_val(ast);
         case DIV_NODE:      return emit_div(ast);
+        case GT_NODE:       return emit_gt(ast);
+        case LT_NODE:       return emit_lt(ast);
         case MULT_NODE:     return emit_mult(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
         case PLUS_NODE:     return emit_plus(ast);
@@ -620,6 +784,7 @@ void emit_code(AST *ast)
     double_regs_count = 0;
     temp_number_count = 0;
     boolcheck_number_count = 0;
+    compcheck_number_count = 0;
     dump_str_table();
     rec_emit_code(ast);
     dump_program();

@@ -17,6 +17,8 @@ typedef enum {
     ADD,
     ADDd,
     CEQd,
+    CLEd,
+    CLTd,
     DIVd,
     MOVE,
     MOVd,
@@ -46,7 +48,7 @@ typedef enum {
 
 // Representação em string de opcodes.
 static char* OpStr[] = {
-    "add", "add.d", "c.eq.d", "div.d", "move", "mov.d", "mul.d", "sub.d",
+    "add", "add.d", "c.eq.d", "c.le.d", "c.lt.d", "div.d", "move", "mov.d", "mul.d", "sub.d",
     "la", "l.d", "li", "lw", "s.d", "sw",
     "bc1t", "beq", "j",
     "syscall",
@@ -58,6 +60,8 @@ static int OpCount[] = {
     3,  // add
     3,  // add.d
     2,  // c.eq.d
+    2,  // c.le.d
+    2,  // c.lt.d
     3,  // div.d
     2,  // move
     2,  // mov.d
