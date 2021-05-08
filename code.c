@@ -422,12 +422,6 @@ int emit_print(AST *ast)
         o2 = get_oper_int(4);
         emit2(LI, o1, o2);
 
-        // Busca o valor booleano da memória
-        int f = new_double_reg();
-        o2 = get_oper_addr(x);
-        o1 = get_oper_reg(F, f);
-        emit2(Ld, o1, o2);
-
         // Cria os labels a serem usados
         char labelT[100];
         int boolCheckNum = new_boolcheck_number();
@@ -448,7 +442,7 @@ int emit_print(AST *ast)
         o1 = get_oper_reg(F, zeroRegNum);
         o2 = get_oper_label(tempName);
         emit2(Ld, o1, o2);
-        o1 = get_oper_reg(F, f);
+        o1 = get_oper_reg(F, x);
         o2 = get_oper_reg(F, zeroRegNum);
         emit2(CEQd, o1, o2);
 
@@ -549,6 +543,14 @@ int emit_b2s(AST *ast)
     trace("emit_b2s");
     AST *child = get_child(ast, 0);
     int x = rec_emit_code(child);
+    NodeKind kind = get_kind(child);
+    if(kind == VAR_USE_NODE) {
+        int newReg = new_double_reg();
+        char *o1 = get_oper_reg(F, newReg);
+        char *o2 = get_oper_addr(x);
+        emit2(Ld, o1, o2);
+        x = newReg;
+    }
     return x;
 }
 
