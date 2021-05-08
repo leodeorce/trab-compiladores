@@ -1,6 +1,13 @@
 let a:number = 1;
 let b:number = 2;
-let c = false;
-let d = "str";
-console.log("c: ");
+let c = a - 2;
+let d = 1 + c;
+let e = b * 2;
+let f = e / 3;
 console.log(c);
+console.log("\n");
+console.log(d);
+console.log("\n");
+console.log(e);
+console.log("\n");
+console.log(f);

@@ -76,7 +76,7 @@ void get_instruction_string(Instr instr, char *str)
     OpCode op = instr.op;
     if(op == LABEL) {
         char *label = instr.label;
-        str += sprintf(str, "%s:", label);
+        str += sprintf(str, "\n%s:", label);
     } else {
         str += sprintf(str, "    %s", OpStr[op]);
         int op_count = OpCount[op];
@@ -266,6 +266,41 @@ char* get_oper_int(int val)
     return strdup(operand);
 }
 
+int emit_arithmetic(AST *ast, OpCode op)
+{
+    trace("emit_arithmetic");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    int z = new_double_reg();
+    char *o1 = get_oper_reg(F, z);
+    char *o2, *o3;
+    char *o4, *o5;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+    if(leftKind == VAR_USE_NODE) {
+        o5 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o4 = get_oper_reg(F, newReg);
+        emit2(Ld, o4, o5);
+        o2 = strdup(o4);
+    } else {
+        o2 = get_oper_reg(F, x);
+    }
+    if(rightKind == VAR_USE_NODE) {
+        o5 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o4 = get_oper_reg(F, newReg);
+        emit2(Ld, o4, o5);
+        o3 = strdup(o4);
+    } else {
+        o3 = get_oper_reg(F, y);
+    }
+    emit3(op, o1, o2, o3);
+    return z;
+}
+
 int emit_assign(AST *ast)
 {
     trace("emit_assign");
@@ -306,13 +341,15 @@ int emit_assign(AST *ast)
     return -1;
 }
 
-int emit_begin(AST *ast) {
+int emit_begin(AST *ast)
+{
     trace("emit_begin");
     rec_emit_code(get_child(ast, 0));
     return -1;
 }
 
-int emit_block(AST *ast) {
+int emit_block(AST *ast)
+{
     trace("emit_block");
     int childCount = get_child_count(ast);
     for(int i = 0; i < childCount; i++) {
@@ -321,6 +358,18 @@ int emit_block(AST *ast) {
         double_regs_count = 0;
     }
     return -1;
+}
+
+int emit_div(AST *ast)
+{
+    trace("emit_div");
+    return emit_arithmetic(ast, DIVd);
+}
+
+int emit_mult(AST *ast)
+{
+    trace("emit_mult");
+    return emit_arithmetic(ast, MULd);
 }
 
 int emit_num_val(AST *ast)
@@ -342,36 +391,7 @@ int emit_num_val(AST *ast)
 int emit_plus(AST *ast)
 {
     trace("emit_plus");
-    AST *leftChild = get_child(ast, 0);
-    AST *rightChild = get_child(ast, 1);
-    int x = rec_emit_code(leftChild);
-    int y = rec_emit_code(rightChild);
-    int z = new_double_reg();
-    char *o1 = get_oper_reg(F, z);
-    char *o2, *o3;
-    char *o4, *o5;
-    NodeKind leftKind = get_kind(leftChild);
-    NodeKind rightKind = get_kind(rightChild);
-    if(leftKind == VAR_USE_NODE) {
-        o5 = get_oper_addr(x);
-        int newReg = new_double_reg();
-        o4 = get_oper_reg(F, newReg);
-        emit2(Ld, o4, o5);
-        o2 = strdup(o4);
-    } else {
-        o2 = get_oper_reg(F, x);
-    }
-    if(rightKind == VAR_USE_NODE) {
-        o5 = get_oper_addr(y);
-        int newReg = new_double_reg();
-        o4 = get_oper_reg(F, newReg);
-        emit2(Ld, o4, o5);
-        o3 = strdup(o4);
-    } else {
-        o3 = get_oper_reg(F, y);
-    }
-    emit3(ADDd, o1, o2, o3);
-    return z;
+    return emit_arithmetic(ast, ADDd);
 }
 
 int emit_print(AST *ast)
@@ -497,6 +517,12 @@ int emit_str_val(AST *ast)
     return x;
 }
 
+int emit_sub(AST *ast)
+{
+    trace("emit_sub");
+    return emit_arithmetic(ast, SUBd);
+}
+
 int emit_var_decl(AST *ast)
 {
     trace("emit_var_decl");
@@ -531,6 +557,14 @@ int emit_n2s(AST *ast)
     trace("emit_n2s");
     AST *child = get_child(ast, 0);
     int x = rec_emit_code(child);
+    NodeKind kind = get_kind(child);
+    if(kind == VAR_USE_NODE) {
+        int newReg = new_double_reg();
+        char *o1 = get_oper_reg(F, newReg);
+        char *o2 = get_oper_addr(x);
+        emit2(Ld, o1, o2);
+        x = newReg;
+    }
     return x;
 }
 
@@ -560,10 +594,13 @@ int rec_emit_code(AST *ast)
         case BEGIN_NODE:    return emit_begin(ast);
         case BLOCK_NODE:    return emit_block(ast);
         case BOOL_VAL_NODE: return emit_num_val(ast);
+        case DIV_NODE:      return emit_div(ast);
+        case MULT_NODE:     return emit_mult(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
         case PLUS_NODE:     return emit_plus(ast);
         case PRINT_NODE:    return emit_print(ast);
         case STR_VAL_NODE:  return emit_str_val(ast);
+        case SUB_NODE:      return emit_sub(ast);
         case VAR_DECL_NODE: return emit_var_decl(ast);
         case VAR_USE_NODE:  return emit_var_use(ast);
 
