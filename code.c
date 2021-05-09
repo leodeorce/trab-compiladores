@@ -163,12 +163,19 @@ int temp_number_count;
 
 int boolcheck_number_count;
 int compcheck_number_count;
+int ifcheck_number_count;
 
 // Auxiliam na escrita de valores booleanos em stdout.
 int true_str_loaded = 0;
 int false_str_loaded = 0;
 int true_temp_idx;
 int false_temp_idx;
+
+// Auxiliam no uso dos valores 0 e 1
+int one_double_loaded = 0;
+int zero_double_loaded = 0;
+int one_temp_idx;
+int zero_temp_idx;
 
 #define new_int_reg() \
     int_regs_count++
@@ -185,6 +192,10 @@ int false_temp_idx;
 
 #define new_compcheck_number() \
     compcheck_number_count++
+
+#define new_ifcheck_number() \
+    ifcheck_number_count++
+    
 
 int rec_emit_code(AST *ast);
 
@@ -221,6 +232,38 @@ int false_str_addr(void)
         false_str_loaded = 1;
     }
     addr = false_temp_idx;
+    return addr;
+}
+
+int one_double_addr(void)
+{
+    int addr;
+    int x;
+    if(one_double_loaded == 0) {
+        x = new_temp_number();
+        char label[100];
+        sprintf(label, "temp%d", x);
+        print_data_double(label, 1);
+        one_temp_idx = x;
+        one_double_loaded = 1;
+    }
+    addr = one_temp_idx;
+    return addr;
+}
+
+int zero_double_addr(void)
+{
+    int addr;
+    int x;
+    if(zero_double_loaded == 0) {
+        x = new_temp_number();
+        char label[100];
+        sprintf(label, "temp%d", x);
+        print_data_double(label, 0);
+        zero_temp_idx = x;
+        zero_double_loaded = 1;
+    }
+    addr = zero_temp_idx;
     return addr;
 }
 
@@ -343,6 +386,10 @@ int emit_begin(AST *ast)
 {
     trace("emit_begin");
     rec_emit_code(get_child(ast, 0));
+    char *o1 = get_oper_reg(V, 0);
+    char *o2 = get_oper_int(10);
+    emit2(LI, o1, o2);
+    emit0(SYSCALL);
     return -1;
 }
 
@@ -398,49 +445,106 @@ int emit_gt(AST *ast)
     // Cria labels para saltos
     char *label;
     int returnReg, compCheckNum;
-    char labelF[100];
+    char labelTrue[100];
     compCheckNum = new_compcheck_number();
-    sprintf(labelF, "compcheck%d", compCheckNum);
-    char labelT[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelT, "compcheck%d", compCheckNum);
+    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
+    char labelFalse[100];
+    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
     char labelEnd[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelEnd, "compcheck%d", compCheckNum);
+    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
 
     // Branch caso esq <= dir, significando que esq > dir é falso
-    o1 = get_oper_label(labelT);
+    o1 = get_oper_label(labelTrue);
     emit1(BC1T, o1);
 
     // Armazena 1 em um registrador $f# caso esq > dir
-    label = get_oper_label(labelF);
+    label = get_oper_label(labelFalse);
     emitL(label);
     returnReg = new_double_reg();
     o1 = get_oper_reg(F, returnReg);
-    char tempNameFalse[10];
-    int tempNumberFalse = new_temp_number();
-    sprintf(tempNameFalse, "temp%d", tempNumberFalse);
-    print_data_double(tempNameFalse, 1);
-    o2 = get_oper_label(tempNameFalse);
+    int oneDoubleAddr = one_double_addr();
+    char oneTemp[10];
+    sprintf(oneTemp, "temp%d", oneDoubleAddr);
+    o2 = get_oper_label(oneTemp);
     emit2(Ld, o1, o2);
     o1 = get_oper_label(labelEnd);
     emit1(J, o1);
 
     // Armazena 0 em um registrador $f# caso esq <= dir
-    label = get_oper_label(labelT);
+    label = get_oper_label(labelTrue);
     emitL(label);
     o1 = get_oper_reg(F, returnReg);
-    char tempNameTrue[10];
-    int tempNumberTrue = new_temp_number();
-    sprintf(tempNameTrue, "temp%d", tempNumberTrue);
-    print_data_double(tempNameTrue, 0);
-    o2 = get_oper_label(tempNameTrue);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o2 = get_oper_label(zeroTemp);
     emit2(Ld, o1, o2);
 
     label = get_oper_label(labelEnd);
     emitL(label);
 
     return returnReg;
+}
+
+int emit_if(AST *ast)
+{
+    trace("emit_if");
+    AST *firstChild = get_child(ast, 0);
+    AST *secondChild = get_child(ast, 1);
+    AST *thirdChild = get_child(ast, 2);
+    int x = rec_emit_code(firstChild);
+    char *o1, *o2;
+    char *label;
+    int ifCheckNum;
+
+    int newReg = new_double_reg();
+    o1 = get_oper_reg(F, newReg);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o2 = get_oper_label(zeroTemp);
+    emit2(Ld, o1, o2);
+    
+    o1 = get_oper_reg(F, x);
+    o2 = get_oper_reg(F, newReg);
+    emit2(CEQd, o1, o2);
+
+    char labelTrue[100];
+    ifCheckNum = new_ifcheck_number();
+    sprintf(labelTrue, "IfCheckTrue%d", ifCheckNum);
+    char labelFalse[100];
+    sprintf(labelFalse, "IfCheckFalse%d", ifCheckNum);
+    char labelEnd[100];
+    sprintf(labelEnd, "IfCheckEnd%d", ifCheckNum);
+
+    if(thirdChild != NULL) {
+        // if
+        o1 = get_oper_label(labelTrue);
+        emit1(BC1T, o1);
+        // then
+        label = get_oper_label(labelFalse);
+        emitL(label);
+        x = rec_emit_code(secondChild);
+        o1 = get_oper_label(labelEnd);
+        emit1(J, o1);
+        // else
+        label = get_oper_label(labelTrue);
+        emitL(label);
+        x = rec_emit_code(thirdChild);
+    } else {
+        // if
+        o1 = get_oper_label(labelEnd);
+        emit1(BC1T, o1);
+        // then
+        label = get_oper_label(labelFalse);
+        emitL(label);
+        x = rec_emit_code(secondChild);
+    }
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return -1;
 }
 
 int emit_lt(AST *ast)
@@ -477,43 +581,39 @@ int emit_lt(AST *ast)
     // Cria labels para saltos
     char *label;
     int returnReg, compCheckNum;
-    char labelT[100];
+    char labelTrue[100];
     compCheckNum = new_compcheck_number();
-    sprintf(labelT, "compcheck%d", compCheckNum);
-    char labelF[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelF, "compcheck%d", compCheckNum);
+    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
+    char labelFalse[100];
+    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
     char labelEnd[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelEnd, "compcheck%d", compCheckNum);
+    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
 
     // Branch caso esq < dir
-    o1 = get_oper_label(labelT);
+    o1 = get_oper_label(labelTrue);
     emit1(BC1T, o1);
 
     // Armazena 0 em um registrador $f# caso esq >= dir
-    label = get_oper_label(labelF);
+    label = get_oper_label(labelFalse);
     emitL(label);
     returnReg = new_double_reg();
     o1 = get_oper_reg(F, returnReg);
-    char tempNameFalse[10];
-    int tempNumberFalse = new_temp_number();
-    sprintf(tempNameFalse, "temp%d", tempNumberFalse);
-    print_data_double(tempNameFalse, 0);
-    o2 = get_oper_label(tempNameFalse);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o2 = get_oper_label(zeroTemp);
     emit2(Ld, o1, o2);
     o1 = get_oper_label(labelEnd);
     emit1(J, o1);
 
     // Armazena 0 em um registrador $f# caso esq < dir
-    label = get_oper_label(labelT);
+    label = get_oper_label(labelTrue);
     emitL(label);
     o1 = get_oper_reg(F, returnReg);
-    char tempNameTrue[10];
-    int tempNumberTrue = new_temp_number();
-    sprintf(tempNameTrue, "temp%d", tempNumberTrue);
-    print_data_double(tempNameTrue, 1);
-    o2 = get_oper_label(tempNameTrue);
+    int oneDoubleAddr = one_double_addr();
+    char oneTemp[10];
+    sprintf(oneTemp, "temp%d", oneDoubleAddr);
+    o2 = get_oper_label(oneTemp);
     emit2(Ld, o1, o2);
 
     label = get_oper_label(labelEnd);
@@ -579,34 +679,32 @@ int emit_print(AST *ast)
         emit2(LI, o1, o2);
 
         // Cria os labels a serem usados
-        char labelT[100];
-        int boolCheckNum = new_boolcheck_number();
-        sprintf(labelT, "boolcheck%d", boolCheckNum);
-        char labelF[100];
+        int boolCheckNum;
+        char labelFalse[100];
         boolCheckNum = new_boolcheck_number();
-        sprintf(labelF, "boolcheck%d", boolCheckNum);
+        sprintf(labelFalse, "BoolCheckFalse%d", boolCheckNum);
+        char labelTrue[100];
+        sprintf(labelTrue, "BoolCheckTrue%d", boolCheckNum);
         char labelEnd[100];
-        boolCheckNum = new_boolcheck_number();
-        sprintf(labelEnd, "boolcheck%d", boolCheckNum);
+        sprintf(labelEnd, "BoolCheckEnd%d", boolCheckNum);
 
         // Avalia expressão condicional
-        char tempName[10];
-        int tempNumber = new_temp_number();
-        sprintf(tempName, "temp%d", tempNumber);
-        print_data_double(tempName, 0);
         int zeroRegNum = new_double_reg();
         o1 = get_oper_reg(F, zeroRegNum);
-        o2 = get_oper_label(tempName);
+        int zeroDoubleAddr = zero_double_addr();
+        char zeroTemp[10];
+        sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+        o2 = get_oper_label(zeroTemp);
         emit2(Ld, o1, o2);
         o1 = get_oper_reg(F, x);
         o2 = get_oper_reg(F, zeroRegNum);
         emit2(CEQd, o1, o2);
 
-        o1 = get_oper_label(labelF);
+        o1 = get_oper_label(labelFalse);
         emit1(BC1T, o1);
 
         // Imprime o resultado como 'true'
-        label = get_oper_label(labelT);
+        label = get_oper_label(labelTrue);
         emitL(label);
         int regTrue = new_int_reg();
         o1 = get_oper_reg(T, regTrue);
@@ -624,7 +722,7 @@ int emit_print(AST *ast)
         emit1(J, o1);
 
         // Imprime o resultado como 'false'
-        label = get_oper_label(labelF);
+        label = get_oper_label(labelFalse);
         emitL(label);
         int regFalse = new_int_reg();
         o1 = get_oper_reg(T, regFalse);
@@ -754,6 +852,7 @@ int rec_emit_code(AST *ast)
         case BOOL_VAL_NODE: return emit_num_val(ast);
         case DIV_NODE:      return emit_div(ast);
         case GT_NODE:       return emit_gt(ast);
+        case IF_NODE:       return emit_if(ast);
         case LT_NODE:       return emit_lt(ast);
         case MULT_NODE:     return emit_mult(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
@@ -785,6 +884,7 @@ void emit_code(AST *ast)
     temp_number_count = 0;
     boolcheck_number_count = 0;
     compcheck_number_count = 0;
+    ifcheck_number_count = 0;
     dump_str_table();
     rec_emit_code(ast);
     dump_program();

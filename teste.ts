@@ -1,10 +1,8 @@
 let a:number = 1;
 let b:number = 2;
 let c = a - 2;
-let d = c < b;
-let e = c > b;
-console.log(c);
-console.log("\n");
-console.log(d);
-console.log("\n");
-console.log(e);
+if(2 < 1) {
+    console.log(true);
+} else if(a < b) {
+    console.log("sucesso");
+}
