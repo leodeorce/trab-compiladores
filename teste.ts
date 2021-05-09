@@ -1,8 +1,8 @@
 let a:number = 1;
 let b:number = 2;
 let c = a - 2;
-if(2 < 1) {
+if(b != 2) {
     console.log(true);
-} else if(a < b) {
+} else {
     console.log("sucesso");
 }
