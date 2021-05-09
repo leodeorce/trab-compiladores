@@ -405,6 +405,81 @@ int emit_block(AST *ast)
     return -1;
 }
 
+int emit_compare(AST *ast, OpCode op1, OpCode op2)
+{
+    trace("emit_compare");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    char *o1, *o2;
+    char *o3, *o4;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+    if(leftKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    if(rightKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o2 = get_oper_reg(F, newReg);
+    } else {
+        o2 = get_oper_reg(F, y);
+    }
+    emit2(op1, o1, o2);
+
+    // Cria labels para saltos
+    char *label;
+    int returnReg, compCheckNum;
+    char labelA[100];
+    compCheckNum = new_compcheck_number();
+    sprintf(labelA, "CompCheckA%d", compCheckNum);
+    char labelB[100];
+    sprintf(labelB, "CompCheckB%d", compCheckNum);
+    char labelEnd[100];
+    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
+
+    // Salto depende do OpCode op2
+    o1 = get_oper_label(labelA);
+    emit1(op2, o1);
+
+    // Armazena 0 em um registrador $f# caso não ocorra salto
+    label = get_oper_label(labelB);
+    emitL(label);
+    returnReg = new_double_reg();
+    o1 = get_oper_reg(F, returnReg);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o2 = get_oper_label(zeroTemp);
+    emit2(Ld, o1, o2);
+    o1 = get_oper_label(labelEnd);
+    emit1(J, o1);
+
+    // Armazena 1 em um registrador $f# caso ocorra salto
+    label = get_oper_label(labelA);
+    emitL(label);
+    o1 = get_oper_reg(F, returnReg);
+    int oneDoubleAddr = one_double_addr();
+    char oneTemp[10];
+    sprintf(oneTemp, "temp%d", oneDoubleAddr);
+    o2 = get_oper_label(oneTemp);
+    emit2(Ld, o1, o2);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return returnReg;
+}
+
 int emit_div(AST *ast)
 {
     trace("emit_div");
@@ -414,151 +489,13 @@ int emit_div(AST *ast)
 int emit_eq(AST *ast)
 {
     trace("emit_eq");
-    AST *leftChild = get_child(ast, 0);
-    AST *rightChild = get_child(ast, 1);
-    int x = rec_emit_code(leftChild);
-    int y = rec_emit_code(rightChild);
-    char *o1, *o2;
-    char *o3, *o4;
-    NodeKind leftKind = get_kind(leftChild);
-    NodeKind rightKind = get_kind(rightChild);
-    if(leftKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(x);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o1 = get_oper_reg(F, newReg);
-    } else {
-        o1 = get_oper_reg(F, x);
-    }
-    if(rightKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(y);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o2 = get_oper_reg(F, newReg);
-    } else {
-        o2 = get_oper_reg(F, y);
-    }
-    emit2(CEQd, o1, o2);
-
-    // Cria labels para saltos
-    char *label;
-    int returnReg, compCheckNum;
-    char labelTrue[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
-    char labelFalse[100];
-    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
-    char labelEnd[100];
-    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
-
-    // Branch caso esq == dir
-    o1 = get_oper_label(labelTrue);
-    emit1(BC1T, o1);
-
-    // Armazena 0 em um registrador $f# caso esq != dir
-    label = get_oper_label(labelFalse);
-    emitL(label);
-    returnReg = new_double_reg();
-    o1 = get_oper_reg(F, returnReg);
-    int zeroDoubleAddr = zero_double_addr();
-    char zeroTemp[10];
-    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
-    o2 = get_oper_label(zeroTemp);
-    emit2(Ld, o1, o2);
-    o1 = get_oper_label(labelEnd);
-    emit1(J, o1);
-
-    // Armazena 1 em um registrador $f# caso esq == dir
-    label = get_oper_label(labelTrue);
-    emitL(label);
-    o1 = get_oper_reg(F, returnReg);
-    int oneDoubleAddr = one_double_addr();
-    char oneTemp[10];
-    sprintf(oneTemp, "temp%d", oneDoubleAddr);
-    o2 = get_oper_label(oneTemp);
-    emit2(Ld, o1, o2);
-
-    label = get_oper_label(labelEnd);
-    emitL(label);
-
-    return returnReg;
+    return emit_compare(ast, CEQd, BC1T);
 }
 
 int emit_gt(AST *ast)
 {
     trace("emit_gt");
-    AST *leftChild = get_child(ast, 0);
-    AST *rightChild = get_child(ast, 1);
-    int x = rec_emit_code(leftChild);
-    int y = rec_emit_code(rightChild);
-    char *o1, *o2;
-    char *o3, *o4;
-    NodeKind leftKind = get_kind(leftChild);
-    NodeKind rightKind = get_kind(rightChild);
-    if(leftKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(x);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o1 = get_oper_reg(F, newReg);
-    } else {
-        o1 = get_oper_reg(F, x);
-    }
-    if(rightKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(y);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o2 = get_oper_reg(F, newReg);
-    } else {
-        o2 = get_oper_reg(F, y);
-    }
-    emit2(CLEd, o1, o2);
-
-    // Cria labels para saltos
-    char *label;
-    int returnReg, compCheckNum;
-    char labelTrue[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
-    char labelFalse[100];
-    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
-    char labelEnd[100];
-    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
-
-    // Branch caso esq <= dir, significando que esq > dir é falso
-    o1 = get_oper_label(labelTrue);
-    emit1(BC1T, o1);
-
-    // Armazena 1 em um registrador $f# caso esq > dir
-    label = get_oper_label(labelFalse);
-    emitL(label);
-    returnReg = new_double_reg();
-    o1 = get_oper_reg(F, returnReg);
-    int oneDoubleAddr = one_double_addr();
-    char oneTemp[10];
-    sprintf(oneTemp, "temp%d", oneDoubleAddr);
-    o2 = get_oper_label(oneTemp);
-    emit2(Ld, o1, o2);
-    o1 = get_oper_label(labelEnd);
-    emit1(J, o1);
-
-    // Armazena 0 em um registrador $f# caso esq <= dir
-    label = get_oper_label(labelTrue);
-    emitL(label);
-    o1 = get_oper_reg(F, returnReg);
-    int zeroDoubleAddr = zero_double_addr();
-    char zeroTemp[10];
-    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
-    o2 = get_oper_label(zeroTemp);
-    emit2(Ld, o1, o2);
-
-    label = get_oper_label(labelEnd);
-    emitL(label);
-
-    return returnReg;
+    return emit_compare(ast, CLEd, BC1F);
 }
 
 int emit_if(AST *ast)
@@ -624,152 +561,14 @@ int emit_if(AST *ast)
 
 int emit_ineq(AST *ast)
 {
-    trace("emit_eq");
-    AST *leftChild = get_child(ast, 0);
-    AST *rightChild = get_child(ast, 1);
-    int x = rec_emit_code(leftChild);
-    int y = rec_emit_code(rightChild);
-    char *o1, *o2;
-    char *o3, *o4;
-    NodeKind leftKind = get_kind(leftChild);
-    NodeKind rightKind = get_kind(rightChild);
-    if(leftKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(x);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o1 = get_oper_reg(F, newReg);
-    } else {
-        o1 = get_oper_reg(F, x);
-    }
-    if(rightKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(y);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o2 = get_oper_reg(F, newReg);
-    } else {
-        o2 = get_oper_reg(F, y);
-    }
-    emit2(CEQd, o1, o2);
-
-    // Cria labels para saltos
-    char *label;
-    int returnReg, compCheckNum;
-    char labelTrue[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
-    char labelFalse[100];
-    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
-    char labelEnd[100];
-    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
-
-    // Branch caso esq == dir
-    o1 = get_oper_label(labelTrue);
-    emit1(BC1T, o1);
-
-    // Armazena 1 em um registrador $f# caso esq != dir
-    label = get_oper_label(labelFalse);
-    emitL(label);
-    returnReg = new_double_reg();
-    o1 = get_oper_reg(F, returnReg);
-    int oneDoubleAddr = one_double_addr();
-    char oneTemp[10];
-    sprintf(oneTemp, "temp%d", oneDoubleAddr);
-    o2 = get_oper_label(oneTemp);
-    emit2(Ld, o1, o2);
-    o1 = get_oper_label(labelEnd);
-    emit1(J, o1);
-
-    // Armazena 0 em um registrador $f# caso esq == dir
-    label = get_oper_label(labelTrue);
-    emitL(label);
-    o1 = get_oper_reg(F, returnReg);
-    int zeroDoubleAddr = zero_double_addr();
-    char zeroTemp[10];
-    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
-    o2 = get_oper_label(zeroTemp);
-    emit2(Ld, o1, o2);
-
-    label = get_oper_label(labelEnd);
-    emitL(label);
-
-    return returnReg;
+    trace("emit_ineq");
+    return emit_compare(ast, CEQd, BC1F);
 }
 
 int emit_lt(AST *ast)
 {
     trace("emit_lt");
-    AST *leftChild = get_child(ast, 0);
-    AST *rightChild = get_child(ast, 1);
-    int x = rec_emit_code(leftChild);
-    int y = rec_emit_code(rightChild);
-    char *o1, *o2;
-    char *o3, *o4;
-    NodeKind leftKind = get_kind(leftChild);
-    NodeKind rightKind = get_kind(rightChild);
-    if(leftKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(x);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o1 = get_oper_reg(F, newReg);
-    } else {
-        o1 = get_oper_reg(F, x);
-    }
-    if(rightKind == VAR_USE_NODE) {
-        o4 = get_oper_addr(y);
-        int newReg = new_double_reg();
-        o3 = get_oper_reg(F, newReg);
-        emit2(Ld, o3, o4);
-        o2 = get_oper_reg(F, newReg);
-    } else {
-        o2 = get_oper_reg(F, y);
-    }
-    emit2(CLTd, o1, o2);
-
-    // Cria labels para saltos
-    char *label;
-    int returnReg, compCheckNum;
-    char labelTrue[100];
-    compCheckNum = new_compcheck_number();
-    sprintf(labelTrue, "CompCheckTrue%d", compCheckNum);
-    char labelFalse[100];
-    sprintf(labelFalse, "CompCheckFalse%d", compCheckNum);
-    char labelEnd[100];
-    sprintf(labelEnd, "CompCheckEnd%d", compCheckNum);
-
-    // Branch caso esq < dir
-    o1 = get_oper_label(labelTrue);
-    emit1(BC1T, o1);
-
-    // Armazena 0 em um registrador $f# caso esq >= dir
-    label = get_oper_label(labelFalse);
-    emitL(label);
-    returnReg = new_double_reg();
-    o1 = get_oper_reg(F, returnReg);
-    int zeroDoubleAddr = zero_double_addr();
-    char zeroTemp[10];
-    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
-    o2 = get_oper_label(zeroTemp);
-    emit2(Ld, o1, o2);
-    o1 = get_oper_label(labelEnd);
-    emit1(J, o1);
-
-    // Armazena 0 em um registrador $f# caso esq < dir
-    label = get_oper_label(labelTrue);
-    emitL(label);
-    o1 = get_oper_reg(F, returnReg);
-    int oneDoubleAddr = one_double_addr();
-    char oneTemp[10];
-    sprintf(oneTemp, "temp%d", oneDoubleAddr);
-    o2 = get_oper_label(oneTemp);
-    emit2(Ld, o1, o2);
-
-    label = get_oper_label(labelEnd);
-    emitL(label);
-
-    return returnReg;
+    return emit_compare(ast, CLTd, BC1T);
 }
 
 int emit_mult(AST *ast)
@@ -989,6 +788,11 @@ int emit_u2s(AST *ast)
     return x;
 }
 
+int emit_while(AST *ast)
+{
+    return -1;
+}
+
 // ----------------------------
 
 int rec_emit_code(AST *ast)
@@ -996,7 +800,7 @@ int rec_emit_code(AST *ast)
     trace("rec_emit_code");
     switch(get_kind(ast)) {
 
-        // TODO: emit_and, emit_or, emit_while
+        // TODO: emit_and, emit_or, emit_while, consertar emit_gt com c.gt.d
         case ASSIGN_NODE:   return emit_assign(ast);
         case BEGIN_NODE:    return emit_begin(ast);
         case BLOCK_NODE:    return emit_block(ast);
@@ -1015,6 +819,7 @@ int rec_emit_code(AST *ast)
         case SUB_NODE:      return emit_sub(ast);
         case VAR_DECL_NODE: return emit_var_decl(ast);
         case VAR_USE_NODE:  return emit_var_use(ast);
+        case WHILE_NODE:    return emit_while(ast);
 
         case B2S_NODE:      return emit_b2s(ast);
         case N2S_NODE:      return emit_n2s(ast);

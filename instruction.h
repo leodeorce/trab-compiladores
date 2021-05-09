@@ -34,6 +34,7 @@ typedef enum {
     SW,
 
     // Saltos
+    BC1F,
     BC1T,
     BEQ,
     J,
@@ -50,7 +51,7 @@ typedef enum {
 static char* OpStr[] = {
     "add", "add.d", "c.eq.d", "c.le.d", "c.lt.d", "div.d", "move", "mov.d", "mul.d", "sub.d",
     "la", "l.d", "li", "lw", "s.d", "sw",
-    "bc1t", "beq", "j",
+    "bc1f", "bc1t", "beq", "j",
     "syscall",
     "",
 };
@@ -73,6 +74,7 @@ static int OpCount[] = {
     2,  // lw
     2,  // s.d
     2,  // sw
+    1,  // bc1f
     1,  // bc1t
     3,  // beq
     1,  // j
