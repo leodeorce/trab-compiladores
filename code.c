@@ -629,6 +629,12 @@ int emit_eq(AST *ast)
     return emit_compare(ast, CEQd, BC1T);
 }
 
+int emit_gt_eq(AST *ast)
+{
+    trace("emit_gt_eq");
+    return emit_compare(ast, CLTd, BC1F);
+}
+
 int emit_gt(AST *ast)
 {
     trace("emit_gt");
@@ -700,6 +706,12 @@ int emit_ineq(AST *ast)
 {
     trace("emit_ineq");
     return emit_compare(ast, CEQd, BC1F);
+}
+
+int emit_lt_eq(AST *ast)
+{
+    trace("emit_lt_eq");
+    return emit_compare(ast, CLEd, BC1T);
 }
 
 int emit_lt(AST *ast)
@@ -1109,9 +1121,11 @@ int rec_emit_code(AST *ast)
         case BOOL_VAL_NODE: return emit_num_val(ast);
         case DIV_NODE:      return emit_div(ast);
         case EQ_NODE:       return emit_eq(ast);
+        case GT_EQ_NODE:    return emit_gt_eq(ast);
         case GT_NODE:       return emit_gt(ast);
         case IF_NODE:       return emit_if(ast);
         case INEQ_NODE:     return emit_ineq(ast);
+        case LT_EQ_NODE:    return emit_lt_eq(ast);
         case LT_NODE:       return emit_lt(ast);
         case MULT_NODE:     return emit_mult(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
