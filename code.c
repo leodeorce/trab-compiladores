@@ -161,6 +161,7 @@ int double_regs_count;
 
 int temp_number_count;
 
+// Auxiliam na criação de índices de labels
 int boolcheck_number_count;
 int compcheck_number_count;
 int ifcheck_number_count;
@@ -1101,7 +1102,6 @@ int rec_emit_code(AST *ast)
     trace("rec_emit_code");
     switch(get_kind(ast)) {
 
-        // TODO: emit_or
         case AND_NODE:      return emit_and(ast);
         case ASSIGN_NODE:   return emit_assign(ast);
         case BEGIN_NODE:    return emit_begin(ast);
