@@ -164,6 +164,7 @@ int temp_number_count;
 int boolcheck_number_count;
 int compcheck_number_count;
 int ifcheck_number_count;
+int whilecheck_number_count;
 
 // Auxiliam na escrita de valores booleanos em stdout.
 int true_str_loaded = 0;
@@ -196,6 +197,8 @@ int zero_temp_idx;
 #define new_ifcheck_number() \
     ifcheck_number_count++
     
+#define new_whilecheck_number() \
+    whilecheck_number_count++
 
 int rec_emit_code(AST *ast);
 
@@ -790,6 +793,53 @@ int emit_u2s(AST *ast)
 
 int emit_while(AST *ast)
 {
+    trace("emit_while");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    char *label;
+
+    char labelCond[100];
+    int whileCheckNumber = new_whilecheck_number();
+    sprintf(labelCond, "WhileCond%d", whileCheckNumber);
+    char labelTrue[100];
+    sprintf(labelTrue, "WhileTrue%d", whileCheckNumber);
+    char labelEnd[100];
+    sprintf(labelEnd, "WhileEnd%d", whileCheckNumber);
+
+    label = get_oper_label(labelCond);
+    emitL(label);
+    int x = rec_emit_code(leftChild);
+    NodeKind kind = get_kind(leftChild);
+    char *o1, *o2, *o3, *o4;
+    if(kind == VAR_USE_NODE) {
+        o2 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o1 = get_oper_reg(F, newReg);
+        emit2(Ld, o1, o2);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o4 = get_oper_label(zeroTemp);
+    int zeroReg = new_double_reg();
+    o3 = get_oper_reg(F, zeroReg);
+    emit2(Ld, o3, o4);
+    o2 = get_oper_reg(F, zeroReg);
+    emit2(CEQd, o1, o2);
+    o1 = get_oper_label(labelEnd);
+    emit1(BC1T, o1);
+
+    label = get_oper_label(labelTrue);
+    emitL(label);
+    rec_emit_code(rightChild);
+    o1 = get_oper_label(labelCond);
+    emit1(J, o1);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
     return -1;
 }
 
@@ -800,7 +850,7 @@ int rec_emit_code(AST *ast)
     trace("rec_emit_code");
     switch(get_kind(ast)) {
 
-        // TODO: emit_and, emit_or, emit_while, consertar emit_gt com c.gt.d
+        // TODO: emit_and, emit_or
         case ASSIGN_NODE:   return emit_assign(ast);
         case BEGIN_NODE:    return emit_begin(ast);
         case BLOCK_NODE:    return emit_block(ast);
@@ -843,9 +893,9 @@ void emit_code(AST *ast)
     boolcheck_number_count = 0;
     compcheck_number_count = 0;
     ifcheck_number_count = 0;
+    whilecheck_number_count = 0;
     dump_str_table();
     rec_emit_code(ast);
     dump_program();
-    // dump_last_syscall();
     free_instr();
 }
