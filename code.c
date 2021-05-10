@@ -179,6 +179,10 @@ int zero_double_loaded = 0;
 int one_temp_idx;
 int zero_temp_idx;
 
+// Auxiliam na quebra de linha ao final de um console.log()
+int linebreak_loaded = 0;
+int linebreak_idx;
+
 #define new_int_reg() \
     int_regs_count++
 
@@ -271,6 +275,23 @@ int zero_double_addr(void)
         zero_double_loaded = 1;
     }
     addr = zero_temp_idx;
+    return addr;
+}
+
+int linebreak_addr(void)
+{
+    int addr;
+    int x;
+    if(linebreak_loaded == 0) {
+        x = new_temp_number();
+        char label[100];
+        sprintf(label, "temp%d", x);
+        char str[5] = "\\n";
+        print_data_str(label, str);
+        linebreak_idx = x;
+        linebreak_loaded = 1;
+    }
+    addr = linebreak_idx;
     return addr;
 }
 
@@ -708,6 +729,114 @@ int emit_num_val(AST *ast)
     return x;
 }
 
+int emit_or(AST *ast)
+{
+    trace("emit_or");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    int z = new_double_reg();
+    char *o1, *o2;
+    char *o3, *o4;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+
+    // Resgata valor booleano da esquerda
+    if(leftKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    
+    // Prepara registrador com double 1
+    int oneReg = new_double_reg();
+    o3 = get_oper_reg(F, oneReg);
+    int oneDoubleAddr = one_double_addr();
+    char oneTemp[10];
+    sprintf(oneTemp, "temp%d", oneDoubleAddr);
+    o4 = get_oper_label(oneTemp);
+    emit2(Ld, o3, o4);
+
+    // Seta condição se lado esquerdo é verdadeiro
+    o2 = get_oper_reg(F, oneReg);
+    emit2(CEQd, o1, o2);
+
+    // Cria labels para:
+    // i.   OR é verdadeiro e devemos retornar registrador com valor 1.
+    // ii.  Lado esquerdo é falso e devemos checar o lado direito.
+    // iii. OR é falso e devemos retornar registrador com valor 0.
+    char *label;
+    int orCheckNum;
+    char labelLeftFalse[100];
+    orCheckNum = new_andcheck_number();
+    sprintf(labelLeftFalse, "OrLeftFalse%d", orCheckNum);
+    char labelTrue[100];
+    sprintf(labelTrue, "OrCheckFalse%d", orCheckNum);
+    char labelFalse[100];
+    sprintf(labelFalse, "OrCheckTrue%d", orCheckNum);
+    char labelEnd[100];
+    sprintf(labelEnd, "OrCheckEnd%d", orCheckNum);
+
+    // Salto para OrCheckTrue caso lado esquerdo seja 1
+    o1 = get_oper_label(labelTrue);
+    emit1(BC1T, o1);
+
+    // Continua para OrCheckFalse caso lado esquerdo seja 0
+    label = get_oper_label(labelLeftFalse);
+    emitL(label);
+    if(rightKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, y);
+    }
+    o2 = get_oper_reg(F, oneReg);
+    emit2(CEQd, o1, o2);
+
+    // Salto para OrCheckTrue caso lado direito seja 1
+    o1 = get_oper_label(labelTrue);
+    emit1(BC1T, o1);
+
+    // Continua para OrCheckFalse caso lado direito também seja 0
+    // Armazena 0 em um registrador $f# cujo id será retornado
+    label = get_oper_label(labelFalse);
+    emitL(label);
+    int zeroReg = new_double_reg();
+    o1 = get_oper_reg(F, zeroReg);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o2 = get_oper_label(zeroTemp);
+    emit2(Ld, o1, o2);
+    o1 = get_oper_reg(F, z);
+    o2 = get_oper_reg(F, zeroReg);
+    emit2(MOVd, o1, o2);
+    label = get_oper_label(labelEnd);
+    emit1(J, label);
+
+    // Armazena 1 em um registrador $f# cujo id será retornado
+    label = get_oper_label(labelTrue);
+    emitL(label);
+    o1 = get_oper_reg(F, z);
+    o2 = get_oper_reg(F, oneReg);
+    emit2(MOVd, o1, o2);
+    label = get_oper_label(labelEnd);
+    emit1(J, label);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return z;
+}
+
 int emit_plus(AST *ast)
 {
     trace("emit_plus");
@@ -811,6 +940,16 @@ int emit_print(AST *ast)
         o2 = get_oper_reg(F, x);
         emit2(MOVd, o1, o2);
     }
+    emit0(SYSCALL);
+    o1 = get_oper_reg(V, 0);
+    o2 = get_oper_int(4);
+    emit2(LI, o1, o2);
+    o1 = get_oper_reg(A, 0);
+    int linebreakReg = linebreak_addr();
+    char linebreakLabel[10];
+    sprintf(linebreakLabel, "temp%d", linebreakReg);
+    o2 = get_oper_label(linebreakLabel);
+    emit2(LA, o1, o2);
     emit0(SYSCALL);
     return -1;
 }
@@ -976,6 +1115,7 @@ int rec_emit_code(AST *ast)
         case LT_NODE:       return emit_lt(ast);
         case MULT_NODE:     return emit_mult(ast);
         case NUM_VAL_NODE:  return emit_num_val(ast);
+        case OR_NODE:       return emit_or(ast);
         case PLUS_NODE:     return emit_plus(ast);
         case PRINT_NODE:    return emit_print(ast);
         case STR_VAL_NODE:  return emit_str_val(ast);
