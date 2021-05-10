@@ -1,6 +1,6 @@
-let a:number = 1;
-while(a < 5) {
-    console.log(a);
-    console.log("\n");
-    a = a + 1;
+let a:boolean = true;
+let b = 1;
+let c:number = 3.14;
+if(a && c > b) {
+    console.log("sucesso");
 }

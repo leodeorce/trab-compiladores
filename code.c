@@ -165,6 +165,7 @@ int boolcheck_number_count;
 int compcheck_number_count;
 int ifcheck_number_count;
 int whilecheck_number_count;
+int andcheck_number_count;
 
 // Auxiliam na escrita de valores booleanos em stdout.
 int true_str_loaded = 0;
@@ -199,6 +200,9 @@ int zero_temp_idx;
     
 #define new_whilecheck_number() \
     whilecheck_number_count++
+    
+#define new_andcheck_number() \
+    andcheck_number_count++
 
 int rec_emit_code(AST *ast);
 
@@ -309,6 +313,114 @@ char* get_oper_int(int val)
     char operand[50];
     sprintf(operand, "%d", val);
     return strdup(operand);
+}
+
+int emit_and(AST *ast)
+{
+    trace("emit_and");
+    AST *leftChild = get_child(ast, 0);
+    AST *rightChild = get_child(ast, 1);
+    int x = rec_emit_code(leftChild);
+    int y = rec_emit_code(rightChild);
+    int z = new_double_reg();
+    char *o1, *o2;
+    char *o3, *o4;
+    NodeKind leftKind = get_kind(leftChild);
+    NodeKind rightKind = get_kind(rightChild);
+
+    // Resgata valor booleano da esquerda
+    if(leftKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(x);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, x);
+    }
+    
+    // Prepara registrador com double 0
+    int zeroReg = new_double_reg();
+    o3 = get_oper_reg(F, zeroReg);
+    int zeroDoubleAddr = zero_double_addr();
+    char zeroTemp[10];
+    sprintf(zeroTemp, "temp%d", zeroDoubleAddr);
+    o4 = get_oper_label(zeroTemp);
+    emit2(Ld, o3, o4);
+
+    // Seta condição se lado esquerdo é falso
+    o2 = get_oper_reg(F, zeroReg);
+    emit2(CEQd, o1, o2);
+
+    // Cria labels para:
+    // i.   AND é falso e devemos retornar registrador com valor 0.
+    // ii.  Lado esquerdo é verdadeiro e devemos checar o lado direito.
+    // iii. AND é verdadeiro e devemos retornar registrador com valor 1.
+    char *label;
+    int andCheckNum;
+    char labelLeftTrue[100];
+    andCheckNum = new_andcheck_number();
+    sprintf(labelLeftTrue, "AndLeftTrue%d", andCheckNum);
+    char labelTrue[100];
+    sprintf(labelTrue, "AndCheckTrue%d", andCheckNum);
+    char labelFalse[100];
+    sprintf(labelFalse, "AndCheckFalse%d", andCheckNum);
+    char labelEnd[100];
+    sprintf(labelEnd, "AndCheckEnd%d", andCheckNum);
+
+    // Salto para AndCheckFalse caso lado esquerdo seja 0
+    o1 = get_oper_label(labelFalse);
+    emit1(BC1T, o1);
+
+    // Continua para AndLeftTrue caso lado esquerdo seja 1
+    label = get_oper_label(labelLeftTrue);
+    emitL(label);
+    if(rightKind == VAR_USE_NODE) {
+        o4 = get_oper_addr(y);
+        int newReg = new_double_reg();
+        o3 = get_oper_reg(F, newReg);
+        emit2(Ld, o3, o4);
+        o1 = get_oper_reg(F, newReg);
+    } else {
+        o1 = get_oper_reg(F, y);
+    }
+    o2 = get_oper_reg(F, zeroReg);
+    emit2(CEQd, o1, o2);
+
+    // Salto para AndCheckFalse caso lado direito seja 0
+    o1 = get_oper_label(labelFalse);
+    emit1(BC1T, o1);
+
+    // Continua para AndCheckTrue caso lado direito também seja 1
+    // Armazena 1 em um registrador $f# cujo id será retornado
+    label = get_oper_label(labelTrue);
+    emitL(label);
+    int oneReg = new_double_reg();
+    o1 = get_oper_reg(F, oneReg);
+    int oneDoubleAddr = one_double_addr();
+    char oneTemp[10];
+    sprintf(oneTemp, "temp%d", oneDoubleAddr);
+    o2 = get_oper_label(oneTemp);
+    emit2(Ld, o1, o2);
+    o1 = get_oper_reg(F, z);
+    o2 = get_oper_reg(F, oneReg);
+    emit2(MOVd, o1, o2);
+    label = get_oper_label(labelEnd);
+    emit1(J, label);
+
+    // Armazena 0 em um registrador $f# cujo id será retornado
+    label = get_oper_label(labelFalse);
+    emitL(label);
+    o1 = get_oper_reg(F, z);
+    o2 = get_oper_reg(F, zeroReg);
+    emit2(MOVd, o1, o2);
+    label = get_oper_label(labelEnd);
+    emit1(J, label);
+
+    label = get_oper_label(labelEnd);
+    emitL(label);
+
+    return z;
 }
 
 int emit_arithmetic(AST *ast, OpCode op)
@@ -850,7 +962,8 @@ int rec_emit_code(AST *ast)
     trace("rec_emit_code");
     switch(get_kind(ast)) {
 
-        // TODO: emit_and, emit_or
+        // TODO: emit_or
+        case AND_NODE:      return emit_and(ast);
         case ASSIGN_NODE:   return emit_assign(ast);
         case BEGIN_NODE:    return emit_begin(ast);
         case BLOCK_NODE:    return emit_block(ast);
@@ -894,6 +1007,7 @@ void emit_code(AST *ast)
     compcheck_number_count = 0;
     ifcheck_number_count = 0;
     whilecheck_number_count = 0;
+    andcheck_number_count = 0;
     dump_str_table();
     rec_emit_code(ast);
     dump_program();
