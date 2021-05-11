@@ -488,14 +488,20 @@ int emit_assign(AST *ast)
     int x = rec_emit_code(leftChild);
     int y = rec_emit_code(rightChild);
     char *o1, *o2;
-    Type type = getType(vt, x);
+    int varAddrReg;
+    Type type;
     NodeKind leftKind = get_kind(leftChild);
     if(leftKind == VAR_DECL_NODE) {
         const char *name = getName(vt, x);
-        x = new_int_reg();
-        o1 = get_oper_reg(T, x);
+        varAddrReg = new_int_reg();
+        o1 = get_oper_reg(T, varAddrReg);
         o2 = get_oper_label(name);
         emit2(LA, o1, o2);
+        type = getType(vt, x);
+    } else {
+        int idx = get_idx(leftChild);
+        type = getType(vt, idx);
+        varAddrReg = x;
     }
     NodeKind rightKind = get_kind(rightChild);
     if(rightKind == VAR_USE_NODE) {
@@ -507,7 +513,7 @@ int emit_assign(AST *ast)
         o2 = get_oper_addr(x);
         emit2(Sd, o1, o2);
     } else {
-        o2 = get_oper_addr(x);
+        o2 = get_oper_addr(varAddrReg);
         if(type == NUMBER_TYPE || type == BOOLEAN_TYPE) {
             o1 = get_oper_reg(F, y);
             emit2(Sd, o1, o2);
