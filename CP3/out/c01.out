@@ -1,0 +1,85 @@
+.data:
+    string0: .asciiz "string"
+    a: .double 0
+    b: .double 0
+    c: .double 0
+    temp0: .double 1.000000
+    d: .double 0
+    temp1: .double 1.110000
+    e: .double 0
+    f: .double 0
+    temp2: .double 1.000000
+    g: .double 0
+    temp3: .double 0.000000
+    h: .double 0
+    temp4: .asciiz "undefined"
+    temp5: .asciiz "\n"
+    temp6: .double 0.000000
+    temp7: .asciiz "true"
+    temp8: .asciiz "false"
+
+.text:
+
+.global main
+
+main:
+    l.d $f0, temp0
+    la $t0, c
+    s.d $f0, 0($t0)
+    l.d $f0, temp1
+    la $t0, d
+    s.d $f0, 0($t0)
+    la $t0, string0
+    la $t1, e
+    sw $t0, 0($t1)
+    l.d $f0, temp2
+    la $t0, f
+    s.d $f0, 0($t0)
+    l.d $f0, temp3
+    la $t0, g
+    s.d $f0, 0($t0)
+    la $t0, temp4
+    li $v0, 4
+    move $a0, $t0
+    syscall
+    li $v0, 4
+    la $a0, temp5
+    syscall
+    la $t0, c
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp5
+    syscall
+    la $t0, e
+    li $v0, 4
+    lw $a0, 0($t0)
+    syscall
+    li $v0, 4
+    la $a0, temp5
+    syscall
+    la $t0, f
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp6
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse0
+
+BoolCheckTrue0:
+    la $t1, temp7
+    move $a0, $t1
+    j BoolCheckEnd0
+
+BoolCheckFalse0:
+    la $t2, temp8
+    move $a0, $t2
+
+BoolCheckEnd0:
+    syscall
+    li $v0, 4
+    la $a0, temp5
+    syscall
+    li $v0, 10
+    syscall

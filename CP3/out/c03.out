@@ -1,0 +1,217 @@
+.data:
+    string0: .asciiz "x: "
+    string1: .asciiz "z: "
+    x: .double 0
+    y: .double 0
+    temp0: .double 3.140000
+    temp1: .asciiz "\n"
+    temp2: .double 2.000000
+    temp3: .double 3.000000
+    temp4: .double 3.000000
+    temp5: .double 2.000000
+    temp6: .double 3.000000
+    z: .double 0
+    temp7: .double 1.000000
+    temp8: .double 0.000000
+    temp9: .double 1.000000
+    temp10: .asciiz "true"
+    temp11: .asciiz "false"
+    temp12: .double 1.000000
+
+.text:
+
+.global main
+
+main:
+    l.d $f0, temp0
+    la $t0, y
+    s.d $f0, 0($t0)
+    la $t0, string0
+    li $v0, 4
+    move $a0, $t0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, x
+    l.d $f0, temp2
+    l.d $f2, temp3
+    add.d $f4, $f0, $f2
+    s.d $f4, 0($t0)
+    la $t0, x
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, x
+    la $t1, y
+    l.d $f0, temp4
+    l.d $f4, 0($t1)
+    sub.d $f2, $f4, $f0
+    s.d $f2, 0($t0)
+    la $t0, x
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, x
+    la $t1, y
+    la $t2, y
+    l.d $f2, 0($t1)
+    l.d $f4, 0($t2)
+    mul.d $f0, $f2, $f4
+    s.d $f0, 0($t0)
+    la $t0, x
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, x
+    la $t1, y
+    l.d $f0, temp5
+    l.d $f2, temp6
+    mul.d $f4, $f0, $f2
+    l.d $f8, 0($t1)
+    div.d $f6, $f8, $f4
+    s.d $f6, 0($t0)
+    la $t0, x
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, string1
+    li $v0, 4
+    move $a0, $t0
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, z
+    la $t1, y
+    l.d $f0, temp7
+    l.d $f2, 0($t1)
+    c.le.d $f2, $f0
+    bc1f CompCheckA0
+
+CompCheckB0:
+    l.d $f4, temp8
+    j CompCheckEnd0
+
+CompCheckA0:
+    l.d $f4, temp9
+
+CompCheckEnd0:
+    s.d $f4, 0($t0)
+    la $t0, z
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp8
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse0
+
+BoolCheckTrue0:
+    la $t1, temp10
+    move $a0, $t1
+    j BoolCheckEnd0
+
+BoolCheckFalse0:
+    la $t2, temp11
+    move $a0, $t2
+
+BoolCheckEnd0:
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, z
+    la $t1, y
+    la $t2, y
+    l.d $f0, 0($t1)
+    l.d $f2, 0($t2)
+    c.eq.d $f0, $f2
+    bc1t CompCheckA1
+
+CompCheckB1:
+    l.d $f4, temp8
+    j CompCheckEnd1
+
+CompCheckA1:
+    l.d $f4, temp9
+
+CompCheckEnd1:
+    s.d $f4, 0($t0)
+    la $t0, z
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp8
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse1
+
+BoolCheckTrue1:
+    la $t1, temp10
+    move $a0, $t1
+    j BoolCheckEnd1
+
+BoolCheckFalse1:
+    la $t2, temp11
+    move $a0, $t2
+
+BoolCheckEnd1:
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    la $t0, z
+    la $t1, y
+    l.d $f0, temp12
+    l.d $f4, 0($t1)
+    sub.d $f2, $f4, $f0
+    la $t2, y
+    l.d $f6, 0($t2)
+    c.le.d $f2, $f6
+    bc1f CompCheckA2
+
+CompCheckB2:
+    l.d $f8, temp8
+    j CompCheckEnd2
+
+CompCheckA2:
+    l.d $f8, temp9
+
+CompCheckEnd2:
+    s.d $f8, 0($t0)
+    la $t0, z
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp8
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse2
+
+BoolCheckTrue2:
+    la $t1, temp10
+    move $a0, $t1
+    j BoolCheckEnd2
+
+BoolCheckFalse2:
+    la $t2, temp11
+    move $a0, $t2
+
+BoolCheckEnd2:
+    syscall
+    li $v0, 4
+    la $a0, temp1
+    syscall
+    li $v0, 10
+    syscall

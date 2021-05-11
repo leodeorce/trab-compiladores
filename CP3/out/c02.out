@@ -1,0 +1,99 @@
+.data:
+    string0: .asciiz "str"
+    a: .double 0
+    temp0: .double 1.000000
+    b: .double 0
+    temp1: .double 2.000000
+    c: .double 0
+    d: .double 0
+    e: .double 0
+    temp2: .double 0.000000
+    temp3: .asciiz "\n"
+    temp4: .double 0.000000
+    temp5: .asciiz "true"
+    temp6: .asciiz "false"
+
+.text:
+
+.global main
+
+main:
+    l.d $f0, temp0
+    la $t0, a
+    s.d $f0, 0($t0)
+    l.d $f0, temp1
+    la $t0, b
+    s.d $f0, 0($t0)
+    la $t0, a
+    la $t1, b
+    l.d $f0, 0($t1)
+    s.d $f0, 0($t0)
+    la $t0, c
+    la $t1, string0
+    sw $t1, 0($t0)
+    la $t0, e
+    l.d $f0, temp2
+    s.d $f0, 0($t0)
+    la $t0, d
+    la $t1, e
+    l.d $f0, 0($t1)
+    s.d $f0, 0($t0)
+    la $t0, a
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp3
+    syscall
+    la $t0, c
+    li $v0, 4
+    lw $a0, 0($t0)
+    syscall
+    li $v0, 4
+    la $a0, temp3
+    syscall
+    la $t0, e
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp4
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse0
+
+BoolCheckTrue0:
+    la $t1, temp5
+    move $a0, $t1
+    j BoolCheckEnd0
+
+BoolCheckFalse0:
+    la $t2, temp6
+    move $a0, $t2
+
+BoolCheckEnd0:
+    syscall
+    li $v0, 4
+    la $a0, temp3
+    syscall
+    la $t0, d
+    l.d $f0, 0($t0)
+    li $v0, 4
+    l.d $f2, temp4
+    c.eq.d $f0, $f2
+    bc1t BoolCheckFalse1
+
+BoolCheckTrue1:
+    la $t1, temp5
+    move $a0, $t1
+    j BoolCheckEnd1
+
+BoolCheckFalse1:
+    la $t2, temp6
+    move $a0, $t2
+
+BoolCheckEnd1:
+    syscall
+    li $v0, 4
+    la $a0, temp3
+    syscall
+    li $v0, 10
+    syscall

@@ -1,0 +1,1 @@
+SEMANTIC ERROR (9): incompatible types for operator '=', LHS is 'boolean' and RHS is 'string'.

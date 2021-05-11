@@ -1,0 +1,184 @@
+.data:
+    circulo: .double 0
+    temp0: .double 1.000000
+    pi: .double 0
+    temp1: .double 3.140000
+    raio: .double 0
+    temp2: .double 2.000000
+    triangulo: .double 0
+    temp3: .double 0.000000
+    base: .double 0
+    temp4: .double 5.700000
+    altura: .double 0
+    temp5: .double 10.000000
+    area: .double 0
+    temp6: .double 1.000000
+    temp7: .double 0.000000
+    temp8: .double 1.000000
+    temp9: .double 0.000000
+    temp10: .double 0.000000
+    temp11: .double 1.000000
+    temp12: .double 2.000000
+    temp13: .asciiz "\n"
+
+.text:
+
+.global main
+
+main:
+    l.d $f0, temp0
+    la $t0, circulo
+    s.d $f0, 0($t0)
+    l.d $f0, temp1
+    la $t0, pi
+    s.d $f0, 0($t0)
+    l.d $f0, temp2
+    la $t0, raio
+    s.d $f0, 0($t0)
+    l.d $f0, temp3
+    la $t0, triangulo
+    s.d $f0, 0($t0)
+    l.d $f0, temp4
+    la $t0, base
+    s.d $f0, 0($t0)
+    l.d $f0, temp5
+    la $t0, altura
+    s.d $f0, 0($t0)
+    la $t0, circulo
+    l.d $f0, temp6
+    l.d $f2, 0($t0)
+    c.eq.d $f2, $f0
+    bc1t CompCheckA0
+
+CompCheckB0:
+    l.d $f4, temp7
+    j CompCheckEnd0
+
+CompCheckA0:
+    l.d $f4, temp8
+
+CompCheckEnd0:
+    la $t1, triangulo
+    l.d $f6, temp9
+    l.d $f8, 0($t1)
+    c.eq.d $f8, $f6
+    bc1t CompCheckA1
+
+CompCheckB1:
+    l.d $f10, temp7
+    j CompCheckEnd1
+
+CompCheckA1:
+    l.d $f10, temp8
+
+CompCheckEnd1:
+    l.d $f14, temp7
+    c.eq.d $f4, $f14
+    bc1t AndCheckFalse0
+
+AndLeftTrue0:
+    c.eq.d $f10, $f14
+    bc1t AndCheckFalse0
+
+AndCheckTrue0:
+    l.d $f16, temp8
+    mov.d $f12, $f16
+    j AndCheckEnd0
+
+AndCheckFalse0:
+    mov.d $f12, $f14
+    j AndCheckEnd0
+
+AndCheckEnd0:
+    l.d $f18, temp7
+    c.eq.d $f12, $f18
+    bc1t IfCheckTrue0
+
+IfCheckFalse0:
+    la $t2, area
+    la $t3, pi
+    la $t4, raio
+    l.d $f22, 0($t3)
+    l.d $f24, 0($t4)
+    mul.d $f20, $f22, $f24
+    la $t5, raio
+    l.d $f28, 0($t5)
+    mul.d $f26, $f20, $f28
+    s.d $f26, 0($t2)
+    j IfCheckEnd0
+
+IfCheckTrue0:
+    la $t0, circulo
+    l.d $f0, temp10
+    l.d $f2, 0($t0)
+    c.eq.d $f2, $f0
+    bc1t CompCheckA2
+
+CompCheckB2:
+    l.d $f4, temp7
+    j CompCheckEnd2
+
+CompCheckA2:
+    l.d $f4, temp8
+
+CompCheckEnd2:
+    la $t1, triangulo
+    l.d $f6, temp11
+    l.d $f8, 0($t1)
+    c.eq.d $f8, $f6
+    bc1t CompCheckA3
+
+CompCheckB3:
+    l.d $f10, temp7
+    j CompCheckEnd3
+
+CompCheckA3:
+    l.d $f10, temp8
+
+CompCheckEnd3:
+    l.d $f14, temp8
+    c.eq.d $f4, $f14
+    bc1t OrCheckFalse1
+
+OrLeftFalse1:
+    c.eq.d $f10, $f14
+    bc1t OrCheckFalse1
+
+OrCheckTrue1:
+    l.d $f16, temp7
+    mov.d $f12, $f16
+    j OrCheckEnd1
+
+OrCheckFalse1:
+    mov.d $f12, $f14
+    j OrCheckEnd1
+
+OrCheckEnd1:
+    l.d $f18, temp7
+    c.eq.d $f12, $f18
+    bc1t IfCheckEnd1
+
+IfCheckFalse1:
+    la $t2, area
+    la $t3, base
+    la $t4, altura
+    l.d $f22, 0($t3)
+    l.d $f24, 0($t4)
+    mul.d $f20, $f22, $f24
+    l.d $f26, temp12
+    div.d $f28, $f20, $f26
+    s.d $f28, 0($t2)
+
+IfCheckEnd1:
+
+IfCheckEnd0:
+    la $t0, area
+    l.d $f0, 0($t0)
+    li $v0, 3
+    mov.d $f12, $f0
+    syscall
+    li $v0, 4
+    la $a0, temp13
+    syscall
+    li $v0, 10
+    syscall

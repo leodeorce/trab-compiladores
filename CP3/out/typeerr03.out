@@ -1,0 +1,1 @@
+SEMANTIC ERROR (8): incompatible types for operator '*', LHS is 'string' and RHS is 'number'.

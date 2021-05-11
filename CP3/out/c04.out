@@ -1,0 +1,69 @@
+.data:
+    i: .double 0
+    temp0: .double 1.000000
+    k: .double 0
+    temp1: .double 5.000000
+    temp2: .double 5.000000
+    temp3: .double 0.000000
+    temp4: .double 1.000000
+    temp5: .asciiz "\n"
+    temp6: .double 1.000000
+    temp7: .double 1.000000
+
+.text:
+
+.global main
+
+main:
+    l.d $f0, temp0
+    la $t0, i
+    s.d $f0, 0($t0)
+    l.d $f0, temp1
+    la $t0, k
+    s.d $f0, 0($t0)
+
+WhileCond0:
+    la $t0, i
+    l.d $f0, temp2
+    l.d $f2, 0($t0)
+    c.lt.d $f2, $f0
+    bc1t CompCheckA0
+
+CompCheckB0:
+    l.d $f4, temp3
+    j CompCheckEnd0
+
+CompCheckA0:
+    l.d $f4, temp4
+
+CompCheckEnd0:
+    l.d $f6, temp3
+    c.eq.d $f4, $f6
+    bc1t WhileEnd0
+
+WhileTrue0:
+    la $t1, i
+    l.d $f8, 0($t1)
+    li $v0, 3
+    mov.d $f12, $f8
+    syscall
+    li $v0, 4
+    la $a0, temp5
+    syscall
+    la $t0, k
+    la $t1, k
+    l.d $f0, temp6
+    l.d $f4, 0($t1)
+    sub.d $f2, $f4, $f0
+    s.d $f2, 0($t0)
+    la $t0, i
+    la $t1, i
+    l.d $f0, temp7
+    l.d $f4, 0($t1)
+    add.d $f2, $f4, $f0
+    s.d $f2, 0($t0)
+    j WhileCond0
+
+WhileEnd0:
+    li $v0, 10
+    syscall
